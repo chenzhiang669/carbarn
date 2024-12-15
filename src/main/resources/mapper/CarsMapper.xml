@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.carbarn.inter.mapper.CarsMapper">
+
+    <select id="getCars" resultType="com.carbarn.inter.pojo.dto.cars.FirstPageCarsDTO">
+        SELECT
+        id,user_id,name,plate_issue_date,mileage,price,upload_date,city,header_picture
+        FROM
+        cars
+        where
+        is_deal = 0
+        order by upload_date desc
+    </select>
+
+
+    <select id="searchCars" resultType="com.carbarn.inter.pojo.dto.cars.FirstPageCarsDTO">
+        SELECT
+        id,user_id,name,plate_issue_date,mileage,price,upload_date,city,header_picture
+        FROM
+        cars
+        <where>
+            <if test="color != null">
+                AND color = #{color}
+            </if>
+            <if test="brand != null">
+                AND brand = #{brand}
+            </if>
+            <if test="price_up_limit != 0.0 or price_lower_limit != 0.0">
+                AND price BETWEEN #{price_lower_limit} AND #{price_up_limit}
+            </if>
+            <if test="mileage_up_limit != 0.0 or mileage_lower_limit != 0.0">
+                AND mileage BETWEEN #{mileage_lower_limit} AND #{mileage_up_limit}
+            </if>
+        and is_deal = 0
+        </where>
+        order by upload_date desc
+    </select>
+
+
+    <select id="getCarsByID" resultType="com.carbarn.inter.pojo.Cars">
+        SELECT
+        *
+        FROM
+        cars
+        where
+        id = #{id}
+    </select>
+
+
+    <select id="getCarsOfUsers" resultType="com.carbarn.inter.pojo.dto.cars.CarsOfUsersDTO">
+
+        select
+        a.user_id,
+        b.user_name,
+        a.carsnum_of_users,
+        a.deal_carsnum_of_users
+        from
+        (SELECT
+        user_id,
+        count(*) as carsnum_of_users,
+        sum(is_deal) as deal_carsnum_of_users
+        FROM
+        cars
+        where
+        user_id = #{userid}
+        group by user_id
+        ) a
+        left join users b on a.user_id = b.id
+
+    </select>
+
+    <insert id="uploadCar" parameterType="com.carbarn.inter.pojo.Cars"
+            useGeneratedKeys="true" keyProperty="id">
+        insert into cars(user_id,brand,name,color,mileage,vin,plate_issue_date,
+        price,displacement,engine,transmission,emission_standards,type_of_manu,
+        type_of_car,new_car_price,ctali_date,avi_date,city,is_deal,upload_date,
+        update_date,description)
+        values
+        (#{user_id},#{brand},#{name},#{color},#{mileage},#{vin},#{plate_issue_date},
+        #{price},#{displacement},#{engine},#{transmission},#{emission_standards},
+        #{type_of_manu},#{type_of_car},#{new_car_price},#{ctali_date},#{avi_date},
+        #{city},#{is_deal},#{upload_date},#{update_date},#{description})
+    </insert>
+
+
+    <update id="updateCarPictures" parameterType="com.carbarn.inter.pojo.Cars">
+        update cars
+        <set>
+            <if test="header_picture != null">
+                header_picture = #{header_picture}
+            </if>
+            <if test="all_pictures != null">
+                all_pictures = #{all_pictures}
+            </if>
+            <if test="vrc != null">
+                vrc = #{vrc}
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+</mapper>
