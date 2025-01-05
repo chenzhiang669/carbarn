@@ -14,16 +14,74 @@
 
 
     <select id="searchCars" resultType="com.carbarn.inter.pojo.dto.cars.FirstPageCarsDTO">
-        SELECT
-        id,user_id,name,plate_issue_date,mileage,price,upload_date,city,header_picture
+
+        select
+        a.id as id,
+        a.user_id as user_id,
+        concat(b.brand, " ", c.series, " ", d.`type`) as name,
+        a.plate_issue_date as plate_issue_date,
+        a.mileage as mileage,
+        a.price as price,
+        a.upload_date as upload_date,
+        a.city as city,
+        a.header_picture as header_picture,
+        a.manufacture_date as manufacture_date
+        from
+        (SELECT
+        *
         FROM
         cars
         <where>
-            <if test="color != null">
+            <if test="brand_id != -1">
+                AND brand_id = #{brand_id}
+            </if>
+            <if test="series_id != -1">
+                AND series_id = #{series_id}
+            </if>
+            <if test="type_id != -1">
+                AND type_id = #{type_id}
+            </if>
+            <if test="type_of_car != -1">
+                AND type_of_car = #{type_of_car}
+            </if>
+            <if test="plate_issue_date != null">
+                AND plate_issue_date = #{plate_issue_date}
+            </if>
+            <if test="type_of_car != -1">
+                AND type_of_car = #{type_of_car}
+            </if>
+            <if test="displacement != 0.0 and displacement_type != null">
+                AND displacement = #{displacement} AND displacement_type = #{displacement_type}
+            </if>
+            <if test="color != -1">
                 AND color = #{color}
             </if>
-            <if test="brand != null">
-                AND brand = #{brand}
+            <if test="origin_country != -1">
+                AND origin_country = #{origin_country}
+            </if>
+            <if test="transmission != -1">
+                AND transmission = #{transmission}
+            </if>
+            <if test="type_of_manu != -1">
+                AND type_of_manu = #{type_of_manu}
+            </if>
+            <if test="emission_standards != -1">
+                AND emission_standards = #{emission_standards}
+            </if>
+            <if test="seat_capacity != -1">
+                AND seat_capacity = #{seat_capacity}
+            </if>
+            <if test="engine != -1">
+                AND engine = #{engine}
+            </if>
+            <if test="drive_type != -1">
+                AND drive_type = #{drive_type}
+            </if>
+            <if test="color != -1">
+                AND box = #{box}
+            </if>
+            <if test="car_age_up_limit != 0.0 or car_age_low_limit != 0.0">
+                AND car_age BETWEEN #{car_age_low_limit} AND #{car_age_up_limit}
             </if>
             <if test="price_up_limit != 0.0 or price_lower_limit != 0.0">
                 AND price BETWEEN #{price_lower_limit} AND #{price_up_limit}
@@ -33,11 +91,16 @@
             </if>
         and is_deal = 0
         </where>
-        order by upload_date desc
+        ) a left join (select brand_id, brand from car_brand where `language`= #{language}) b on a.brand_id = b.brand_id
+        left join (select series_id, series from car_series where `language`= #{language}) c on a.series_id = c.series_id
+        left join (select type_id, `type` from car_type where `language`= #{language}) d on a.type_id = d.type_id
+        where b.brand_id is not null and c.series_id is not null and d.type_id is not null
+        order by ${order_field} ${order_way}
+        limit #{pageStart}, #{pageSize}
     </select>
 
 
-    <select id="getCarsByID" resultType="com.carbarn.inter.pojo.Cars">
+    <select id="getCarsByID" resultType="com.carbarn.inter.pojo.CarsPOJO">
         SELECT
         *
         FROM
@@ -69,33 +132,34 @@
 
     </select>
 
-    <insert id="uploadCar" parameterType="com.carbarn.inter.pojo.Cars"
+    <insert id="insertNewCar" parameterType="com.carbarn.inter.pojo.CarsPOJO"
             useGeneratedKeys="true" keyProperty="id">
-        insert into cars(user_id,brand,name,color,mileage,vin,plate_issue_date,
-        price,displacement,engine,transmission,emission_standards,type_of_manu,
-        type_of_car,new_car_price,ctali_date,avi_date,city,is_deal,upload_date,
-        update_date,description)
+        insert into cars
+        (user_id,brand_id,series_id,type_id,color,engine,transmission,
+        emission_standards,type_of_manu,type_of_car,origin_country,drive_type,
+        box,displacement,displacement_type,seat_capacity,new_car_price,ctali_date,
+        avi_date,car_age,mileage,vin,manufacture_date,plate_issue_date,price,floor_price,guide_price,
+        power,battery_capacity,pure_electric_range,city,is_deal,is_lock,state,
+        description,header_picture,all_pictures,proof,label,inspection_report,
+        car_condition,coating,component,engine_condition,transmission_condition,
+        number_of_transfers,mileage_contition,car_condition_desc)
         values
-        (#{user_id},#{brand},#{name},#{color},#{mileage},#{vin},#{plate_issue_date},
-        #{price},#{displacement},#{engine},#{transmission},#{emission_standards},
-        #{type_of_manu},#{type_of_car},#{new_car_price},#{ctali_date},#{avi_date},
-        #{city},#{is_deal},#{upload_date},#{update_date},#{description})
+        (#{user_id},#{brand_id},#{series_id},#{type_id},#{color},#{engine},#{transmission},
+        #{emission_standards},#{type_of_manu},#{type_of_car},#{origin_country},#{drive_type},
+        #{box},#{displacement},#{displacement_type},#{seat_capacity},#{new_car_price},#{ctali_date},
+        #{avi_date},#{car_age},#{mileage},#{vin},#{manufacture_date},#{plate_issue_date},#{price},#{floor_price},#{guide_price},
+        #{power},#{battery_capacity},#{pure_electric_range},#{city},#{is_deal},#{is_lock},#{state},
+        #{description},#{header_picture},#{all_pictures},#{proof},#{label},#{inspection_report},
+        #{car_condition},#{coating},#{component},#{engine_condition},#{transmission_condition},
+        #{number_of_transfers},#{mileage_contition},#{car_condition_desc})
     </insert>
 
+    <select id="existsByVin" resultType="java.lang.Boolean">
+        SELECT
+        COUNT(*) as bool
+        FROM
+        cars
+        WHERE vin = #{vin}
+    </select>
 
-    <update id="updateCarPictures" parameterType="com.carbarn.inter.pojo.Cars">
-        update cars
-        <set>
-            <if test="header_picture != null">
-                header_picture = #{header_picture}
-            </if>
-            <if test="all_pictures != null">
-                all_pictures = #{all_pictures}
-            </if>
-            <if test="vrc != null">
-                vrc = #{vrc}
-            </if>
-        </set>
-        where id = #{id}
-    </update>
 </mapper>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.carbarn.inter.mapper.FilesMapper">
+
+    <insert id="insertFiles" parameterType="com.carbarn.inter.pojo.Files">
+        insert into files(url, type, is_delete)
+        values
+        (#{url}, #{type}, #{is_delete})
+    </insert>
+
+
+    <update id="deleteFiles">
+        update files
+        set is_delete = 1
+        where
+        url = #{url}
+    </update>
+
+</mapper>

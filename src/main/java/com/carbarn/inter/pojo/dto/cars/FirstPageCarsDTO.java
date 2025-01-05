@@ -13,4 +13,5 @@ public class FirstPageCarsDTO {
     private String upload_date;
     private String city;
     private String header_picture;
+    private String manufacture_date; //出厂日期
 }

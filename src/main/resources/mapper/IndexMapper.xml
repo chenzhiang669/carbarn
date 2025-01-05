@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.carbarn.inter.mapper.IndexMapper">
+
+    <select id="getIndex" resultType="com.carbarn.inter.pojo.dto.cars.index.IndexDTO">
+        SELECT
+        `index`,`value`,priority,value_id, field, is_mapping
+        FROM
+        `index`
+        where
+        language = #{language}
+        order by priority
+    </select>
+
+
+    <select id="getBrand" resultType="com.carbarn.inter.pojo.dto.cars.index.BrandDTO">
+        SELECT
+        distinct first_char, brand, logo, brand_id
+        FROM
+        car_brand
+        WHERE language = #{language}
+        order by first_char
+    </select>
+
+
+    <select id="getSeries" resultType="com.carbarn.inter.pojo.dto.cars.index.SeriesDTO">
+        SELECT
+        distinct first_char, series, series_id
+        FROM
+        car_series
+        WHERE language = #{language}
+        and brand_id = #{brand_id}
+        order by first_char
+    </select>
+
+
+    <select id="getType" resultType="com.carbarn.inter.pojo.dto.cars.index.TypeDTO">
+        SELECT
+        distinct year, `type`, type_id
+        FROM
+        car_type
+        WHERE language = #{language}
+        and brand_id = #{brand_id}
+        and series_id = #{series_id}
+        order by year
+    </select>
+
+
+    <select id="getHotWord" resultType="com.carbarn.inter.pojo.dto.cars.index.HotIndexDTO">
+
+        SELECT
+        hot_word,
+        field,
+        word_id as series_id
+        FROM
+        hot_index
+        WHERE language = #{language}
+        and hot_type = 'hot_words'
+        order by update_time desc, search_times desc
+        limit 10
+    </select>
+
+
+    <select id="getHotBrand" resultType="com.carbarn.inter.pojo.dto.cars.index.HotBrandDTO">
+        SELECT
+        a.hot_word as hot_brand,
+        b.logo,
+        b.brand_id
+        from
+        (select
+        *
+        FROM
+        hot_index
+        WHERE language = #{language}
+        and hot_type = 'hot_brand'
+        ) a left join car_brand b on a.word_id = b.brand_id
+        order by a.update_time desc, a.search_times desc
+        limit 10
+    </select>
+
+
+    <select id="getBrandIdByBrand" resultType="java.lang.String">
+        SELECT
+        brand_id
+        FROM
+        car_brand
+        WHERE language = #{language}
+        and brand = #{brand}
+        limit 1
+    </select>
+
+    <select id="getSeriesIdBySeries" resultType="java.lang.String">
+        SELECT
+        series_id
+        FROM
+        car_series
+        WHERE language = #{language}
+        and series = #{series}
+        limit 1
+    </select>
+
+    <select id="getTypeIdByType" resultType="java.lang.String">
+        SELECT
+        type_id
+        FROM
+        car_type
+        WHERE language = #{language}
+        and `type` = #{type}
+        limit 1
+    </select>
+
+
+    <insert id="insertNewBrand">
+        SELECT MAX(brand_id) INTO @next_brand_id FROM car_brand;
+
+        SET @next_brand_id = IFNULL(@next_brand_id, 0) + 1;
+
+        INSERT INTO car_brand (first_char, brand, logo,language, brand_id)
+        VALUES (#{first_char}, #{brand}, #{logo}, #{language}, @next_brand_id);
+    </insert>
+
+    <insert id="insertNewSeries">
+        SELECT MAX(series_id) INTO @next_series_id FROM car_series;
+
+        SET @next_series_id = IFNULL(@next_series_id, 0) + 1;
+
+        INSERT INTO car_series (first_char, series, brand_id, language, series_id)
+        VALUES (#{first_char}, #{series}, #{brand_id}, #{language}, @next_series_id);
+    </insert>
+
+    <insert id="insertNewType" parameterType="com.carbarn.inter.pojo.CarTypePOJO">
+        SELECT MAX(type_id) INTO @next_type_id FROM car_type;
+
+        SET @next_type_id = IFNULL(@next_type_id, 0) + 1;
+
+        INSERT INTO car_type (type,type_id,series_id,brand_id,year,language,
+        price,floor_price,guide_price,displacement,displacement_type,power,battery_capacity,
+        pure_electric_range,color,transmission,emission_standards,type_of_manu,
+        engine,drive_type,box,type_of_car)
+        VALUES (#{type},@next_type_id,#{series_id},#{brand_id},#{year},#{language},
+        #{price},#{floor_price},#{guide_price},#{displacement},#{displacement_type},#{power},#{battery_capacity},
+        #{pure_electric_range},#{color},#{transmission},#{emission_standards},#{type_of_manu},
+        #{engine},#{drive_type},#{box},#{type_of_car});
+    </insert>
+
+
+    <select id="getTypeDefaultValue" resultType="com.carbarn.inter.pojo.CarTypePOJO">
+        SELECT
+        *
+        from
+        car_type
+        where
+        language = #{language}
+        and type_id = #{type_id}
+        limit 1
+    </select>
+
+
+    <!--获取汽车详情页信息时，需要根据type_id来获取到对应的品牌、车系、车型的具体值-->
+    <select id="getTypeMessage" resultType="com.carbarn.inter.pojo.dto.cars.index.TypeMessageDTO">
+        select
+        c.brand as brand,
+        b.series as series,
+        a.`type` as `type`,
+        c.brand_id as brand_id,
+        b.series_id as series_id,
+        a.type_id as type_id
+        from
+        (select * from car_type where language = #{language} and type_id = #{type_id}) a
+        left join
+        (select * from car_series where language = #{language}) b on a.series_id = b.series_id
+        left join
+        (select * from car_brand where language = #{language}) c on a.brand_id = c.brand_id
+        where b.series is not null and c.brand is not null
+        limit 1
+    </select>
+
+</mapper>
