@@ -15,19 +15,16 @@
         conversation
         WHERE
         seller_id = #{sellerId}
-        and
-        buyer_id = #{buyerId}
-        and
-        is_deleted = 0
+        and buyer_id = #{buyerId}
+        and is_deleted = 0
     </select>
 
 
     <insert id="startConversion">
-        INSERT INTO conversation
-        (seller_id, buyer_id, create_time, update_time,status,is_deleted)
+        INSERT INTO conversation (seller_id, buyer_id, create_time, update_time, `status`)
         VALUES
         (#{conversation.sellerId}, #{conversation.buyerId}, #{conversation.createTime}, #{conversation.updateTime}
-        ，#{conversation.status},#{conversation.isDeleted})
+        ,#{conversation.status})
     </insert>
 
     <select id="conversationList" resultType="com.carbarn.im.pojo.vo.ConversationVo">

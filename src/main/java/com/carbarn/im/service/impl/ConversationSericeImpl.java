@@ -46,7 +46,6 @@ public class ConversationSericeImpl implements IConversationService {
             conversation.setCreateTime(System.currentTimeMillis());
             conversation.setUpdateTime(System.currentTimeMillis());
             conversation.setStatus(active.getStatus());
-            conversation.setIsDeleted(0);
             conversationMapper.startConversion(conversation);
         }
         return ConversationConverter.INSTANCE.conversationToVo(conversation);
