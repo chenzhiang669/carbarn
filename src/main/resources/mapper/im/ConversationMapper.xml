@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.carbarn.im.mapper.ConversationMapper">
+
+
+    <select id="getConversation" resultType="com.carbarn.im.pojo.Conversation">
+        SELECT
+        id,
+        seller_id,
+        buyer_id,
+        status,
+        create_time,
+        update_time
+        FROM
+        conversation
+        WHERE
+        seller_id = #{sellerId}
+        and
+        buyer_id = #{buyerId}
+        and
+        is_deleted = 0
+    </select>
+
+
+    <insert id="startConversion">
+        INSERT INTO conversation
+        (seller_id, buyer_id, create_time, update_time,status,is_deleted)
+        VALUES
+        (#{conversation.sellerId}, #{conversation.buyerId}, #{conversation.createTime}, #{conversation.updateTime}
+        ，#{conversation.status},#{conversation.isDeleted})
+    </insert>
+
+    <select id="conversationList" resultType="com.carbarn.im.pojo.vo.ConversationVo">
+        SELECT
+        id,
+        seller_id,
+        buyer_id,
+        status,
+        create_time，
+        update_time
+        FROM
+        conversation
+        WHERE
+        (seller_id = #{userId}
+        or
+        buyer_id = #{userId})
+        and is_deleted = 0
+    </select>
+
+    <select id="getById" resultType="com.carbarn.im.pojo.Conversation">
+        SELECT
+        id,
+        seller_id,
+        buyer_id,
+        last_message_id,
+        last_message_type,
+        last_message_content,
+        last_message_time,
+        status,
+        create_time，
+        update_time
+        FROM
+        conversation
+        WHERE
+        id = #{id}
+        and is_deleted = 0
+    </select>
+</mapper>

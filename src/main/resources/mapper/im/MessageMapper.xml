@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.carbarn.im.mapper.MessageMapper">
+
+
+    <select id="unreadMessageCount" resultType="java.lang.Integer">
+        SELECT
+        count(1)
+        FROM
+        message
+        WHERE receiver_id = #{userId}
+        and conversation_id = #{conversationId}
+        and status = 0
+    </select>
+
+    <insert id="insertMessage">
+        INSERT INTO message
+        (conversation_id, sender_id, receiver_id,type, content, create_time, status, is_deleted)
+        VALUES
+        (#{message.conversationId}, #{message.senderId}, #{message.receiverId},#{message.type},
+        #{message.content}, #{message.sendTime}, #{message.status}, 0)
+    </insert>
+
+    <select id="getLastMessage" resultType="com.carbarn.im.pojo.Message">
+        SELECT
+        id,
+        conversation_id,
+        sender_id,
+        receiver_id,
+        type,
+        content,
+        send_time,
+        receive_time,
+        status
+        FROM
+        message
+        WHERE conversation_id = #{conversationId}
+        ORDER BY send_time DESC
+        LIMIT 1
+    </select>
+
+    <select id="getUnreadMessages" resultType="com.carbarn.im.pojo.Message">
+        SELECT
+        id,
+        conversation_id,
+        sender_id,
+        receiver_id,
+        type,
+        content,
+        send_time,
+        receive_time,
+        status
+        FROM
+        message
+        WHERE conversation_id = #{conversationId}
+        and receiver_id = #{userId}
+        and status = 0
+    </select>
+
+    <update id="updateMessageStatus">
+        UPDATE message
+        SET status = 1
+        WHERE
+        receiver_id = #{userId}
+        and status = 0
+        <if test="conversationId != null">
+            and conversation_id = #{conversationId}
+        </if>
+    </update>
+
+    <select id="getAllMessages" resultType="com.carbarn.im.pojo.Message">
+        SELECT
+        id,
+        conversation_id,
+        sender_id,
+        receiver_id,
+        type,
+        content,
+        send_time,
+        receive_time,
+        status
+        FROM
+        message
+        WHERE conversation_id = #{conversationId}
+        ORDER BY send_time DESC
+    </select>
+</mapper>
