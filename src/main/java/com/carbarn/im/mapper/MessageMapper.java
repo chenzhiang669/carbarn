@@ -15,7 +15,7 @@ import java.util.List;
 public interface MessageMapper {
     Integer unreadMessageCount(@Param("userId") Long userId, @Param("conversationId") Long conversationId);
 
-    void insertMessage(@Param("message") Message message);
+    int insertMessage(@Param("message") Message message);
 
     Message getLastMessage(@Param("conversationId") Long conversationId);
 

@@ -37,7 +37,7 @@
     </select>
 
 
-    <insert id="startConversion">
+    <insert id="startConversion" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO conversation (seller_id, buyer_id, create_time, update_time, `status`)
         VALUES
         (#{conversation.sellerId}, #{conversation.buyerId}, #{conversation.createTime}, #{conversation.updateTime}
