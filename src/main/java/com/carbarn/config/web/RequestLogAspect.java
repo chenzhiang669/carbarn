@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 @Component
 @Aspect
 public class RequestLogAspect {
-    private final static Logger LOGGER = LoggerFactory.getLogger(RequestLogAspect.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RequestLogAspect.class);
 
     private static <T> List<T> castList(Object obj, Class<T> clazz) {
         List<T> result = new ArrayList<>();

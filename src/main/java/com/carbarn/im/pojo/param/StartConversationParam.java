@@ -10,6 +10,6 @@ import lombok.Data;
 @Data
 public class StartConversationParam {
 
-    private Long buyerId;
+    //    private Long buyerId;
     private Long sellerId;
 }

@@ -2,6 +2,20 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.carbarn.im.mapper.MessageMapper">
 
+    <resultMap id="resultMap" type="com.carbarn.im.pojo.Message">
+        <id column="id" property="id"/>
+        <result column="conversation_id" property="conversationId"/>
+        <result column="sender_id" property="senderId"/>
+        <result column="receiver_id" property="receiverId"/>
+        <result column="type" property="type"/>
+        <result column="content" property="content"/>
+        <result column="source_lang" property="sourceLang"/>
+        <result column="target_lang" property="targetLang"/>
+        <result column="translated_content" property="translatedContent"/>
+        <result column="send_time" property="sendTime"/>
+        <result column="receive_time" property="receiveTime"/>
+        <result column="status" property="status"/>
+    </resultMap>
 
     <select id="unreadMessageCount" resultType="java.lang.Integer">
         SELECT
@@ -15,13 +29,15 @@
 
     <insert id="insertMessage">
         INSERT INTO message
-        (conversation_id, sender_id, receiver_id,type, content, create_time, status, is_deleted)
+        (conversation_id, sender_id, receiver_id,type, content,source_lang,target_lang,translated_content, send_time,
+        status, is_deleted)
         VALUES
         (#{message.conversationId}, #{message.senderId}, #{message.receiverId},#{message.type},
-        #{message.content}, #{message.sendTime}, #{message.status}, 0)
+        #{message.content},#{message.sourceLang},#{message.targetLang},#{message.translatedContent},
+        #{message.sendTime}, #{message.status}, 0)
     </insert>
 
-    <select id="getLastMessage" resultType="com.carbarn.im.pojo.Message">
+    <select id="getLastMessage" resultMap="resultMap">
         SELECT
         id,
         conversation_id,
@@ -29,6 +45,9 @@
         receiver_id,
         type,
         content,
+        source_lang,
+        target_lang,
+        translated_content,
         send_time,
         receive_time,
         status
@@ -39,7 +58,7 @@
         LIMIT 1
     </select>
 
-    <select id="getUnreadMessages" resultType="com.carbarn.im.pojo.Message">
+    <select id="getUnreadMessages" resultMap="resultMap">
         SELECT
         id,
         conversation_id,
@@ -47,6 +66,9 @@
         receiver_id,
         type,
         content,
+        source_lang,
+        target_lang,
+        translated_content,
         send_time,
         receive_time,
         status
@@ -68,7 +90,7 @@
         </if>
     </update>
 
-    <select id="getAllMessages" resultType="com.carbarn.im.pojo.Message">
+    <select id="getAllMessages" resultMap="resultMap">
         SELECT
         id,
         conversation_id,

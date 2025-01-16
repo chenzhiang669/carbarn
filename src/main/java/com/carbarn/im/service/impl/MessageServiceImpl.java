@@ -7,13 +7,18 @@ import com.carbarn.im.pojo.param.FetchLastMessageParam;
 import com.carbarn.im.pojo.param.SendMessageParam;
 import com.carbarn.im.pojo.resp.BasePageResp;
 import com.carbarn.im.service.IMessageService;
+import com.carbarn.im.translator.Translator;
+import com.carbarn.im.translator.TranslatorFactory;
 import com.github.pagehelper.PageInfo;
 import com.github.pagehelper.page.PageMethod;
 import com.google.common.base.Preconditions;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+
+import static com.carbarn.im.translator.TranslatorEnum.VOLC;
 
 /**
  * @author zoulingxi
@@ -50,6 +55,18 @@ public class MessageServiceImpl implements IMessageService {
         message.setType(sendMessageParam.getType());
         message.setSendTime(System.currentTimeMillis());
         message.setStatus(0);
+        message.setSourceLang(sendMessageParam.getSourceLang());
+        message.setTargetLang(sendMessageParam.getTargetLang());
+        //翻译消息
+        String sourceLang = sendMessageParam.getSourceLang();
+        String targetLang = sendMessageParam.getTargetLang();
+        if (sourceLang.equals(targetLang)) {
+            message.setTranslatedContent(sendMessageParam.getContent());
+        } else {
+            Translator translator = TranslatorFactory.getTranslator(VOLC.getType());
+            String translatedContent = translator.translate(sendMessageParam.getContent(), sendMessageParam.getSourceLang(), sendMessageParam.getTargetLang());
+            message.setTranslatedContent(translatedContent);
+        }
         messageMapper.insertMessage(message);
         return message;
     }
@@ -62,7 +79,9 @@ public class MessageServiceImpl implements IMessageService {
     @Override
     public List<Message> fetchSyncMessage(Long userId, FetchLastMessageParam fetchLastMessageParam) {
         List<Message> messages = messageMapper.getUnreadMessages(userId, fetchLastMessageParam.getConversationId());
-        messageMapper.updateMessageStatus(userId, fetchLastMessageParam.getConversationId());
+        if (CollectionUtils.isNotEmpty(messages)) {
+            messageMapper.updateMessageStatus(userId, fetchLastMessageParam.getConversationId());
+        }
         return messages;
     }
 

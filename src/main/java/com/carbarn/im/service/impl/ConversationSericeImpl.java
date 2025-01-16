@@ -4,7 +4,6 @@ import com.carbarn.im.convert.ConversationConverter;
 import com.carbarn.im.mapper.ConversationMapper;
 import com.carbarn.im.pojo.Conversation;
 import com.carbarn.im.pojo.Message;
-import com.carbarn.im.pojo.param.StartConversationParam;
 import com.carbarn.im.pojo.resp.ConversationPageResp;
 import com.carbarn.im.pojo.vo.ConversationVo;
 import com.carbarn.im.pojo.vo.StartConversationVo;
@@ -37,12 +36,12 @@ public class ConversationSericeImpl implements IConversationService {
     private UserService userService;
 
     @Override
-    public StartConversationVo startConversion(StartConversationParam startConversationParam) {
-        Conversation conversation = conversationMapper.getConversation(startConversationParam.getSellerId(), startConversationParam.getBuyerId());
+    public StartConversationVo startConversion(Long buyerId, Long sellerId) {
+        Conversation conversation = conversationMapper.getConversation(buyerId, sellerId);
         if (conversation == null) {
             conversation = new Conversation();
-            conversation.setBuyerId(startConversationParam.getBuyerId());
-            conversation.setSellerId(startConversationParam.getSellerId());
+            conversation.setBuyerId(buyerId);
+            conversation.setSellerId(sellerId);
             conversation.setCreateTime(System.currentTimeMillis());
             conversation.setUpdateTime(System.currentTimeMillis());
             conversation.setStatus(active.getStatus());

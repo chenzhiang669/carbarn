@@ -23,13 +23,14 @@ public class ConversationController {
 
     @PostMapping("/start")
     public CommonResult<StartConversationVo> startConversation(@RequestBody StartConversationParam startConversationParam) {
-        return CommonResult.success(conversationService.startConversion(startConversationParam));
+//        User user = UserHelper.nowLoginUser();
+        return CommonResult.success(conversationService.startConversion(1L, startConversationParam.getSellerId()));
     }
 
     @GetMapping("/page")
     public CommonResult<ConversationPageResp> conversationList(@RequestParam(defaultValue = "0") Integer pageNum,
                                                                @RequestParam(defaultValue = "10") Integer pageSize) {
-        return CommonResult.success(conversationService.getConversationsByPage(UserHelper.nowLoginUser().getId(), pageNum, pageSize));
+        return CommonResult.success(conversationService.getConversationsByPage(1L, pageNum, pageSize));
     }
 
     @PostMapping("/clearUnread")

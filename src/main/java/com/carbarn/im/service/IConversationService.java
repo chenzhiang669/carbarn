@@ -1,6 +1,5 @@
 package com.carbarn.im.service;
 
-import com.carbarn.im.pojo.param.StartConversationParam;
 import com.carbarn.im.pojo.resp.ConversationPageResp;
 import com.carbarn.im.pojo.vo.StartConversationVo;
 
@@ -11,7 +10,7 @@ import com.carbarn.im.pojo.vo.StartConversationVo;
  */
 public interface IConversationService {
 
-    StartConversationVo startConversion(StartConversationParam startConversationParam);
+    StartConversationVo startConversion(Long buyerId, Long sellerId);
 
     ConversationPageResp getConversationsByPage(Long userId, Integer pageNum, Integer pageSize);
 

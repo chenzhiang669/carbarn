@@ -12,7 +12,6 @@ import lombok.Data;
 @Data
 public class ConversationVo {
     private Long id;
-    private String name;
     @JsonIgnore
     private Long sellerId;
     @JsonIgnore

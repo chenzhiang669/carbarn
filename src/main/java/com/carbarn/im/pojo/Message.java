@@ -1,5 +1,6 @@
 package com.carbarn.im.pojo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 /**
@@ -17,9 +18,13 @@ public class Message {
     // text, image, link
     private String type;
     private String content;
+    private String sourceLang;
+    private String targetLang;
+    private String translatedContent;
     private Long sendTime;
     private Long receiveTime;
     private Integer status;
+    @JsonIgnore
     private Integer isDeleted;
 
 }
