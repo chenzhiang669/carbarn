@@ -2,17 +2,14 @@ package com.carbarn.inter.service;
 
 
 import com.carbarn.inter.pojo.User;
+import com.carbarn.inter.utils.AjaxResult;
 
 import java.util.List;
 
 public interface UserService {
-    User findById(Long id);
 
-    List<User> findAll();
+    User selectByUsername(String username);
 
-    void save(User user);
 
-    void update(User user);
-
-    void delete(Long id);
+    AjaxResult signin(User user);
 }

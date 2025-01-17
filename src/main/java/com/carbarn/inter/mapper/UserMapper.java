@@ -10,14 +10,7 @@ import java.util.List;
 //@MapperScan("com.carbarn.inter.mapper")
 @Mapper
 public interface UserMapper {
-    //    @Select("SELECT * FROM users WHERE id = #{id}")
-    User findById(@Param("id") Long id);
+    User selectByUsername(@Param("username") String username);
 
-    List<User> findAll();
-
-    int insert(User user);
-
-    int update(User user);
-
-    int delete(@Param("id") Long id);
+    void signin(User user);
 }

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.carbarn.inter.mapper.PayMapper">
+
+    <insert id="insertNewPreOrder" parameterType="com.carbarn.inter.pojo.pay.PreOrderPojo">
+        insert into payment
+        (user_id,encoding,sdkAppId,certId,signAture,txnType,txnSubType,
+        aesWay,merId,merName,secMerId,backEndUrl,frontEndUrl,txnOrderId,
+        txnOrderTime,txnOrderBody,txnAmt,txnCcyType,tokenCode,tokenEnd,
+        tokenType,tokenBegin,respTxnSsn,respTxnTime,respMsg)
+        values
+        (#{user_id},#{encoding},#{sdkAppId},#{certId},#{signAture},#{txnType},#{txnSubType},
+        #{aesWay},#{merId},#{merName},#{secMerId},#{backEndUrl},#{frontEndUrl},#{txnOrderId},
+        #{txnOrderTime},#{txnOrderBody},#{txnAmt},#{txnCcyType},#{tokenCode},#{tokenEnd},
+        #{tokenType},#{tokenBegin},#{respTxnSsn},#{respTxnTime},#{respMsg})
+    </insert>
+
+    <update id="updaterespMsg" parameterType="com.carbarn.inter.pojo.pay.PayCallBackPOJO">
+        update payment
+        set respMsg = #{respMsg}
+        where txnOrderId = #{txnOrderId}
+    </update>
+
+</mapper>

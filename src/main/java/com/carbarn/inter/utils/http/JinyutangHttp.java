@@ -17,13 +17,13 @@ import java.util.List;
 public class JinyutangHttp {
 
     public static String url_base = "https://inner-api.jytche.com/vin/parses?vin=%s&car_code=null&channel=mayi";
-    public static String url_base_sign = "87d8a5ff94d1a2af5f6e2e28c9cb0b11";
+    public static String url_base_sign = "70add6664591637631b6efe2ac314eb7";
 
     public static String detail_url_base = "https://inner-api.jytche.com/vin/liYang/%s";
-    public static String detail_url_base_sign = "a3d4e67be143a33ceba93419047cb09b";
+    public static String detail_url_base_sign = "70add6664591637631b6efe2ac314eb7";
 
     public static String appid = "trends67482fa5f11c4";
-    public static String access_token = "96cee35701d6355869fbc49fafb7265b";
+    public static String access_token = "96cee3573a17b1eff3136b36c146dc2b";
 
     public static List<JSONObject> searchVin(String vin){
         List<JSONObject> details = new ArrayList<JSONObject>();
@@ -184,7 +184,7 @@ public class JinyutangHttp {
     }
 
     public static void main(String[] args) {
-        List<JSONObject> details = JinyutangHttp.searchVin("LVHFC1652M6044846");
+        List<JSONObject> details = JinyutangHttp.searchVin("LVHFC1668G6037011");
         System.out.println(details);
 //        double displacement = Double.valueOf("1.5L".replaceAll("[TL]",""));
 //        System.out.println(displacement);

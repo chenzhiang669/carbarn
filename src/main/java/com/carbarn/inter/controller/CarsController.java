@@ -10,7 +10,6 @@ import com.carbarn.inter.service.CarsService;
 import com.carbarn.inter.utils.AjaxResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
@@ -30,6 +29,9 @@ public class CarsController {
     @PostMapping("/search")
     public AjaxResult searchCars(@RequestHeader(name = "language", required = true) String language,
                                  @RequestBody SearchCarsDTO searchCarsDTO) {
+        searchCarsDTO.setPageStart((searchCarsDTO.getPageNo() - 1) * searchCarsDTO.getPageSize());
+
+        System.out.println(searchCarsDTO.toString());
         int pageNo = searchCarsDTO.getPageNo();
         int pageSize = searchCarsDTO.getPageSize();
         if (pageNo < 1) {
@@ -49,6 +51,12 @@ public class CarsController {
         searchCarsDTO.setLanguage(language);
 
         List<FirstPageCarsDTO> result = carsService.searchCars(searchCarsDTO);
+
+        System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        for(FirstPageCarsDTO dto:result){
+            System.out.println(dto);
+        }
+        System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 
         AjaxResult ajaxResult = AjaxResult.success("搜索到相关数据", result);
         ajaxResult.put("pageNo", pageNo);

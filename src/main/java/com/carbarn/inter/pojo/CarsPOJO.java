@@ -24,6 +24,8 @@ public class CarsPOJO {
     private double	displacement = 0.0;
     private String	displacement_type = "T";
     private int	seat_capacity = 0;
+
+    private double new_car_price = 0.0;
     private String	ctali_date;
     private String	avi_date;
     private double	car_age = 0.0;
@@ -38,6 +40,8 @@ public class CarsPOJO {
     private double	power = 0.0;
     private double	battery_capacity = 0.0;
     private double	pure_electric_range = 0.0;
+
+    private String province;
     private String	city;
     private int	is_deal = 0;
     private int	is_lock = 0;
@@ -48,7 +52,7 @@ public class CarsPOJO {
     private String	header_picture;
     private String	all_pictures;
     private String	proof;
-    private String	label;
+    private int	label = -1;
     private String	inspection_report;
     private int	car_condition = -1;
     private int	coating = -1;
