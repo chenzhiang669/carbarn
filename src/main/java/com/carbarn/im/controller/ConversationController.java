@@ -6,6 +6,7 @@ import com.carbarn.im.pojo.resp.ConversationPageResp;
 import com.carbarn.im.pojo.vo.StartConversationVo;
 import com.carbarn.im.service.IConversationService;
 import com.carbarn.inter.helper.UserHelper;
+import com.carbarn.inter.pojo.User;
 import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -13,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 /**
  * @author zoulingxi
  */
-@Api(tags = "im", value = "会话服务")
+@Api(tags = "会话服务")
 @RestController
 @RequestMapping("/carbarn/conversation")
 public class ConversationController {
@@ -23,14 +24,15 @@ public class ConversationController {
 
     @PostMapping("/start")
     public CommonResult<StartConversationVo> startConversation(@RequestBody StartConversationParam startConversationParam) {
-//        User user = UserHelper.nowLoginUser();
-        return CommonResult.success(conversationService.startConversion(1L, startConversationParam.getSellerId()));
+        User user = UserHelper.nowLoginUser();
+        return CommonResult.success(conversationService.startConversion(user.getId(), startConversationParam.getSellerId()));
     }
 
     @GetMapping("/page")
     public CommonResult<ConversationPageResp> conversationList(@RequestParam(defaultValue = "0") Integer pageNum,
                                                                @RequestParam(defaultValue = "10") Integer pageSize) {
-        return CommonResult.success(conversationService.getConversationsByPage(1L, pageNum, pageSize));
+        User user = UserHelper.nowLoginUser();
+        return CommonResult.success(conversationService.getConversationsByPage(user.getId(), pageNum, pageSize));
     }
 
     @PostMapping("/clearUnread")

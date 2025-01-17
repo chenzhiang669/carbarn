@@ -1,5 +1,7 @@
 package com.carbarn.config.web;
 
+import cn.dev33.satoken.interceptor.SaInterceptor;
+import cn.dev33.satoken.stp.StpUtil;
 import com.carbarn.common.interceptor.TraceIdInterceptor;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
@@ -20,7 +22,7 @@ public class GlobalInterceptorRegistry implements WebMvcConfigurer {
     private static final Logger LOGGER = LoggerFactory.getLogger(GlobalInterceptorRegistry.class);
     private static final List<String> EXCLUDE_PATH_PATTERNS = Lists.newArrayList(
             "/v3/api-docs", "/v3/api-docs/**", "/swagger-resources/**", "/swagger-ui/**", "/actuator/*",
-            "/auth/doLogin", "/auth/isRegister"
+            "/auth/login", "/auth/signin"
     );
     @Resource
     private HttpServletRequest request;
@@ -30,18 +32,19 @@ public class GlobalInterceptorRegistry implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
 
         // 注册 Sa-Token 拦截器，校验规则为 StpUtil.checkLogin() 登录校验。
-//        registry.addInterceptor(new SaInterceptor(handle ->
-//                {
-//                    if (!StpUtil.isLogin()) {
-//                        LOGGER.info("intercept unLogin uri: {}", request.getRequestURI());
-//                    }
-//                    StpUtil.checkLogin();
-//                }))
-//                .addPathPatterns("/**")
-//                .excludePathPatterns(EXCLUDE_PATH_PATTERNS);
+        registry.addInterceptor(new SaInterceptor(handle ->
+                {
+                    if (!StpUtil.isLogin()) {
+                        LOGGER.info("intercept unLogin uri: {}", request.getRequestURI());
+                    }
+                    StpUtil.checkLogin();
+                }))
+                .addPathPatterns("/**")
+                .excludePathPatterns(EXCLUDE_PATH_PATTERNS);
 
         registry.addInterceptor(new TraceIdInterceptor())
-                .excludePathPatterns("/**");
+                .addPathPatterns("/**")
+                .excludePathPatterns(EXCLUDE_PATH_PATTERNS);
 
 
     }
