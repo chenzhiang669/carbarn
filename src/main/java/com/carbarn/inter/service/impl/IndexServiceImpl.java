@@ -201,35 +201,79 @@ public class IndexServiceImpl implements IndexService {
     }
 
     @Override
-    public Map<String, Object> getSeries(String language, int brand_id) {
-        List<SeriesDTO> serieses = indexMapper.getSeries(language, brand_id);
-        Map<String, Object> map = new TreeMap<String, Object>();
+    public List<Object> getSeries(String language, int brand_id) {
+        List<SeriesDTO> origin_brands = indexMapper.getSeries(language, brand_id);
+        List<Object> list = new ArrayList<Object>();
+        Map<String, Object> out_map = new HashMap<String, Object>();
 
-        for(int i = 0; i < serieses.size(); i++){
-            String first_char = serieses.get(i).getFirst_char();
-            String series = serieses.get(i).getSeries();
-            int series_id = serieses.get(i).getSeries_id();
+        for(int i = 0; i < origin_brands.size(); i++){
+            String first_char = origin_brands.get(i).getFirst_char();
+            String series = origin_brands.get(i).getSeries();
+            int series_id = origin_brands.get(i).getSeries_id();
 
-            if(!map.containsKey("first_char")){
-                List<Map<String , Object>> list = new ArrayList<Map<String , Object>>();
-                Map<String , Object> in_map = new HashMap<String, Object>();
+            if(i==0){
+                out_map = new HashMap<String, Object>();
+                Map<String, Object> in_map = new HashMap<String, Object>();
                 in_map.put("series",series);
                 in_map.put("series_id", series_id);
-                list.add(in_map);
-                map.put("first_char", first_char);
-                map.put("series", list);
+                List<Object> serieses = new ArrayList<Object>();
+                serieses.add(in_map);
+                out_map.put("first_char", first_char);
+                out_map.put("series", serieses);
+            }else if(!first_char.equals(out_map.get("first_char"))){
+                list.add(out_map);
+                out_map = new HashMap<String, Object>();
+                Map<String, Object> in_map = new HashMap<String, Object>();
+                in_map.put("series",series);
+                in_map.put("series_id", series_id);
+                List<Object> serieses = new ArrayList<Object>();
+                serieses.add(in_map);
+                out_map.put("first_char", first_char);
+                out_map.put("series", serieses);
 
             }else {
-                List<Map<String , Object>> list = (List<Map<String, Object>>) map.get("series");
-                Map<String , Object> in_map = new HashMap<String, Object>();
+                List<Object> serieses = (List<Object>) out_map.get("series");
+                Map<String, Object> in_map = new HashMap<String, Object>();
                 in_map.put("series",series);
                 in_map.put("series_id", series_id);
-                list.add(in_map);
+                serieses.add(in_map);
             }
         }
 
-        return map;
+        list.add(out_map);
+        return list;
     }
+
+//    @Override
+//    public Map<String, Object> getSeries(String language, int brand_id) {
+//        List<SeriesDTO> serieses = indexMapper.getSeries(language, brand_id);
+//        Map<String, Object> map = new TreeMap<String, Object>();
+//
+//        for(int i = 0; i < serieses.size(); i++){
+//            String first_char = serieses.get(i).getFirst_char();
+//            String series = serieses.get(i).getSeries();
+//            int series_id = serieses.get(i).getSeries_id();
+//
+//            if(!map.containsKey("first_char")){
+//                List<Map<String , Object>> list = new ArrayList<Map<String , Object>>();
+//                Map<String , Object> in_map = new HashMap<String, Object>();
+//                in_map.put("series",series);
+//                in_map.put("series_id", series_id);
+//                list.add(in_map);
+//                map.put("first_char", first_char);
+//                map.put("series", list);
+//
+//            }else {
+//                List<Map<String , Object>> list = (List<Map<String, Object>>) map.get("series");
+//                Map<String , Object> in_map = new HashMap<String, Object>();
+//                in_map.put("series",series);
+//                in_map.put("series_id", series_id);
+//                list.add(in_map);
+//            }
+//        }
+//
+//        return map;
+//    }
 
     @Override
     public List<Object> getType(String language, int brand_id, int series_id) {

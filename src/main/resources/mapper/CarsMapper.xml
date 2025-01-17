@@ -13,7 +13,7 @@
     </select>
 
 
-    <select id="searchCars" resultType="com.carbarn.inter.pojo.dto.cars.FirstPageCarsDTO">
+    <!--<select id="searchCars" resultType="com.carbarn.inter.pojo.dto.cars.FirstPageCarsDTO">
 
         select
         a.id as id,
@@ -40,9 +40,6 @@
             </if>
             <if test="type_id != -1">
                 AND type_id = #{type_id}
-            </if>
-            <if test="type_of_car != -1">
-                AND type_of_car = #{type_of_car}
             </if>
             <if test="plate_issue_date != null">
                 AND plate_issue_date = #{plate_issue_date}
@@ -77,7 +74,7 @@
             <if test="drive_type != -1">
                 AND drive_type = #{drive_type}
             </if>
-            <if test="color != -1">
+            <if test="box != -1">
                 AND box = #{box}
             </if>
             <if test="car_age_up_limit != 0.0 or car_age_low_limit != 0.0">
@@ -90,6 +87,119 @@
                 AND mileage BETWEEN #{mileage_lower_limit} AND #{mileage_up_limit}
             </if>
         and is_deal = 0
+        </where>
+        ) a left join (select brand_id, brand from car_brand where `language`= #{language}) b on a.brand_id = b.brand_id
+        left join (select series_id, series from car_series where `language`= #{language}) c on a.series_id = c.series_id
+        left join (select type_id, `type` from car_type where `language`= #{language}) d on a.type_id = d.type_id
+        where b.brand_id is not null and c.series_id is not null and d.type_id is not null
+        order by ${order_field} ${order_way}
+        limit #{pageStart}, #{pageSize}
+    </select>-->
+
+    <select id="searchCars" resultType="com.carbarn.inter.pojo.dto.cars.FirstPageCarsDTO">
+
+        select
+        a.id as id,
+        a.user_id as user_id,
+        concat(b.brand, " ", c.series, " ", d.`type`) as name,
+        a.plate_issue_date as plate_issue_date,
+        a.mileage as mileage,
+        a.price as price,
+        a.upload_date as upload_date,
+        a.city as city,
+        a.header_picture as header_picture,
+        a.manufacture_date as manufacture_date
+        from
+        (SELECT
+        *
+        FROM
+        cars
+        <where>
+            <if test="brand_id != -1">
+                AND brand_id = #{brand_id}
+            </if>
+            <if test="series_id != -1">
+                AND series_id = #{series_id}
+            </if>
+            <if test="type_id != -1">
+                AND type_id = #{type_id}
+            </if>
+            <if test="plate_issue_date != null">
+                AND plate_issue_date = #{plate_issue_date}
+            </if>
+            <if test="province != null and province != null">
+                AND province = #{province}
+            </if>
+            <if test="city != null and city != ''">
+                AND city = #{city}
+            </if>
+            <if test="type_of_car != null and !type_of_car.isEmpty()">
+                AND type_of_car IN
+                <foreach item="item" collection="type_of_car" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="displacement != 0.0 and displacement_type != null">
+                AND displacement = #{displacement} AND displacement_type = #{displacement_type}
+            </if>
+            <if test="color != null and !color.isEmpty()">
+                AND color IN
+                <foreach item="item" collection="color" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="origin_country != null and !origin_country.isEmpty()">
+                AND origin_country IN
+                <foreach item="item" collection="origin_country" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="transmission != null and !transmission.isEmpty()">
+                AND transmission IN
+                <foreach item="item" collection="transmission" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="type_of_manu != null and !type_of_manu.isEmpty()">
+                AND type_of_manu IN
+                <foreach item="item" collection="type_of_manu" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="emission_standards != null and !emission_standards.isEmpty()">
+                AND emission_standards IN
+                <foreach item="item" collection="emission_standards" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="seat_capacity != -1">
+                AND seat_capacity = #{seat_capacity}
+            </if>
+            <if test="engine != null and !engine.isEmpty()">
+                AND engine IN
+                <foreach item="item" collection="engine" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="drive_type != null and !drive_type.isEmpty()">
+                AND drive_type IN
+                <foreach item="item" collection="drive_type" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="box != null and !box.isEmpty()">
+                AND box IN
+                <foreach item="item" collection="box" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="price_up_limit != 0.0 or price_lower_limit != 0.0">
+                AND price BETWEEN #{price_lower_limit} AND #{price_up_limit}
+            </if>
+            <if test="mileage_up_limit != 0.0 or mileage_lower_limit != 0.0">
+                AND mileage BETWEEN #{mileage_lower_limit} AND #{mileage_up_limit}
+            </if>
+            and is_deal = 0
         </where>
         ) a left join (select brand_id, brand from car_brand where `language`= #{language}) b on a.brand_id = b.brand_id
         left join (select series_id, series from car_series where `language`= #{language}) c on a.series_id = c.series_id
@@ -132,14 +242,13 @@
 
     </select>
 
-    <insert id="insertNewCar" parameterType="com.carbarn.inter.pojo.CarsPOJO"
-            useGeneratedKeys="true" keyProperty="id">
+    <insert id="insertNewCar" parameterType="com.carbarn.inter.pojo.CarsPOJO">
         insert into cars
         (user_id,brand_id,series_id,type_id,color,engine,transmission,
         emission_standards,type_of_manu,type_of_car,origin_country,drive_type,
         box,displacement,displacement_type,seat_capacity,new_car_price,ctali_date,
         avi_date,car_age,mileage,vin,manufacture_date,plate_issue_date,price,floor_price,guide_price,
-        power,battery_capacity,pure_electric_range,city,is_deal,is_lock,state,
+        power,battery_capacity,pure_electric_range,province,city,is_deal,is_lock,state,
         description,header_picture,all_pictures,proof,label,inspection_report,
         car_condition,coating,component,engine_condition,transmission_condition,
         number_of_transfers,mileage_contition,car_condition_desc)
@@ -148,7 +257,7 @@
         #{emission_standards},#{type_of_manu},#{type_of_car},#{origin_country},#{drive_type},
         #{box},#{displacement},#{displacement_type},#{seat_capacity},#{new_car_price},#{ctali_date},
         #{avi_date},#{car_age},#{mileage},#{vin},#{manufacture_date},#{plate_issue_date},#{price},#{floor_price},#{guide_price},
-        #{power},#{battery_capacity},#{pure_electric_range},#{city},#{is_deal},#{is_lock},#{state},
+        #{power},#{battery_capacity},#{pure_electric_range},#{province},#{city},#{is_deal},#{is_lock},#{state},
         #{description},#{header_picture},#{all_pictures},#{proof},#{label},#{inspection_report},
         #{car_condition},#{coating},#{component},#{engine_condition},#{transmission_condition},
         #{number_of_transfers},#{mileage_contition},#{car_condition_desc})

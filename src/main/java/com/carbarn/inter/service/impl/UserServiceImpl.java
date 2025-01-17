@@ -3,6 +3,7 @@ package com.carbarn.inter.service.impl;
 import com.carbarn.inter.mapper.UserMapper;
 import com.carbarn.inter.pojo.User;
 import com.carbarn.inter.service.UserService;
+import com.carbarn.inter.utils.AjaxResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,30 +14,27 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private UserMapper userMapper;
 
-    @Override
-    public User findById(Long id) {
-        System.out.println("get a request from id = " + id);
-        return userMapper.findById(id);
-    }
 
     @Override
-    public List<User> findAll() {
-        return userMapper.findAll();
+    public User selectByUsername(String username) {
+        return userMapper.selectByUsername(username);
     }
 
-    @Override
-    public void save(User user) {
-        userMapper.insert(user);
-    }
+    public AjaxResult signin(User user) {
+        User existed_user = userMapper.selectByUsername(user.getUsername());
+        if (existed_user == null) {
 
-    @Override
-    public void update(User user) {
-        userMapper.update(user);
-    }
+            try {
+                userMapper.signin(user);
+                return AjaxResult.success("注册成功");
+            } catch (Exception e) {
+                return AjaxResult.error("注册失败");
+            }
 
-    @Override
-    public void delete(Long id) {
-        userMapper.delete(id);
-    }
+        } else {
+            return AjaxResult.error("用户名" + existed_user.getUsername() + "已经被注册过。");
+        }
 
+
+    }
 }

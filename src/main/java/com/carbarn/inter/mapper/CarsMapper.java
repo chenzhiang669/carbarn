@@ -5,7 +5,6 @@ import com.carbarn.inter.pojo.dto.cars.CarsOfUsersDTO;
 import com.carbarn.inter.pojo.dto.cars.FirstPageCarsDTO;
 import com.carbarn.inter.pojo.dto.cars.SearchCarsDTO;
 import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 

@@ -13,7 +13,7 @@ public interface IndexService {
     List<Object> getBrand(String language);
 
 
-    Map<String, Object>  getSeries(String language, int brand_id);
+    List<Object>  getSeries(String language, int brand_id);
 
 
     List<Object> getType(String language, int brand_id, int series_id);

@@ -5,7 +5,6 @@ import com.carbarn.inter.pojo.dto.cars.CarsOfUsersDTO;
 import com.carbarn.inter.pojo.dto.cars.FirstPageCarsDTO;
 import com.carbarn.inter.pojo.dto.cars.SearchCarsDTO;
 import com.carbarn.inter.utils.AjaxResult;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;

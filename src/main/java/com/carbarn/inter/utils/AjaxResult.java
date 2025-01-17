@@ -84,4 +84,13 @@ public class AjaxResult extends HashMap<String,Object> {
     }
 
 
+    public static AjaxResult unlogin(String msg) {
+        return AjaxResult.unlogin(msg, null);
+    }
+
+    public static AjaxResult unlogin(String msg, Object data) {
+        return new AjaxResult(HttpStatus.UNLOGIN, msg, data);
+    }
+
+
 }

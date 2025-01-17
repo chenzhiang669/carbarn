@@ -33,7 +33,7 @@ public class IndexController {
 
 
     @PostMapping("/brand/series")
-    public Map<String, Object> getSeries(@RequestHeader(name = "language", required = true) String language,
+    public List<Object> getSeries(@RequestHeader(name = "language", required = true) String language,
                                          @RequestBody String body) {
         JSONObject jsonObject = (JSONObject) JSONObject.parse(body);
         int brand_id = jsonObject.getInteger("brand_id");
