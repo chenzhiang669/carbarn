@@ -2,6 +2,7 @@ package com.carbarn.im.controller;
 
 import com.carbarn.common.pojo.CommonResult;
 import com.carbarn.im.translator.Language;
+import io.swagger.annotations.Api;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -13,6 +14,7 @@ import java.util.List;
  * @description 翻译接口
  * @date 2025/1/16 23:03
  */
+@Api(tags = "翻译服务")
 @RestController
 @RequestMapping("/carbarn/translation")
 public class TranslateController {
