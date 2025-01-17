@@ -1,0 +1,49 @@
+server:
+  port: 8080
+spring:
+  profiles:
+    active: dev
+  redis:
+    host: 47.122.70.102
+    jedis:
+      pool:
+        max-idle: 8
+        max-active: 16
+        max-wait: 3000
+  datasource:
+    url: jdbc:mysql://47.122.70.102:3306/carbarn?serverTimezone=GMT%2B8&zeroDateTimeBehavior=round&useUnicode=true&characterEncoding=utf-8&useSSL=false&allowMultiQueries=true&allowPublicKeyRetrieval=true
+    username: root
+    password: Chechuhai123
+    hikari:
+      minimum-idle: 10
+      idle-timeout: 600000
+      maximum-pool-size: 20
+      auto-commit: true
+      pool-name: HikariCP
+      max-lifetime: 1800000
+      connection-timeout: 30000
+      connection-test-query: SELECT 1
+
+  sa-token:
+    token-name: satoken
+    timeout: 2592000
+    is-redis: false
+
+carbarn:
+  local:
+    static:
+      dir: file:/d/carbarn/service/static
+    cars:
+      pictures:
+        dir: d:/carbarn/service/pictures
+
+mybatis:
+  mapper-locations: classpath:mapper/*.xml,classpath:mapper/im/*.xml
+  type-aliases-package: com.carbarn.*.pojo
+
+translate:
+  volc:
+    apiKeyId: AKLTZGE4NGY2ZGM4MzAyNGQzMmExZWNmZWU3YjU0MDQ3NmU
+    secretAccessKey: T0RobVlXTXhPR1ZpWVRRNE5EQmlZbUl5TlRZMFlqY3paall5T1RWbFptRQ==
+  google:
+    apiKey: 234234234

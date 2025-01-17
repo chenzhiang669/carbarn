@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.carbarn.im.mapper.ConversationMapper">
+
+    <resultMap id="conversationVo" type="com.carbarn.im.pojo.vo.ConversationVo">
+        <id column="id" property="id"/>
+        <result column="seller_id" property="sellerId"/>
+        <result column="buyer_id" property="buyerId"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <resultMap id="conversation" type="com.carbarn.im.pojo.Conversation">
+        <id column="id" property="id"/>
+        <result column="seller_id" property="sellerId"/>
+        <result column="buyer_id" property="buyerId"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <select id="getConversation" resultMap="conversation">
+        SELECT
+        id,
+        seller_id,
+        buyer_id,
+        status,
+        create_time,
+        update_time
+        FROM
+        conversation
+        WHERE
+        seller_id = #{sellerId}
+        and buyer_id = #{buyerId}
+        and is_deleted = 0
+    </select>
+
+
+    <insert id="startConversion" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO conversation (seller_id, buyer_id, create_time, update_time, `status`)
+        VALUES
+        (#{conversation.sellerId}, #{conversation.buyerId}, #{conversation.createTime}, #{conversation.updateTime}
+        ,#{conversation.status})
+    </insert>
+
+    <select id="conversationList" resultMap="conversationVo">
+        SELECT
+        id,
+        seller_id,
+        buyer_id,
+        status,
+        create_time,
+        update_time
+        FROM
+        conversation
+        WHERE
+        (seller_id = #{userId}
+        or
+        buyer_id = #{userId})
+        and is_deleted = 0
+    </select>
+
+    <select id="getById" resultType="com.carbarn.im.pojo.Conversation">
+        SELECT
+        id,
+        seller_id,
+        buyer_id,
+        status,
+        create_time,
+        update_time
+        FROM
+        conversation
+        WHERE
+        id = #{id}
+        and is_deleted = 0
+    </select>
+</mapper>

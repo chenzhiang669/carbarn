@@ -3,8 +3,7 @@ package com.carbarn.inter.mapper;
 import com.carbarn.inter.pojo.User;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-
-import java.util.List;
+import org.apache.ibatis.annotations.Select;
 
 //@Configuration
 //@MapperScan("com.carbarn.inter.mapper")
@@ -13,4 +12,7 @@ public interface UserMapper {
     User selectByUsername(@Param("username") String username);
 
     void signin(User user);
+
+    @Select("select * from user where id = #{userId}")
+    User selectById(Long userId);
 }
