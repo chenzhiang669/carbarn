@@ -1,6 +1,7 @@
 package com.carbarn.inter.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.carbarn.inter.pojo.CarsPOJO;
 import com.carbarn.inter.pojo.dto.cars.CarsOfUsersDTO;
@@ -11,6 +12,7 @@ import com.carbarn.inter.utils.AjaxResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -50,7 +52,15 @@ public class CarsController {
 
         searchCarsDTO.setLanguage(language);
 
-        List<FirstPageCarsDTO> result = carsService.searchCars(searchCarsDTO);
+        List<FirstPageCarsDTO> result = new ArrayList<FirstPageCarsDTO>();
+        String keywords = searchCarsDTO.getKeywords();
+        if(keywords != null && !"".equals(keywords)){
+            result = carsService.searchCarsByKeywords(searchCarsDTO);
+        }else{
+           result = carsService.searchCars(searchCarsDTO);
+        }
+
+
 
         System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
         for(FirstPageCarsDTO dto:result){
@@ -126,7 +136,6 @@ public class CarsController {
             return AjaxResult.error("type_id should be number, but now is " + json_body.getString("type_id"));
         }
 
-
     }
 
     @PostMapping("/upload")
@@ -149,6 +158,20 @@ public class CarsController {
 
 
         return carsService.insertNewCar(carsPOJO);
+    }
+
+
+    @GetMapping("/carTypeDetails")
+    public AjaxResult getCarTypeDetails(@RequestHeader(name = "language", required = true) String language,
+                                  @RequestParam(name = "type_id") int type_id) {
+
+        String carTypeDetails = carsService.getCarTypeDetails(type_id, language);
+        if(carTypeDetails == null){
+            return AjaxResult.success("[]");
+        }else{
+            JSONArray response = JSON.parseArray(carTypeDetails);
+            return AjaxResult.success(response);
+        }
     }
 
 }

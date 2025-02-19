@@ -209,10 +209,137 @@
         limit #{pageStart}, #{pageSize}
     </select>
 
+    <select id="searchCarsByKeywords" resultType="com.carbarn.inter.pojo.dto.cars.FirstPageCarsDTO">
+
+        select
+        a.id as id,
+        a.user_id as user_id,
+        concat(b.brand, " ", c.series, " ", d.`type`) as name,
+        a.plate_issue_date as plate_issue_date,
+        a.mileage as mileage,
+        a.price as price,
+        a.upload_date as upload_date,
+        a.city as city,
+        a.header_picture as header_picture,
+        a.manufacture_date as manufacture_date
+        from
+        (SELECT
+        *
+        FROM
+        cars
+        <where>
+            <if test="brandIds != null and !brandIds.isEmpty() or seriesIds != null and !seriesIds.isEmpty()">
+                AND (
+                <if test="brandIds != null and !brandIds.isEmpty()">
+                    brand_id IN
+                    <foreach item="item" collection="brandIds" open="(" separator="," close=")">
+                        #{item}
+                    </foreach>
+                </if>
+                <if test="seriesIds != null and !seriesIds.isEmpty()">
+                    <choose>
+                        <when test="brandIds != null and !brandIds.isEmpty()">
+                            OR series_id IN
+                        </when>
+                        <otherwise>
+                            series_id IN
+                        </otherwise>
+                    </choose>
+                    <foreach item="item" collection="seriesIds" open="(" separator="," close=")">
+                        #{item}
+                    </foreach>
+                </if>
+                )
+            </if>
+            <if test="searchCarsDTO.plate_issue_date != null">
+                AND plate_issue_date = #{searchCarsDTO.plate_issue_date}
+            </if>
+            <if test="searchCarsDTO.province != null and searchCarsDTO.province != ''">
+                AND province = #{searchCarsDTO.province}
+            </if>
+            <if test="searchCarsDTO.city != null and searchCarsDTO.city != ''">
+                AND city = #{searchCarsDTO.city}
+            </if>
+            <if test="searchCarsDTO.type_of_car != null and !searchCarsDTO.type_of_car.isEmpty()">
+                AND type_of_car IN
+                <foreach item="item" collection="searchCarsDTO.type_of_car" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="searchCarsDTO.displacement != 0.0 and searchCarsDTO.displacement_type != null">
+                AND displacement = #{searchCarsDTO.displacement} AND displacement_type = #{searchCarsDTO.displacement_type}
+            </if>
+            <if test="searchCarsDTO.color != null and !searchCarsDTO.color.isEmpty()">
+                AND color IN
+                <foreach item="item" collection="searchCarsDTO.color" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="searchCarsDTO.origin_country != null and !searchCarsDTO.origin_country.isEmpty()">
+                AND origin_country IN
+                <foreach item="item" collection="searchCarsDTO.origin_country" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="searchCarsDTO.transmission != null and !searchCarsDTO.transmission.isEmpty()">
+                AND transmission IN
+                <foreach item="item" collection="searchCarsDTO.transmission" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="searchCarsDTO.type_of_manu != null and !searchCarsDTO.type_of_manu.isEmpty()">
+                AND type_of_manu IN
+                <foreach item="item" collection="searchCarsDTO.type_of_manu" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="searchCarsDTO.emission_standards != null and !searchCarsDTO.emission_standards.isEmpty()">
+                AND emission_standards IN
+                <foreach item="item" collection="searchCarsDTO.emission_standards" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="searchCarsDTO.seat_capacity != -1">
+                AND seat_capacity = #{seat_capacity}
+            </if>
+            <if test="searchCarsDTO.engine != null and !searchCarsDTO.engine.isEmpty()">
+                AND engine IN
+                <foreach item="item" collection="searchCarsDTO.engine" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="searchCarsDTO.drive_type != null and !searchCarsDTO.drive_type.isEmpty()">
+                AND drive_type IN
+                <foreach item="item" collection="searchCarsDTO.drive_type" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="searchCarsDTO.box != null and !searchCarsDTO.box.isEmpty()">
+                AND box IN
+                <foreach item="item" collection="searchCarsDTO.box" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="searchCarsDTO.price_up_limit != 0.0 or searchCarsDTO.price_lower_limit != 0.0">
+                AND price BETWEEN #{searchCarsDTO.price_lower_limit} AND #{searchCarsDTO.price_up_limit}
+            </if>
+            <if test="searchCarsDTO.mileage_up_limit != 0.0 or searchCarsDTO.mileage_lower_limit != 0.0">
+                AND mileage BETWEEN #{searchCarsDTO.mileage_lower_limit} AND #{searchCarsDTO.mileage_up_limit}
+            </if>
+            and is_deal = 0
+        </where>
+        ) a left join (select brand_id, brand from car_brand where `language`= #{searchCarsDTO.language}) b on a.brand_id = b.brand_id
+        left join (select series_id, series from car_series where `language`= #{searchCarsDTO.language}) c on a.series_id = c.series_id
+        left join (select type_id, `type` from car_type where `language`= #{searchCarsDTO.language}) d on a.type_id = d.type_id
+        where b.brand_id is not null and c.series_id is not null and d.type_id is not null
+        order by ${searchCarsDTO.order_field} ${searchCarsDTO.order_way}
+        limit #{searchCarsDTO.pageStart}, #{searchCarsDTO.pageSize}
+    </select>
 
     <select id="getCarsByID" resultType="com.carbarn.inter.pojo.CarsPOJO">
         SELECT
-        *
+        *,
+        label as label_string
         FROM
         cars
         where
@@ -258,7 +385,7 @@
         #{box},#{displacement},#{displacement_type},#{seat_capacity},#{new_car_price},#{ctali_date},
         #{avi_date},#{car_age},#{mileage},#{vin},#{manufacture_date},#{plate_issue_date},#{price},#{floor_price},#{guide_price},
         #{power},#{battery_capacity},#{pure_electric_range},#{province},#{city},#{is_deal},#{is_lock},#{state},
-        #{description},#{header_picture},#{all_pictures},#{proof},#{label},#{inspection_report},
+        #{description},#{header_picture},#{all_pictures},#{proof},#{label_string},#{inspection_report},
         #{car_condition},#{coating},#{component},#{engine_condition},#{transmission_condition},
         #{number_of_transfers},#{mileage_contition},#{car_condition_desc})
     </insert>
@@ -271,4 +398,13 @@
         WHERE vin = #{vin}
     </select>
 
+    <select id="getCarTypeDetails" resultType="java.lang.String">
+        select
+        details
+        from
+        car_type
+        where type_id = #{type_id}
+        and `language` = #{language}
+        limit 1
+    </select>
 </mapper>

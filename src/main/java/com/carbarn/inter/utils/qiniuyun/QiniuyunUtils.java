@@ -16,8 +16,9 @@ public class QiniuyunUtils {
     private static String accessKey = "PqXya-MIqpVmW8og93Bp2JF6r50k2D5saTGBQEU5";
     private static String secretKey = "Nb2_0yeVGO7qfrEsM0PphxKsIHjywL6JVMEusyJ6";
     private static String bucket = "carbarn";
-    private static String domain = "http://sovo2nxf7.hd-bkt.clouddn.com/";
+//    private static String domain = "http://sovo2nxf7.hd-bkt.clouddn.com/";
 
+    private static String domain = "http://image.chechuhai.top/";
     private static Configuration cfg = new Configuration(Region.region0());
     private static UploadManager uploadManager = new UploadManager(cfg);
 
@@ -42,9 +43,9 @@ public class QiniuyunUtils {
     }
 
     public static void main(String[] args) throws IOException {
-        String localFilePath = "D:\\carbarn\\qiniuyun\\test.jpg";
+        String localFilePath = "D:\\abcdefghijklmn.jpg";
         byte[] fileContent = Files.readAllBytes(Paths.get(localFilePath));
-        String key = "carbarn/cars/2/asdfas35432zvxsddshgrqerq.png";
+        String key = "carbarn/domain/test/abcdefghijklmnopqrst.jpg";
         String url = QiniuyunUtils.uploadFile(fileContent, key);
         System.out.println(url);
     }

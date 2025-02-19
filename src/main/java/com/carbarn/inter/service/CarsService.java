@@ -24,4 +24,8 @@ public interface CarsService {
     Map<String, Object> fillMessage(String language, int type_id);
 
     AjaxResult insertNewCar(CarsPOJO carsPOJO);
+
+    List<FirstPageCarsDTO> searchCarsByKeywords(SearchCarsDTO searchCarsDTO);
+
+    String getCarTypeDetails(int type_id, String language);
 }

@@ -1,19 +1,11 @@
 server:
   port: 8080
 spring:
-  profiles:
-    active: dev
-  redis:
-    host: 47.122.70.102
-    jedis:
-      pool:
-        max-idle: 8
-        max-active: 16
-        max-wait: 3000
   datasource:
-    url: jdbc:mysql://47.122.70.102:3306/carbarn?serverTimezone=GMT%2B8&zeroDateTimeBehavior=round&useUnicode=true&characterEncoding=utf-8&useSSL=false&allowMultiQueries=true&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://localhost:3306/carbarn?serverTimezone=GMT%2B8&zeroDateTimeBehavior=round&useUnicode=true&characterEncoding=utf-8&useSSL=false&allowMultiQueries=true&allowPublicKeyRetrieval=true
     username: root
-    password: Chechuhai123
+    password: 123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       minimum-idle: 10
       idle-timeout: 600000
@@ -24,11 +16,6 @@ spring:
       connection-timeout: 30000
       connection-test-query: SELECT 1
 
-  sa-token:
-    token-name: satoken
-    timeout: 2592000
-    is-redis: false
-
 carbarn:
   local:
     static:
@@ -36,10 +23,6 @@ carbarn:
     cars:
       pictures:
         dir: d:/carbarn/service/pictures
-
-mybatis:
-  mapper-locations: classpath:mapper/*.xml,classpath:mapper/im/*.xml
-  type-aliases-package: com.carbarn.*.pojo
 
 translate:
   volc:

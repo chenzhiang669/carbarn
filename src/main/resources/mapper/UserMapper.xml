@@ -10,4 +10,77 @@
         insert into users (username, password)
         values(#{username}, #{password})
     </select>
+
+    <!--普通用户注册接口，只需要电话号码，头像， 昵称即可-->
+    <insert id="signup" parameterType="com.carbarn.inter.pojo.user.dto.SignupUserDTO">
+        insert into users(phone_num, avatar, nickname, role)
+        value(#{phone_num}, #{avatar}, #{nickname}, 0)
+    </insert>
+
+    <!--vip用户注册接口，只需要根据电话号码进行用户字段更新即可-->
+    <update id="vipsignup" parameterType="com.carbarn.inter.pojo.user.dto.VipSignupUserDTO">
+        update users
+        set address = #{address},
+        car_dealership = #{car_dealership},
+        real_name = #{real_name},
+        front_of_id = #{front_of_id},
+        back_of_id = #{back_of_id},
+        language = #{language}
+        where id = #{id}
+    </update>
+
+
+    <!--更新用户昵称-->
+    <update id="updateNickname">
+        update users
+        set nickname = #{nickname}
+        where id = #{id}
+    </update>
+
+    <!--更新用户头像-->
+    <update id="updateAvatar">
+        update users
+        set avatar = #{avatar}
+        where id = #{id}
+    </update>
+
+    <update id="updateRole">
+        update users
+        set role = #{role}
+        where id = #{user_id}
+    </update>
+
+    <update id="updateAddress">
+        update users
+        set address = #{address}
+        where id = #{id}
+    </update>
+
+    <update id="updateCardealership">
+        update users
+        set car_dealership = #{car_dealership}
+        where id = #{id}
+    </update>
+
+
+    <select id="getUserInfoByPhoneNum" resultType="com.carbarn.inter.pojo.user.pojo.UserPojo">
+        select *
+        from users
+        where phone_num = #{phone_num}
+    </select>
+
+    <select id="getUserInfoByID" resultType="com.carbarn.inter.pojo.user.pojo.UserPojo">
+        select *
+        from users
+        where id = #{id}
+    </select>
+
+
+    <select id="isPhoneNumExist" resultType="java.lang.Boolean">
+        SELECT
+        COUNT(*) as bool
+        FROM
+        users
+        WHERE phone_num = #{phone_num}
+    </select>
 </mapper>

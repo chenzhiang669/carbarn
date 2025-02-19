@@ -1,6 +1,7 @@
 package com.carbarn.im.pojo.vo;
 
 import com.carbarn.inter.pojo.User;
+import com.carbarn.inter.pojo.user.pojo.UserPojo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
@@ -17,8 +18,8 @@ public class ConversationVo {
     @JsonIgnore
     private Long buyerId;
     private Integer unreadCount;
-    private User seller;
-    private User buyer;
+    private UserPojo seller;
+    private UserPojo buyer;
     private Long lastMessageId;
     // 0:文本 1:图片 2:链接
     private String lastMessageType;

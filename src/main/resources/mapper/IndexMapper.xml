@@ -73,7 +73,8 @@
         hot_index
         WHERE language = #{language}
         and hot_type = 'hot_brand'
-        ) a left join car_brand b on a.word_id = b.brand_id
+        ) a left join
+        (select * from car_brand where language = #{language}) b on a.word_id = b.brand_id
         order by a.update_time desc, a.search_times desc
         limit 10
     </select>
@@ -109,6 +110,23 @@
         limit 1
     </select>
 
+    <select id="getBrandIdByKeywords" resultType="java.lang.Integer">
+        SELECT
+        brand_id
+        FROM
+        car_brand
+        WHERE language = #{language}
+        and brand like '%${brand}%'
+    </select>
+
+    <select id="getSeriesIdByKeywords" resultType="java.lang.Integer">
+        SELECT
+        series_id
+        FROM
+        car_series
+        WHERE language = #{language}
+        and series like '%${series}%'
+    </select>
 
     <insert id="insertNewBrand">
         SELECT MAX(brand_id) INTO @next_brand_id FROM car_brand;

@@ -1,6 +1,9 @@
 package com.carbarn.inter.mapper;
 
 import com.carbarn.inter.pojo.User;
+import com.carbarn.inter.pojo.user.dto.SignupUserDTO;
+import com.carbarn.inter.pojo.user.dto.VipSignupUserDTO;
+import com.carbarn.inter.pojo.user.pojo.UserPojo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -15,4 +18,30 @@ public interface UserMapper {
 
     @Select("select * from user where id = #{userId}")
     User selectById(Long userId);
+
+    void signup(SignupUserDTO SignupUserDTO);
+
+    void vipsignup(VipSignupUserDTO VipSignupUserDTO);
+
+    void updateNickname(@Param("id") long id,
+                        @Param("nickname") String nickname);
+
+    void updateAvatar(@Param("id") long id,
+                        @Param("avatar") String avatar);
+
+    void updateCardealership(@Param("id") long id,
+                        @Param("car_dealership") String car_dealership);
+
+    void updateAddress(@Param("id") long id,
+                      @Param("address") String address);
+
+
+    UserPojo getUserInfoByPhoneNum(@Param("phone_num") String phone_num);
+
+
+    UserPojo getUserInfoByID(@Param("id") long id);
+
+    Boolean isPhoneNumExist(@Param("phone_num") String phone_num);
+
+    void updateRole(@Param("user_id") long user_id, @Param("role") int role);
 }

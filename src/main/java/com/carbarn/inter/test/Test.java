@@ -9,11 +9,17 @@ import com.carbarn.inter.utils.qiniuyun.QiniuyunUtils;
 
 import java.io.*;
 import java.net.URL;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Test {
-    public static void main(String[] args) throws IOException {
-        downloadImage();
+    public static void main(String[] args) throws IOException, SQLException {
+        insert_type_car_details();
 
     }
 
@@ -24,7 +30,7 @@ public class Test {
             BufferedReader br = new BufferedReader(new FileReader(new File("D:\\carbarn\\brand-utf8.csv")));
             BufferedWriter wr = new BufferedWriter(new FileWriter(new File("D:\\carbarn\\brand-utf8-qinniuyun.csv")));
             String line = null;
-            while ((line = br.readLine()) != null){
+            while ((line = br.readLine()) != null) {
                 String[] infos = line.split(",");
                 String brand_id = infos[0];
                 String brand = infos[1];
@@ -149,7 +155,7 @@ public class Test {
                     String formatted = decimalFormat.format(guide_price);
                     guide_price = Double.parseDouble(formatted);
 
-                    wr.write(series_id + "," + year + "," + type_id + "," + type + "," + guide_price + ",zh" +"\n");
+                    wr.write(series_id + "," + year + "," + type_id + "," + type + "," + guide_price + ",zh" + "\n");
                     System.out.println(series_id + "\t" + year + "\t" + type_id + "\t" + type + "\t" + guide_price);
                 }
             }
@@ -160,5 +166,116 @@ public class Test {
         wr.close();
 
 
+    }
+
+
+    public static void type_detail() throws IOException {
+
+
+        BufferedReader br = new BufferedReader(new FileReader(new File("D:\\carbarn\\model_detail.json")));
+        BufferedWriter wr = new BufferedWriter(new FileWriter(new File("D:\\carbarn\\model_detail_result.json")));
+        String line = null;
+
+
+        while ((line = br.readLine()) != null) {
+            JSONArray result = new JSONArray();
+
+            JSONArray jsonArray = JSON.parseArray(line.trim());
+
+
+            for (int i = 0; i < jsonArray.size(); i++) {
+                JSONObject data = new JSONObject();
+                JSONObject name_object = jsonArray.getJSONObject(i);
+                String key = name_object.getString("name");
+                JSONArray params = name_object.getJSONArray("params");
+
+                JSONArray params_result = new JSONArray();
+                for (int j = 0; j < params.size(); j++) {
+                    JSONObject tmp = new JSONObject();
+                    String name = params.getJSONObject(j).getString("name");
+                    String value = params.getJSONObject(j).getJSONObject("model").getString("value");
+                    tmp.put("name", name);
+                    tmp.put("value", value);
+                    params_result.add(tmp);
+                }
+                data.put("key", key);
+                data.put("params", params_result);
+
+                result.add(data);
+            }
+
+
+//            System.out.println(result.toJSONString());
+            wr.write(result.toJSONString() + "\n");
+        }
+
+        wr.flush();
+        wr.close();
+
+
+    }
+
+
+    public static void model_csv() throws IOException {
+
+
+        BufferedReader br = new BufferedReader(new FileReader(new File("D:\\carbarn\\model_result.csv")));
+        BufferedReader br1 = new BufferedReader(new FileReader(new File("D:\\carbarn\\model_detail_result.json")));
+
+        BufferedWriter wr = new BufferedWriter(new FileWriter(new File("D:\\carbarn\\detail_final")));
+        String line = null;
+
+
+        List<String> model_id = new ArrayList<String>();
+
+        while ((line = br.readLine()) != null) {
+            model_id.add(line.trim());
+        }
+
+        int count = 0;
+        while ((line = br1.readLine()) != null) {
+            wr.write(model_id.get(count) + "\t" + line.trim() + "\n");
+            count = count + 1;
+        }
+
+        wr.flush();
+        wr.close();
+    }
+
+    public static void insert_type_car_details() throws SQLException, IOException {
+        String url = "jdbc:mysql://localhost:3306/carbarn";
+        String user = "root";
+        String password = "123456";
+
+        Connection conn = DriverManager.getConnection(url, user, password);
+
+        // 准备 SQL 语句
+        String sql = "UPDATE car_type_new SET details = ? WHERE type_id = ? and `language`= 'zh'";
+
+
+        PreparedStatement ps = conn.prepareStatement(sql);
+        BufferedReader br1 = new BufferedReader(new FileReader(new File("D:\\carbarn\\detail_final")));
+        String line = null;
+        int count = 0;
+        while((line = br1.readLine()) != null){
+            count = count + 1;
+            String[] infos = line.trim().split("\t");
+            int type_id = Integer.valueOf(infos[0]);
+            String type = infos[1];
+            String details = infos[2];
+//            System.out.println(type_id + "\t" + details);
+
+            ps.setString(1, details);  // 设置薪资
+            ps.setInt(2, type_id);          // 设置员工 ID
+            ps.addBatch();
+
+
+            if(count % 1000 == 0){
+                System.out.println("update 1000 datas");
+                ps.executeBatch();
+            }
+        }
+
+        ps.executeBatch();
     }
 }

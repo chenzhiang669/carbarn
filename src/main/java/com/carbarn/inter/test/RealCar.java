@@ -14,10 +14,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 public class RealCar {
 
@@ -248,7 +245,8 @@ public class RealCar {
 
             System.out.println(header_picture + "\t" + String.join(",", all_pictures));
 
-            int label = -1;
+            List<Integer> label = new ArrayList<Integer>();
+            label.add(-1);
             carsPOJO.setLabel(label);
             String inspection_report = "";
             carsPOJO.setInspection_report(inspection_report);
@@ -418,7 +416,8 @@ public class RealCar {
 
                 System.out.println(header_picture + "\t" + String.join(",", all_pictures));
 
-                int label = -1;
+                List<Integer> label = new ArrayList<Integer>();
+                label.add(-1);
                 carsPOJO.setLabel(label);
                 String inspection_report = "";
                 carsPOJO.setInspection_report(inspection_report);

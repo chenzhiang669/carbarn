@@ -17,11 +17,13 @@ import com.carbarn.inter.service.CarsService;
 import com.carbarn.inter.utils.AjaxResult;
 import com.carbarn.inter.utils.Utils;
 import com.carbarn.inter.utils.http.JinyutangHttp;
+import io.swagger.models.auth.In;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Field;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class CarsServiceImpl implements CarsService {
@@ -47,10 +49,16 @@ public class CarsServiceImpl implements CarsService {
     @Override
     public Map<String, Object> getCarsByID(String language, long carid) {
 
-
-
-
         CarsPOJO carsPOJO =  carsMapper.getCarsByID(carid);
+        String[] labels_string = carsPOJO.getLabel_string().split(",");
+        if(labels_string.length> 0){
+            List<Integer> labels_int = new ArrayList<Integer>();
+            for(String label:labels_string){
+                labels_int.add(Integer.valueOf(label));
+            }
+            carsPOJO.setLabel(labels_int);
+        }
+
         if(carsPOJO == null){
             return new HashMap<String, Object>();
         }
@@ -102,23 +110,36 @@ public class CarsServiceImpl implements CarsService {
             for(Field field:fields){
                 field.setAccessible(true);
                 String key = field.getName();
-                Object real_id = field.get(carsPOJO);
 
-                if(field_mapping.containsKey(key)){
-
-                    if(id_mapping.containsKey(real_id) && key.equals(id_mapping.get(real_id).getField())){
-                        String real_name = id_mapping.get(real_id).getValue();
-                        map.put(key + "_name", real_name);
-                    }else{
-                        map.put(key + "_name", null);
+                if(key.equals("label")){
+                    List<Integer> real_ids = (List<Integer>) field.get(carsPOJO);
+                    List<String> labels_value = new ArrayList<String>();
+                    for(Integer real_id:real_ids){
+                        if(id_mapping.containsKey(real_id)){
+                            String real_name = id_mapping.get(real_id).getValue();
+                            labels_value.add(real_name);
+                        }
                     }
 
+                    map.put(key + "_name", labels_value);
+
+                }else{
+                    if(field_mapping.containsKey(key)){
+                        Object real_id = field.get(carsPOJO);
+
+                        if(id_mapping.containsKey(real_id) && key.equals(id_mapping.get(real_id).getField())){
+                            String real_name = id_mapping.get(real_id).getValue();
+                            map.put(key + "_name", real_name);
+                        }else{
+                            map.put(key + "_name", null);
+                        }
+
+                    }
                 }
             }
 
-
-
         }catch(Exception e){
+            e.printStackTrace();
             map.clear();
         }
 
@@ -215,17 +236,20 @@ public class CarsServiceImpl implements CarsService {
             String value = indexDTO.getValue();
             int value_id = indexDTO.getValue_id();
             String field = indexDTO.getField();
+            String field_value = field + value;
             if(is_mapping == 0){
-                value_id_map.put(value, value_id);
+//                value_id_map.put(value, value_id);
+                value_id_map.put(field_value, value_id);
                 mapping_fields.add(field);
             }
         }
 
         for(String key:message.keySet()){
             Object value = message.getOrDefault(key, null);
+            String field_value = key +value;
             if(mapping_fields.contains(key)){
-                if(value_id_map.containsKey(value)){
-                    message.put(key, value_id_map.get(value));
+                if(value_id_map.containsKey(field_value)){
+                    message.put(key, value_id_map.get(field_value));
                 }else{
                     message.put(key, -1);
                 }
@@ -317,6 +341,15 @@ public class CarsServiceImpl implements CarsService {
 
     @Override
     public AjaxResult insertNewCar(CarsPOJO carsPOJO) {
+        if(carsPOJO.getLabel().size() == 0){
+            List<Integer> labels = new ArrayList<Integer>();
+            labels.add(-1);
+            carsPOJO.setLabel(labels);
+        }
+
+        String label_string = carsPOJO.getLabel().stream().map(String::valueOf).collect(Collectors.joining(","));
+        carsPOJO.setLabel_string(label_string);
+
         boolean bool = carsMapper.existsByVin(carsPOJO.getVin());
         if(bool){
             return AjaxResult.error("车架号所属汽车已经上传过，请不要重复上传");
@@ -325,7 +358,38 @@ public class CarsServiceImpl implements CarsService {
         return AjaxResult.success("上传汽车成功");
     }
 
+    @Override
+    public List<FirstPageCarsDTO> searchCarsByKeywords(SearchCarsDTO searchCarsDTO) {
+        List<Integer> brand_ids = indexMapper.getBrandIdByKeywords(searchCarsDTO.getLanguage(), searchCarsDTO.getKeywords());
+        List<Integer> series_ids = indexMapper.getSeriesIdByKeywords(searchCarsDTO.getLanguage(), searchCarsDTO.getKeywords());
 
+        if(brand_ids != null){
+            for(Integer brandid : brand_ids){
+                System.out.println(brandid);
+            }
+        }
+
+        System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+
+        if(series_ids != null){
+            for(Integer seriesid : series_ids){
+                System.out.println(seriesid);
+            }
+        }
+
+
+        if((brand_ids == null || brand_ids.size() == 0)
+                && (series_ids == null || series_ids.size() == 0)){
+            return new ArrayList<FirstPageCarsDTO>();
+        }else{
+            return carsMapper.searchCarsByKeywords(searchCarsDTO, brand_ids, series_ids);
+        }
+    }
+
+    @Override
+    public String getCarTypeDetails(int type_id, String language) {
+        return carsMapper.getCarTypeDetails(type_id, language);
+    }
 
 
     public synchronized String insertNewBrand(String logo,

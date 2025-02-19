@@ -47,4 +47,10 @@ public interface IndexMapper {
 
     TypeMessageDTO getTypeMessage(@Param("language") String language,
                         @Param("type_id") int type_id);
+
+    List<Integer> getBrandIdByKeywords(@Param("language") String language,
+                                       @Param("brand") String keywords);
+
+    List<Integer> getSeriesIdByKeywords(@Param("language") String language,
+                                        @Param("series") String keywords);
 }

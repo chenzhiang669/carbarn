@@ -62,43 +62,8 @@ public class SearchCarsDTO {
 
     private double mileage_lower_limit = 0.0; //里程下限
 
+    private String keywords; //关键词搜索字段
     private String order_field = "upload_date";
 
     private String order_way = "desc";
-
-    @Override
-    public String toString() {
-        return "SearchCarsDTO{" +
-                "language='" + language + '\'' +
-                ", pageNo=" + pageNo +
-                ", pageSize=" + pageSize +
-                ", pageStart=" + pageStart +
-                ", brand_id=" + brand_id +
-                ", series_id=" + series_id +
-                ", type_id=" + type_id +
-                ", type_of_car=" + type_of_car +
-                ", plate_issue_date='" + plate_issue_date + '\'' +
-                ", displacement=" + displacement +
-                ", displacement_type='" + displacement_type + '\'' +
-                ", color=" + color +
-                ", origin_country=" + origin_country +
-                ", transmission=" + transmission +
-                ", type_of_manu=" + type_of_manu +
-                ", emission_standards=" + emission_standards +
-                ", seat_capacity=" + seat_capacity +
-                ", province='" + province + '\'' +
-                ", city='" + city + '\'' +
-                ", engine=" + engine +
-                ", drive_type=" + drive_type +
-                ", box=" + box +
-                ", car_age_up_limit=" + car_age_up_limit +
-                ", car_age_low_limit=" + car_age_low_limit +
-                ", price_up_limit=" + price_up_limit +
-                ", price_lower_limit=" + price_lower_limit +
-                ", mileage_up_limit=" + mileage_up_limit +
-                ", mileage_lower_limit=" + mileage_lower_limit +
-                ", order_field='" + order_field + '\'' +
-                ", order_way='" + order_way + '\'' +
-                '}';
-    }
 }

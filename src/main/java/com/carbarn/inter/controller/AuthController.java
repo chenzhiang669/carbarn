@@ -31,13 +31,13 @@ public class AuthController {
 
 
     // 登录接口
-    @PostMapping("/signin")
-    public AjaxResult signin(@RequestBody User user) {
-        if(user.getUsername() == null || user.getPassword() == null){
-            return AjaxResult.error("密码或账户为空");
-        }
-
-        return userService.signin(user);
-    }
+//    @PostMapping("/signin")
+//    public AjaxResult signin(@RequestBody User user) {
+//        if(user.getUsername() == null || user.getPassword() == null){
+//            return AjaxResult.error("密码或账户为空");
+//        }
+//
+//        return userService.signin(user);
+//    }
 
 }

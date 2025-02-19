@@ -1,8 +1,12 @@
 package com.carbarn.inter.pojo;
 
+import io.swagger.models.auth.In;
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Data
 public class CarsPOJO {
@@ -52,7 +56,9 @@ public class CarsPOJO {
     private String	header_picture;
     private String	all_pictures;
     private String	proof;
-    private int	label = -1;
+    private List<Integer> label = new ArrayList<Integer>();
+
+    private String label_string = "-1";
     private String	inspection_report;
     private int	car_condition = -1;
     private int	coating = -1;

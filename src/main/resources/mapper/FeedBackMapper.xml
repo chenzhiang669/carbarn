@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.carbarn.inter.mapper.FeedBackMapper">
+
+    <insert id="insertFeedBack" parameterType="com.carbarn.inter.pojo.feedback.FeedBackDTO">
+        insert into feedback(user_id, description, url)
+        values
+        (#{user_id}, #{description}, #{url})
+    </insert>
+</mapper>

@@ -16,6 +16,11 @@
 
 
     <dependencies>
+        <!--<dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-all</artifactId>
+            <version>4.1.118.Final</version>
+        </dependency>-->
         <!-- Spring Boot Starter Web -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -91,6 +96,17 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis</artifactId>
             <version>${spring-boot.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>io.lettuce</groupId>
+                    <artifactId>lettuce-core</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>io.lettuce</groupId>
+            <artifactId>lettuce-core</artifactId>
+            <version>6.1.5.RELEASE</version>
         </dependency>
         <dependency>
             <groupId>io.springfox</groupId>
@@ -122,7 +138,18 @@
         <dependency>
             <groupId>cn.dev33</groupId>
             <artifactId>sa-token-spring-boot-starter</artifactId>
-            <version>1.39.0</version>
+            <version>1.34.0</version>
+        </dependency>
+        <dependency>
+            <groupId>cn.dev33</groupId>
+            <artifactId>sa-token-dao-redis-jackson</artifactId>
+            <version>1.34.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>cn.dev33</groupId>
+                    <artifactId>sa-token-core</artifactId>
+                </exclusion>
+            </exclusions><!-- 请根据实际情况选择版本 -->
         </dependency>
         <!--        实体类转换-->
         <dependency>
@@ -148,11 +175,11 @@
         </dependency>
 
         <!-- Azure Translation dependency -->
-        <dependency>
+       <!-- <dependency>
             <groupId>com.azure</groupId>
             <artifactId>azure-ai-translation-text</artifactId>
             <version>1.0.0</version>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>com.volcengine</groupId>
             <artifactId>volc-sdk-java</artifactId>

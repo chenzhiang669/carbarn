@@ -57,8 +57,8 @@ public class ConversationSericeImpl implements IConversationService {
         PageInfo<ConversationVo> conversationPageInfo = new PageInfo<>(conversations);
         int totalUnread = 0;
         for (ConversationVo conversation : conversationPageInfo.getList()) {
-            conversation.setBuyer(userService.findById(conversation.getBuyerId()));
-            conversation.setSeller(userService.findById(conversation.getSellerId()));
+            conversation.setBuyer(userService.getUserInfoByID(conversation.getBuyerId()));
+            conversation.setSeller(userService.getUserInfoByID(conversation.getSellerId()));
             Integer conversationUnreadCount = messageService.countUnreadMessages(userId, conversation.getId());
             Message message = messageService.fetchLastMessage(conversation.getId());
             if (message != null) {
