@@ -4,6 +4,7 @@ package com.carbarn.common.interceptor;
 import com.carbarn.common.utils.TraceIdUtils;
 import com.carbarn.inter.helper.UserHelper;
 import com.carbarn.inter.pojo.User;
+import com.carbarn.inter.pojo.user.pojo.UserPojo;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
@@ -28,8 +29,8 @@ public class TraceIdInterceptor implements HandlerInterceptor {
             return true;
         }
         String header = request.getHeader(TraceIdUtils.TRACE_KEY);
-        User user = UserHelper.nowLoginUser();
-        String userId = user == null ? null : user.getId().toString();
+        UserPojo user = UserHelper.nowLoginUser();
+        String userId = user == null ? null : String.valueOf(user.getId());
         if (StringUtils.isEmpty(header)) {
             TraceIdUtils.genAndSetTraceId(userId);
         } else {

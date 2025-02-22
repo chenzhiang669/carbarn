@@ -6,10 +6,12 @@ import com.carbarn.inter.pojo.pay.CreateOrderDTO;
 import com.carbarn.inter.pojo.pay.PayCallBackPOJO;
 import com.carbarn.inter.service.PayService;
 import com.carbarn.inter.utils.AjaxResult;
+import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+@Api(tags = "支付服务")
 @RestController
 @RequestMapping("/carbarn/pay")
 public class PayController {
@@ -51,6 +53,11 @@ public class PayController {
 
     }
 
+
+    @PostMapping("/price")
+    public AjaxResult price() {
+        return payService.price();
+    }
 
     // 登录接口
     @PostMapping(value = "/callback", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)

@@ -16,11 +16,6 @@ spring:
       connection-timeout: 30000
       connection-test-query: SELECT 1
 
-  sa-token:
-    token-name: satoken
-    timeout: 2592000
-    is-redis: false
-
 carbarn:
   local:
     static:

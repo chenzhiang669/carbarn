@@ -13,4 +13,6 @@ public interface PayService {
     AjaxResult createorder(CreateOrderDTO createOrderDTO);
 
     AjaxResult getOrderStatus(String reqsn);
+
+    AjaxResult price();
 }

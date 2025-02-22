@@ -39,4 +39,6 @@ public class OrderPOJO {
     private String sign;
 
     private String isdirectpay = "1";
+
+    private String original_price;
 }

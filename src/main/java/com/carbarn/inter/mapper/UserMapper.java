@@ -4,6 +4,7 @@ import com.carbarn.inter.pojo.User;
 import com.carbarn.inter.pojo.user.dto.SignupUserDTO;
 import com.carbarn.inter.pojo.user.dto.VipSignupUserDTO;
 import com.carbarn.inter.pojo.user.pojo.UserPojo;
+import com.carbarn.inter.pojo.user.pojo.UserViewCountPojo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -44,4 +45,11 @@ public interface UserMapper {
     Boolean isPhoneNumExist(@Param("phone_num") String phone_num);
 
     void updateRole(@Param("user_id") long user_id, @Param("role") int role);
+
+    void updateUserInfo(UserPojo userPojo);
+
+    UserViewCountPojo userViewCount(@Param("user_id") long user_id);
+
+    UserViewCountPojo userDtViewCount(@Param("user_id") long user_id,
+                                      @Param("dt") String dt);
 }

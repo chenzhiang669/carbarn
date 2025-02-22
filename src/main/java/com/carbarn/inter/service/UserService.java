@@ -5,7 +5,9 @@ import com.carbarn.inter.pojo.User;
 import com.carbarn.inter.pojo.user.dto.SignupUserDTO;
 import com.carbarn.inter.pojo.user.dto.VipSignupUserDTO;
 import com.carbarn.inter.pojo.user.pojo.UserPojo;
+import com.carbarn.inter.pojo.user.pojo.UserViewCountPojo;
 import com.carbarn.inter.utils.AjaxResult;
+import org.apache.ibatis.annotations.Param;
 
 public interface UserService {
 
@@ -30,4 +32,8 @@ public interface UserService {
     void updateAddress(long id, String address);
 
     UserPojo getUserInfoByID(long userid);
+
+    void updateUserInfo(UserPojo userPojo);
+
+    AjaxResult viewCount(long user_id);
 }

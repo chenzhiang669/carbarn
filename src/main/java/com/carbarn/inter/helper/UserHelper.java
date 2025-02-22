@@ -6,6 +6,7 @@ import com.carbarn.common.exception.ServiceException;
 import com.carbarn.common.exception.enums.ErrorCode;
 import com.carbarn.common.utils.ObjectJsonMapper;
 import com.carbarn.inter.pojo.User;
+import com.carbarn.inter.pojo.user.pojo.UserPojo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,10 +18,10 @@ import org.slf4j.LoggerFactory;
 public class UserHelper {
     private static final Logger LOGGER = LoggerFactory.getLogger(UserHelper.class);
 
-    public static User nowLoginUser() {
+    public static UserPojo nowLoginUser() {
         try {
             String userJson = StpUtil.getSession().getString(SaSession.USER);
-            return ObjectJsonMapper.fromJSON(userJson, User.class);
+            return ObjectJsonMapper.fromJSON(userJson, UserPojo.class);
         } catch (Exception e) {
             LOGGER.error("获取当前登录用户失败", e);
             throw new ServiceException(ErrorCode.FAIL_AUTH);

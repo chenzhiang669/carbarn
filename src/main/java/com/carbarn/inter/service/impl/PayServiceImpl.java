@@ -86,11 +86,13 @@ public class PayServiceImpl implements PayService {
         }else{
             orderPOJO.setSign(sign);
             payMapper.insertNewOrder(orderPOJO);
-            JSONObject json = (JSONObject)JSON.toJSON(orderPOJO);
-            json.remove("user_id");
-            json.remove("order_type");
-            json.remove("expiretime");
-            json.remove("appkey");
+            treemap.put("sign", sign);
+//            JSONObject json = (JSONObject)JSON.toJSON(orderPOJO);
+//            json.remove("user_id");
+//            json.remove("order_type");
+//            json.remove("expiretime");
+//            json.remove("appkey");
+            JSONObject json = JSON.parseObject(JSON.toJSONString(treemap));
             return AjaxResult.success("构建订单成功", json);
         }
     }
@@ -149,6 +151,19 @@ public class PayServiceImpl implements PayService {
             e.printStackTrace();
             return AjaxResult.error("订单有误，请重新注册");
         }
+    }
+
+    @Override
+    public AjaxResult price() {
+        OrderPOJO orderPOJO = payMapper.getDefaultOrderInfo();
+        JSONObject json = new JSONObject();
+        double price = Double.valueOf(orderPOJO.getTrxamt()) / 100;
+        double original_price = Double.valueOf(orderPOJO.getOriginal_price()) / 100;
+
+        json.put("price",price);
+        json.put("original_price", original_price);
+
+        return AjaxResult.success("获取支付价格成功", json);
     }
 
 

@@ -7,6 +7,7 @@ import com.carbarn.im.pojo.vo.StartConversationVo;
 import com.carbarn.im.service.IConversationService;
 import com.carbarn.inter.helper.UserHelper;
 import com.carbarn.inter.pojo.User;
+import com.carbarn.inter.pojo.user.pojo.UserPojo;
 import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -24,14 +25,14 @@ public class ConversationController {
 
     @PostMapping("/start")
     public CommonResult<StartConversationVo> startConversation(@RequestBody StartConversationParam startConversationParam) {
-        User user = UserHelper.nowLoginUser();
+        UserPojo user = UserHelper.nowLoginUser();
         return CommonResult.success(conversationService.startConversion(user.getId(), startConversationParam.getSellerId()));
     }
 
     @GetMapping("/page")
     public CommonResult<ConversationPageResp> conversationList(@RequestParam(defaultValue = "0") Integer pageNum,
                                                                @RequestParam(defaultValue = "10") Integer pageSize) {
-        User user = UserHelper.nowLoginUser();
+        UserPojo user = UserHelper.nowLoginUser();
         return CommonResult.success(conversationService.getConversationsByPage(user.getId(), pageNum, pageSize));
     }
 

@@ -9,6 +9,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 
 import java.time.LocalDate;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class Utils {
 
@@ -21,6 +22,11 @@ public class Utils {
     public static String getRandomChar(int length){
         String randomchar = RandomStringUtils.randomAlphanumeric(length);
         return randomchar;
+    }
+
+    public static long getRandomLong(){
+        long randomLong = ThreadLocalRandom.current().nextLong(1000L, 10001L);
+        return randomLong;
     }
 
     public static String getRandomDate() {
@@ -74,7 +80,7 @@ public class Utils {
     }
 
     public static void main(String[] args) {
-        String year = Utils.getYearFromVin("LVHFC1652P6044846");
+        long year = Utils.getRandomLong();
         System.out.println(year);
 
     }

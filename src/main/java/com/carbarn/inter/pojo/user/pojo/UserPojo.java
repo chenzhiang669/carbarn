@@ -4,7 +4,8 @@ import lombok.Data;
 
 @Data
 public class UserPojo {
-    private int id;
+    private long id;
+    private long user_count;
     private String phone_num;
     private String avatar;
     private String nickname;

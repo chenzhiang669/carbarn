@@ -13,8 +13,8 @@
 
     <!--普通用户注册接口，只需要电话号码，头像， 昵称即可-->
     <insert id="signup" parameterType="com.carbarn.inter.pojo.user.dto.SignupUserDTO">
-        insert into users(phone_num, avatar, nickname, role)
-        value(#{phone_num}, #{avatar}, #{nickname}, 0)
+        insert into users(user_count, phone_num, avatar, nickname, role)
+        value(#{user_count}, #{phone_num}, #{avatar}, #{nickname}, 0)
     </insert>
 
     <!--vip用户注册接口，只需要根据电话号码进行用户字段更新即可-->
@@ -62,6 +62,15 @@
         where id = #{id}
     </update>
 
+    <update id="updateUserInfo">
+        update users
+        set nickname = #{nickname},
+        avatar = #{avatar},
+        car_dealership = #{car_dealership},
+        address = #{address}
+        where id = #{id}
+    </update>
+
 
     <select id="getUserInfoByPhoneNum" resultType="com.carbarn.inter.pojo.user.pojo.UserPojo">
         select *
@@ -82,5 +91,35 @@
         FROM
         users
         WHERE phone_num = #{phone_num}
+    </select>
+
+    <select id="userViewCount" resultType="com.carbarn.inter.pojo.user.pojo.UserViewCountPojo">
+        SELECT
+        user_id,
+        sum(view_count) as view_count,
+        sum(viewed_count) as viewed_count,
+        sum(contact_count) as contact_count,
+        sum(contacted_count) as contacted_count
+        FROM
+        view_count
+        WHERE
+        user_id = #{user_id}
+        group by user_id
+    </select>
+
+    <select id="userDtViewCount" resultType="com.carbarn.inter.pojo.user.pojo.UserViewCountPojo">
+        SELECT
+        user_id,
+        dt,
+        sum(view_count) as view_count,
+        sum(viewed_count) as viewed_count,
+        sum(contact_count) as contact_count,
+        sum(contacted_count) as contacted_count
+        FROM
+        view_count
+        WHERE
+        user_id = #{user_id}
+        and dt = #{dt}
+        group by user_id, dt
     </select>
 </mapper>
