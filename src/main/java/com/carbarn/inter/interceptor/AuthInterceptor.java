@@ -15,12 +15,10 @@ public class AuthInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 
-        System.out.println(request.getRequestURI());
         if (StpUtil.isLogin()) {
             return true; // 校验登录状态
         }else{
             AjaxResult ajaxResult = AjaxResult.unlogin("unlogin");
-            System.out.println(JSON.toJSONString(ajaxResult));
             response.getWriter().write(JSON.toJSONString(ajaxResult));
             return false;
         }

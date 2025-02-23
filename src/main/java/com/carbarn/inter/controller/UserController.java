@@ -13,6 +13,7 @@ import com.carbarn.inter.utils.sms.SendSms;
 import io.swagger.annotations.Api;
 import org.checkerframework.common.util.report.qual.ReportWrite;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 @Api(tags = "用户服务")
@@ -21,6 +22,9 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
 
     @PostMapping("/signup")
     public AjaxResult signup(@RequestBody SignupUserDTO signupUserDTO) {
@@ -31,7 +35,6 @@ public class UserController {
 
         String phone_num = signupUserDTO.getPhone_num();
         String verify_code = signupUserDTO.getVeri_code();
-        System.out.println(phone_num + "\t" + verify_code);
         boolean bool = SendSms.checkVerifyCode(phone_num, verify_code);
         if(!bool){
             return AjaxResult.error("验证码错误");
@@ -148,5 +151,13 @@ public class UserController {
     public AjaxResult viewCount() {
         String user_id = (String) StpUtil.getLoginId();
         return userService.viewCount(Long.valueOf(user_id));
+    }
+
+    @PostMapping("/signout")
+    public AjaxResult signout(@RequestHeader(name = "satoken", required = true) String satoken) {
+        String token = StpUtil.getTokenValue();
+        StpUtil.logout();
+        stringRedisTemplate.delete(token);
+        return AjaxResult.success("退出登录成功");
     }
 }

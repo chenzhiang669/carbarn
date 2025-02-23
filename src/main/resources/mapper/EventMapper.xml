@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.carbarn.inter.mapper.EventMapper">
+
+    <insert id="insertViewCount">
+        INSERT INTO view_count (user_id, dt, view_count)
+        VALUES (#{user_id}, #{dt}, 1)
+        ON DUPLICATE KEY UPDATE view_count = view_count + 1
+    </insert>
+
+    <insert id="insertViewedCount">
+        INSERT INTO view_count (user_id, dt, viewed_count)
+        VALUES (#{user_id}, #{dt}, 1)
+        ON DUPLICATE KEY UPDATE viewed_count = viewed_count + 1
+    </insert>
+
+    <insert id="insertContactCount">
+        INSERT INTO view_count (user_id, dt, contact_count)
+        VALUES (#{user_id}, #{dt}, 1)
+        ON DUPLICATE KEY UPDATE contact_count = contact_count + 1
+    </insert>
+
+    <insert id="insertContactedCount">
+        INSERT INTO view_count (user_id, dt, contacted_count)
+        VALUES (#{user_id}, #{dt}, 1)
+        ON DUPLICATE KEY UPDATE contacted_count = contacted_count + 1
+    </insert>
+</mapper>

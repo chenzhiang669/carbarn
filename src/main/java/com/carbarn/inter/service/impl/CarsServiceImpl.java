@@ -369,7 +369,6 @@ public class CarsServiceImpl implements CarsService {
             }
         }
 
-        System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
 
         if(series_ids != null){
             for(Integer seriesid : series_ids){

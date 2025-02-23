@@ -172,7 +172,6 @@ public class SybUtil {
             }
             String sign = "";
             if ("MD5".equals(signType)) {
-                System.out.println(sb.toString());
                 sign = md5(sb.toString().getBytes("UTF-8"));// 记得是md5编码的加签
                 params.remove("key");
             }
@@ -182,7 +181,6 @@ public class SybUtil {
 //            sign = SmUtil.signSM3SM2RetBase64(privkey, params.get("appid"), sb.toString().getBytes("UTF-8"));//签名
 //        }
             else {
-                System.out.println(sb.toString());
                 sign = rsaSign(sb.toString(), appkey, "UTF-8");
             }
             return sign;

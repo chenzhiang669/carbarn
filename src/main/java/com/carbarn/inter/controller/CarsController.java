@@ -33,7 +33,6 @@ public class CarsController {
                                  @RequestBody SearchCarsDTO searchCarsDTO) {
         searchCarsDTO.setPageStart((searchCarsDTO.getPageNo() - 1) * searchCarsDTO.getPageSize());
 
-        System.out.println(searchCarsDTO.toString());
         int pageNo = searchCarsDTO.getPageNo();
         int pageSize = searchCarsDTO.getPageSize();
         if (pageNo < 1) {
@@ -59,14 +58,6 @@ public class CarsController {
         }else{
            result = carsService.searchCars(searchCarsDTO);
         }
-
-
-
-        System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-        for(FirstPageCarsDTO dto:result){
-            System.out.println(dto);
-        }
-        System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 
         AjaxResult ajaxResult = AjaxResult.success("搜索到相关数据", result);
         ajaxResult.put("pageNo", pageNo);

@@ -42,7 +42,6 @@ public class FilesServiceImpl implements FilesService {
             if(url == null){
                 return null;
             }else {
-                System.out.println("上传文件成功：" + url);
                 Files picture = new Files();
                 picture.setUrl(url);
                 picture.setIs_delete(0);

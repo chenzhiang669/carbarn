@@ -19,6 +19,7 @@ public class WebConfig implements WebMvcConfigurer {
                 .excludePathPatterns("/carbarn/user/signup", "/carbarn/user/vipsignup", "/api/index",
                         "/carbarn/cars/search","/carbarn/cars/details", "/carbarn/cars/carTypeDetails","/carbarn/index/**",
                         "/v3/api-docs", "/v3/api-docs/**", "/swagger-resources/**", "/swagger-ui/**",
-                        "/carbarn/feedback", "/carbarn/language", "/static/**", "/carbarn/pay/callback", "/carbarn/sms/**");
+                        "/carbarn/feedback", "/carbarn/language", "/static/**", "/carbarn/pay/callback", "/carbarn/sms/**",
+                        "/carbarn/event/**");
     }
 }

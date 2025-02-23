@@ -58,7 +58,6 @@ public class HangZhouYinHangUtils {
 
     public static PreOrderPojo http(){
         PreOrderPojo preOrderPojo = getPreOrderPojo();
-        System.out.println(JSON.toJSONString(preOrderPojo));
         preOrderPojo.setTokenCode(Utils.getRandomChar(50));
         preOrderPojo.setTokenEnd(Utils.getRandomChar(6));
         preOrderPojo.setTokenType(Utils.getRandomChar(6));

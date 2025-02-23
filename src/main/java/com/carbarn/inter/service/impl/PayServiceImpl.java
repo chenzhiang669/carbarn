@@ -99,7 +99,6 @@ public class PayServiceImpl implements PayService {
 
     @Override
     public String callback(PayCallBackPOJO payCallBackDTO) {
-        System.out.println(payCallBackDTO);
         try{
             if("0000".equals(payCallBackDTO.getTrxstatus())){
                 String user_id = payMapper.getUserIdByReqsn(payCallBackDTO.getOuttrxid());

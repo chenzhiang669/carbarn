@@ -28,7 +28,6 @@ public class QiniuyunUtils {
             Auth auth = Auth.create(accessKey, secretKey);
             String upToken = auth.uploadToken(bucket, key); //覆盖上传
             Response response = uploadManager.put(bytes, key, upToken);
-            System.out.println(response.bodyString());
             JSONObject json = JSON.parseObject(response.bodyString());
             if(json.containsKey("key")){
                 String return_key = json.getString("key");
