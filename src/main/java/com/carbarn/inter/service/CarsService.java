@@ -25,6 +25,10 @@ public interface CarsService {
 
     AjaxResult insertNewCar(CarsPOJO carsPOJO);
 
+    AjaxResult uploadNewCar(CarsPOJO carsPOJO);
+
+    AjaxResult updateCar(CarsPOJO carsPOJO);
+
     List<FirstPageCarsDTO> searchCarsByKeywords(SearchCarsDTO searchCarsDTO);
 
     String getCarTypeDetails(int type_id, String language);

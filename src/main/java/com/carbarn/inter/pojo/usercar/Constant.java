@@ -17,7 +17,4 @@ public class Constant {
     public static int STATE_ON_DELETE = 5; //状态:删除
     public static String KEY_ON_DELETE = "删除"; //状态:删除
 
-
-    public static int NEW_CAR = 0; //汽车类型: 新车
-    public static int USED_CAR = 1; //汽车类型: 二手车
 }

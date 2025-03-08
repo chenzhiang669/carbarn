@@ -16,6 +16,8 @@ public class CarsPOJO {
     private int	brand_id;
     private int	series_id;
     private int	type_id;
+    private int vehicleType = -1;
+    private int operate = -1;
     private int	color = -1;
     private int	engine = -1;
     private int	transmission = -1;
@@ -34,7 +36,7 @@ public class CarsPOJO {
     private String	avi_date;
     private double	car_age = 0.0;
     private double	mileage = 0.0;
-    private String	vin;
+    private String	vin = "";
 
     private String manufacture_date;
     private String	plate_issue_date;
@@ -76,5 +78,6 @@ public class CarsPOJO {
     private String	number_of_transfers_string = "-1";
     private String	mileage_contition_string = "-1";
     private String	car_condition_desc;
+    private String randomString = "";
 
 }

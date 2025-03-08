@@ -199,7 +199,7 @@
             <if test="mileage_up_limit != 0.0 or mileage_lower_limit != 0.0">
                 AND mileage BETWEEN #{mileage_lower_limit} AND #{mileage_up_limit}
             </if>
-            and is_deal = 0
+            and is_deal = 0 and state = 0
         </where>
         ) a left join (select brand_id, brand from car_brand where `language`= #{language}) b on a.brand_id = b.brand_id
         left join (select series_id, series from car_series where `language`= #{language}) c on a.series_id = c.series_id
@@ -326,7 +326,7 @@
             <if test="searchCarsDTO.mileage_up_limit != 0.0 or searchCarsDTO.mileage_lower_limit != 0.0">
                 AND mileage BETWEEN #{searchCarsDTO.mileage_lower_limit} AND #{searchCarsDTO.mileage_up_limit}
             </if>
-            and is_deal = 0
+            and is_deal = 0 and state = 0
         </where>
         ) a left join (select brand_id, brand from car_brand where `language`= #{searchCarsDTO.language}) b on a.brand_id = b.brand_id
         left join (select series_id, series from car_series where `language`= #{searchCarsDTO.language}) c on a.series_id = c.series_id
@@ -378,24 +378,88 @@
 
     <insert id="insertNewCar" parameterType="com.carbarn.inter.pojo.CarsPOJO">
         insert into cars
-        (user_id,brand_id,series_id,type_id,color,engine,transmission,
+        (user_id,brand_id,series_id,type_id,vehicleType,color,engine,transmission,
         emission_standards,type_of_manu,type_of_car,origin_country,drive_type,
         box,displacement,displacement_type,seat_capacity,new_car_price,ctali_date,
         avi_date,car_age,mileage,vin,manufacture_date,plate_issue_date,price,floor_price,guide_price,
         power,battery_capacity,pure_electric_range,province,city,is_deal,is_lock,state,
         description,header_picture,all_pictures,proof,label,inspection_report,
         car_condition,coating,component,engine_condition,transmission_condition,
-        number_of_transfers,mileage_contition,car_condition_desc)
+        number_of_transfers,mileage_contition,car_condition_desc,randomString)
         values
-        (#{user_id},#{brand_id},#{series_id},#{type_id},#{color},#{engine},#{transmission},
+        (#{user_id},#{brand_id},#{series_id},#{type_id},#{vehicleType},#{color},#{engine},#{transmission},
         #{emission_standards},#{type_of_manu},#{type_of_car},#{origin_country},#{drive_type},
         #{box},#{displacement},#{displacement_type},#{seat_capacity},#{new_car_price},#{ctali_date},
         #{avi_date},#{car_age},#{mileage},#{vin},#{manufacture_date},#{plate_issue_date},#{price},#{floor_price},#{guide_price},
         #{power},#{battery_capacity},#{pure_electric_range},#{province},#{city},#{is_deal},#{is_lock},#{state},
         #{description},#{header_picture},#{all_pictures},#{proof},#{label_string},#{inspection_report},
         #{car_condition_string},#{coating_string},#{component_string},#{engine_condition_string},#{transmission_condition_string},
-        #{number_of_transfers_string},#{mileage_contition_string},#{car_condition_desc})
+        #{number_of_transfers_string},#{mileage_contition_string},#{car_condition_desc},#{randomString})
     </insert>
+
+    <select id="getCaridByRandomString" resultType="java.lang.Long">
+        select
+        id
+        from
+        cars
+        where randomString = #{randomString}
+        limit 1
+    </select>
+
+    <update id="updateCarInfo" parameterType="com.carbarn.inter.pojo.CarsPOJO">
+        update cars
+        set user_id = #{user_id},
+        brand_id = #{brand_id},
+        series_id = #{series_id},
+        type_id = #{type_id},
+        vehicleType = #{vehicleType},
+        color = #{color},
+        engine = #{engine},
+        transmission = #{transmission},
+        emission_standards = #{emission_standards},
+        type_of_manu = #{type_of_manu},
+        type_of_car = #{type_of_car},
+        origin_country = #{origin_country},
+        drive_type = #{drive_type},
+        box = #{box},
+        displacement = #{displacement},
+        displacement_type = #{displacement_type},
+        seat_capacity = #{seat_capacity},
+        new_car_price = #{new_car_price},
+        ctali_date = #{ctali_date},
+        avi_date = #{avi_date},
+        car_age = #{car_age},
+        mileage = #{mileage},
+        vin = #{vin},
+        manufacture_date = #{manufacture_date},
+        plate_issue_date = #{plate_issue_date},
+        price = #{price},
+        floor_price = #{floor_price},
+        guide_price = #{guide_price},
+        power = #{power},
+        battery_capacity = #{battery_capacity},
+        pure_electric_range = #{pure_electric_range},
+        province = #{province},
+        city = #{city},
+        is_deal = #{is_deal},
+        is_lock = #{is_lock},
+        state = #{state},
+        description = #{description},
+        header_picture = #{header_picture},
+        all_pictures = #{all_pictures},
+        proof = #{proof},
+        label = #{label_string},
+        inspection_report = #{inspection_report},
+        car_condition = #{car_condition_string},
+        coating = #{coating_string},
+        component = #{component_string},
+        engine_condition = #{engine_condition_string},
+        transmission_condition = #{transmission_condition_string},
+        number_of_transfers = #{number_of_transfers_string},
+        mileage_contition = #{mileage_contition_string},
+        car_condition_desc = #{car_condition_desc}
+        where id = #{id}
+    </update>
 
     <select id="existsByVin" resultType="java.lang.Boolean">
         SELECT

@@ -25,6 +25,10 @@ public interface CarsMapper {
 
     void insertNewCar(CarsPOJO carsPOJO);
 
+    long getCaridByRandomString(@Param("randomString") String randomString);
+
+    void updateCarInfo(CarsPOJO carsPOJO);
+
     List<FirstPageCarsDTO> searchCarsByKeywords(@Param("searchCarsDTO") SearchCarsDTO searchCarsDTO,
                                                 @Param("brandIds") List<Integer> brandIds,
                                                 @Param("seriesIds") List<Integer> seriesIds);

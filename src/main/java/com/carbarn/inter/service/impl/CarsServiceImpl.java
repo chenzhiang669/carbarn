@@ -15,6 +15,7 @@ import com.carbarn.inter.pojo.dto.cars.SearchCarsDTO;
 import com.carbarn.inter.pojo.dto.cars.index.IndexDTO;
 import com.carbarn.inter.pojo.dto.cars.index.TypeMessageDTO;
 import com.carbarn.inter.pojo.user.pojo.UserPojo;
+import com.carbarn.inter.pojo.usercar.Constant;
 import com.carbarn.inter.pojo.vin.VinPOJO;
 import com.carbarn.inter.service.CarsService;
 import com.carbarn.inter.utils.AjaxResult;
@@ -26,11 +27,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Field;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 public class CarsServiceImpl implements CarsService {
+
+    public static int newcar = 0; //新车(有增值税发票)
+    public static int usedcar_with_invoice = 1; //二手车(有增值税发票)
+    public static int usedcar_without_invoice = 2; //二手车(有增值税发票)
+
+    public static int operate_save = 0; //操作: 保存
+    public static int operate_deploy = 1; //操作: 发布
 
     @Autowired
     private CarsMapper carsMapper;
@@ -43,7 +53,7 @@ public class CarsServiceImpl implements CarsService {
     @Autowired
     private CarbarnConfig carbarnConfig;
 
-    public static HashMap<String,String> multi_values_fields = new HashMap<String,String>();
+    public static HashMap<String, String> multi_values_fields = new HashMap<String, String>();
 
     static {
         multi_values_fields.put("label_string", "label");
@@ -69,8 +79,8 @@ public class CarsServiceImpl implements CarsService {
     @Override
     public Map<String, Object> getCarsByID(String language, long carid) {
 
-        CarsPOJO carsPOJO =  carsMapper.getCarsByID(carid);
-        if(carsPOJO == null){
+        CarsPOJO carsPOJO = carsMapper.getCarsByID(carid);
+        if (carsPOJO == null) {
             return new HashMap<String, Object>();
         }
 
@@ -89,7 +99,7 @@ public class CarsServiceImpl implements CarsService {
         user_info.put("real_name", userPojo.getReal_name());
         map.put("user_info", user_info);
 
-        try{
+        try {
             int type_id = carsPOJO.getType_id();
             TypeMessageDTO typeMessageDTO = indexMapper.getTypeMessage(language, type_id);
             String brand = typeMessageDTO.getBrand();
@@ -97,15 +107,15 @@ public class CarsServiceImpl implements CarsService {
             String type = typeMessageDTO.getType();
             int brand_id = typeMessageDTO.getBrand_id();
             int series_id = typeMessageDTO.getSeries_id();
-            if(brand != null && series != null && type != null){
+            if (brand != null && series != null && type != null) {
                 String name = brand + " " + series + " " + type;
                 map.put("brand", brand);
                 map.put("brand_id", brand_id);
                 map.put("series", series);
                 map.put("series_id", series_id);
-                map.put("type",type);
+                map.put("type", type);
                 map.put("name", name);
-            }else{
+            } else {
                 map.clear();
                 return map;
             }
@@ -115,12 +125,12 @@ public class CarsServiceImpl implements CarsService {
             Map<Integer, IndexDTO> id_mapping = new HashMap<Integer, IndexDTO>();
             Map<String, IndexDTO> field_mapping = new HashMap<String, IndexDTO>();
 
-            for(IndexDTO indexDTO:indexes){
+            for (IndexDTO indexDTO : indexes) {
                 int is_mapping = indexDTO.getIs_mapping();
                 int id = indexDTO.getValue_id();
                 String field = indexDTO.getField();
 
-                if(is_mapping == 0){
+                if (is_mapping == 0) {
                     id_mapping.put(id, indexDTO);
                     field_mapping.put(field, indexDTO);
                 }
@@ -129,11 +139,11 @@ public class CarsServiceImpl implements CarsService {
             Class<?> clazz = carsPOJO.getClass();
             Field[] fields = clazz.getDeclaredFields();
 
-            for(Field field:fields){
+            for (Field field : fields) {
                 field.setAccessible(true);
                 String key = field.getName();
 
-                if(multi_values_fields.containsKey(key)){
+                if (multi_values_fields.containsKey(key)) {
                     String value_name = multi_values_fields.get(key);
                     String[] real_ids = ((String) field.get(carsPOJO)).split(",");
                     List<Integer> ids = Arrays.stream(real_ids).map(x -> {
@@ -143,16 +153,16 @@ public class CarsServiceImpl implements CarsService {
                     }).collect(Collectors.toList());
                     map.put(value_name, ids);
 
-                }else if(multi_values_fields.values().contains(key)){
+                } else if (multi_values_fields.values().contains(key)) {
                     continue;
-                }else{
-                    if(field_mapping.containsKey(key)){
+                } else {
+                    if (field_mapping.containsKey(key)) {
                         Object real_id = field.get(carsPOJO);
 
-                        if(id_mapping.containsKey(real_id) && key.equals(id_mapping.get(real_id).getField())){
+                        if (id_mapping.containsKey(real_id) && key.equals(id_mapping.get(real_id).getField())) {
                             String real_name = id_mapping.get(real_id).getValue();
                             map.put(key + "_name", real_name);
-                        }else{
+                        } else {
                             map.put(key + "_name", null);
                         }
 
@@ -160,7 +170,7 @@ public class CarsServiceImpl implements CarsService {
                 }
             }
 
-        }catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             map.clear();
         }
@@ -187,18 +197,18 @@ public class CarsServiceImpl implements CarsService {
 
         String responseString = null;
         VinPOJO vinPOJO = carsMapper.getVinInfos(vin); //先从自有vin库中查询是否有这个车架号
-        if(vinPOJO == null){
+        if (vinPOJO == null) {
             responseString = Qixiubao.searchVin(vin);
-            if(responseString == null){
+            if (responseString == null) {
                 map.put("1", true);
                 return map;
-            }else{
+            } else {
                 vinPOJO = new VinPOJO();
                 vinPOJO.setVin(vin);
                 vinPOJO.setInfos(responseString);
                 carsMapper.insertVin(vinPOJO);
             }
-        }else{
+        } else {
             responseString = vinPOJO.getInfos();
         }
 
@@ -212,13 +222,13 @@ public class CarsServiceImpl implements CarsService {
 //            return map;
 //        }
 
-        for(JSONObject message:vin_details){
+        for (JSONObject message : vin_details) {
             String brand = message.getString("brand");
             String series = message.getString("series");
             String brand_first_char = Utils.getFirstLetter(brand);
             String series_first_char = Utils.getFirstLetter(series);
             String type = message.getString("type");
-            String language = message.getOrDefault("language","zh").toString();
+            String language = message.getOrDefault("language", "zh").toString();
 
             String brand_id = indexMapper.getBrandIdByBrand(language, brand);
             if (brand_id == null) {
@@ -227,7 +237,7 @@ public class CarsServiceImpl implements CarsService {
             }
 
             int brandid = Integer.valueOf(brand_id);
-            message.put("brand_id",brandid);
+            message.put("brand_id", brandid);
             Map<String, Object> brand_map = new HashMap<String, Object>();
             brand_map.put("name", brand);
             brand_map.put("brand_id", brandid);
@@ -274,26 +284,26 @@ public class CarsServiceImpl implements CarsService {
 
         Map<String, Integer> value_id_map = new HashMap<String, Integer>();
         Set<String> mapping_fields = new HashSet<String>();
-        for(IndexDTO indexDTO:indexes){
+        for (IndexDTO indexDTO : indexes) {
             int is_mapping = indexDTO.getIs_mapping();
             String value = indexDTO.getValue();
             int value_id = indexDTO.getValue_id();
             String field = indexDTO.getField();
             String field_value = field + value;
-            if(is_mapping == 0){
+            if (is_mapping == 0) {
 //                value_id_map.put(value, value_id);
                 value_id_map.put(field_value, value_id);
                 mapping_fields.add(field);
             }
         }
 
-        for(String key:message.keySet()){
+        for (String key : message.keySet()) {
             Object value = message.getOrDefault(key, null);
-            String field_value = key +value;
-            if(mapping_fields.contains(key)){
-                if(value_id_map.containsKey(field_value)){
+            String field_value = key + value;
+            if (mapping_fields.contains(key)) {
+                if (value_id_map.containsKey(field_value)) {
                     message.put(key, value_id_map.get(field_value));
-                }else{
+                } else {
                     message.put(key, -1);
                 }
             }
@@ -386,53 +396,165 @@ public class CarsServiceImpl implements CarsService {
     public AjaxResult insertNewCar(CarsPOJO carsPOJO) {
 
         boolean bool = carsMapper.existsByVin(carsPOJO.getVin());
-        if(bool){
+        if (bool) {
             return AjaxResult.error("车架号所属汽车已经上传过，请不要重复上传");
         }
 
+        carsPOJO.setVehicleType(2); //默认是二手车无增值税发票
 
-        if(carsPOJO.getLabel().size() > 0){
+        if (carsPOJO.getLabel().size() > 0) {
             String label_string = carsPOJO.getLabel().stream().map(String::valueOf).collect(Collectors.joining(","));
             carsPOJO.setLabel_string(label_string);
         }
 
-        if(carsPOJO.getCar_condition().size() > 0){
+        if (carsPOJO.getCar_condition().size() > 0) {
             String car_condition_string = carsPOJO.getCar_condition().stream().map(String::valueOf).collect(Collectors.joining(","));
             carsPOJO.setCar_condition_string(car_condition_string);
         }
 
-        if(carsPOJO.getCoating().size() > 0){
+        if (carsPOJO.getCoating().size() > 0) {
             String coating_string = carsPOJO.getCoating().stream().map(String::valueOf).collect(Collectors.joining(","));
             carsPOJO.setCoating_string(coating_string);
         }
 
-        if(carsPOJO.getComponent().size() > 0){
+        if (carsPOJO.getComponent().size() > 0) {
             String component_string = carsPOJO.getComponent().stream().map(String::valueOf).collect(Collectors.joining(","));
             carsPOJO.setComponent_string(component_string);
         }
 
-        if(carsPOJO.getEngine_condition().size() > 0){
+        if (carsPOJO.getEngine_condition().size() > 0) {
             String engine_condition_string = carsPOJO.getEngine_condition().stream().map(String::valueOf).collect(Collectors.joining(","));
             carsPOJO.setEngine_condition_string(engine_condition_string);
         }
 
-        if(carsPOJO.getTransmission_condition().size() > 0){
+        if (carsPOJO.getTransmission_condition().size() > 0) {
             String transmission_condition_string = carsPOJO.getTransmission_condition().stream().map(String::valueOf).collect(Collectors.joining(","));
             carsPOJO.setTransmission_condition_string(transmission_condition_string);
         }
 
-        if(carsPOJO.getNumber_of_transfers().size() > 0){
+        if (carsPOJO.getNumber_of_transfers().size() > 0) {
             String number_of_transfers_string = carsPOJO.getNumber_of_transfers().stream().map(String::valueOf).collect(Collectors.joining(","));
             carsPOJO.setNumber_of_transfers_string(number_of_transfers_string);
         }
 
-        if(carsPOJO.getMileage_contition().size() > 0){
+        if (carsPOJO.getMileage_contition().size() > 0) {
             String mileage_contition_string = carsPOJO.getMileage_contition().stream().map(String::valueOf).collect(Collectors.joining(","));
             carsPOJO.setMileage_contition_string(mileage_contition_string);
         }
 
         carsMapper.insertNewCar(carsPOJO);
         return AjaxResult.success("上传汽车成功");
+    }
+
+
+    @Override
+    public AjaxResult uploadNewCar(CarsPOJO carsPOJO) {
+        int vehicleType = carsPOJO.getVehicleType();
+        //如果是二手车，需要校验车架号是否上传过
+        if (vehicleType == usedcar_with_invoice || vehicleType == usedcar_without_invoice) {
+
+            if (carsPOJO.getVin() == null) {
+                return AjaxResult.error("Missing required parameter: vin");
+            } else {
+                boolean bool = carsMapper.existsByVin(carsPOJO.getVin());
+                if (bool) {
+                    return AjaxResult.error("车架号所属汽车已经上传过，请不要重复上传");
+                }
+            }
+
+        } else if (vehicleType == newcar) {
+            carsPOJO.setVin("");
+        } else {
+            return AjaxResult.error("error: vehicleType should be one of [0,1,2]");
+        }
+
+        int operate = carsPOJO.getOperate();
+        //判断operate操作是否合法
+        if (operate == operate_save) {
+            carsPOJO.setState(Constant.STATE_ON_DRAFT);
+        } else if (operate == operate_deploy) {
+            carsPOJO.setState(Constant.STATE_ON_REVIEW);
+        } else {
+            return AjaxResult.error("error: operate should be one of [0,1]");
+        }
+
+        dealWithSpecialFields(carsPOJO);
+        String randomString = getRandomString();
+        carsPOJO.setRandomString(randomString);
+
+        carsMapper.insertNewCar(carsPOJO);
+        long id = carsMapper.getCaridByRandomString(randomString);
+        HashMap<String, Long> result = new HashMap<String, Long>();
+        result.put("id", id);
+        return AjaxResult.success("上传新车辆成功", result);
+    }
+
+    @Override
+    public AjaxResult updateCar(CarsPOJO carsPOJO) {
+        int vehicleType = carsPOJO.getVehicleType();
+        //校验vehicleType是否合法
+        if (vehicleType != usedcar_with_invoice
+                && vehicleType != usedcar_without_invoice
+                && vehicleType != newcar) {
+            return AjaxResult.error("error: vehicleType should be one of [0,1,2]");
+        }
+
+        int operate = carsPOJO.getOperate();
+        //判断operate操作是否合法
+        if (operate == operate_save) {
+            carsPOJO.setState(Constant.STATE_ON_DRAFT);
+        } else if (operate == operate_deploy) {
+            carsPOJO.setState(Constant.STATE_ON_REVIEW);
+        } else {
+            return AjaxResult.error("error: operate should be one of [0,1]");
+        }
+
+        dealWithSpecialFields(carsPOJO);
+        carsMapper.updateCarInfo(carsPOJO);
+        return AjaxResult.success("更新汽车信息成功");
+    }
+
+    //几个标签字段值需要做单独处理
+    private void dealWithSpecialFields(CarsPOJO carsPOJO) {
+        if (carsPOJO.getLabel().size() > 0) {
+            String label_string = carsPOJO.getLabel().stream().map(String::valueOf).collect(Collectors.joining(","));
+            carsPOJO.setLabel_string(label_string);
+        }
+
+        if (carsPOJO.getCar_condition().size() > 0) {
+            String car_condition_string = carsPOJO.getCar_condition().stream().map(String::valueOf).collect(Collectors.joining(","));
+            carsPOJO.setCar_condition_string(car_condition_string);
+        }
+
+        if (carsPOJO.getCoating().size() > 0) {
+            String coating_string = carsPOJO.getCoating().stream().map(String::valueOf).collect(Collectors.joining(","));
+            carsPOJO.setCoating_string(coating_string);
+        }
+
+        if (carsPOJO.getComponent().size() > 0) {
+            String component_string = carsPOJO.getComponent().stream().map(String::valueOf).collect(Collectors.joining(","));
+            carsPOJO.setComponent_string(component_string);
+        }
+
+        if (carsPOJO.getEngine_condition().size() > 0) {
+            String engine_condition_string = carsPOJO.getEngine_condition().stream().map(String::valueOf).collect(Collectors.joining(","));
+            carsPOJO.setEngine_condition_string(engine_condition_string);
+        }
+
+        if (carsPOJO.getTransmission_condition().size() > 0) {
+            String transmission_condition_string = carsPOJO.getTransmission_condition().stream().map(String::valueOf).collect(Collectors.joining(","));
+            carsPOJO.setTransmission_condition_string(transmission_condition_string);
+        }
+
+        if (carsPOJO.getNumber_of_transfers().size() > 0) {
+            String number_of_transfers_string = carsPOJO.getNumber_of_transfers().stream().map(String::valueOf).collect(Collectors.joining(","));
+            carsPOJO.setNumber_of_transfers_string(number_of_transfers_string);
+        }
+
+        if (carsPOJO.getMileage_contition().size() > 0) {
+            String mileage_contition_string = carsPOJO.getMileage_contition().stream().map(String::valueOf).collect(Collectors.joining(","));
+            carsPOJO.setMileage_contition_string(mileage_contition_string);
+        }
     }
 
     @Override
@@ -454,10 +576,10 @@ public class CarsServiceImpl implements CarsService {
 //        }
 
 
-        if((brand_ids == null || brand_ids.size() == 0)
-                && (series_ids == null || series_ids.size() == 0)){
+        if ((brand_ids == null || brand_ids.size() == 0)
+                && (series_ids == null || series_ids.size() == 0)) {
             return new ArrayList<FirstPageCarsDTO>();
-        }else{
+        } else {
             return carsMapper.searchCarsByKeywords(searchCarsDTO, brand_ids, series_ids);
         }
     }
@@ -507,6 +629,15 @@ public class CarsServiceImpl implements CarsService {
         }
 
         return type_id;
+    }
+
+
+    public String getRandomString() {
+        LocalDateTime localDateTime = LocalDateTime.now();
+
+        String time = localDateTime.format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+        String randomChar = Utils.getRandomChar(10);
+        return time + randomChar;
     }
 
 }
