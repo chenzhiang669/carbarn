@@ -1,5 +1,6 @@
 package com.carbarn.inter.test;
 
+import ch.qos.logback.classic.Level;
 import com.carbarn.im.translator.VolcTranslator;
 import com.volcengine.model.request.translate.TranslateTextRequest;
 import com.volcengine.model.response.translate.TranslateTextResponse;
@@ -19,8 +20,8 @@ public class Translator1 {
 
         public Translator1() {
             translateService = TranslateServiceImpl.getInstance();
-            translateService.setAccessKey("AKLTZGE4NGY2ZGM4MzAyNGQzMmExZWNmZWU3YjU0MDQ3NmU");
-            translateService.setSecretKey("T0RobVlXTXhPR1ZpWVRRNE5EQmlZbUl5TlRZMFlqY3paall5T1RWbFptRQ==");
+            translateService.setAccessKey("AKLTMDY3MGI0YzI0Zjg0NDdiODkzZDJjNGQ1ODZhZDMzZGE");
+            translateService.setSecretKey("TXpnd056aGtOV0V3WmpBd05EWmtZV0ptTXpSa1pUQTJNRFUxT1RRNVpqUQ==");
         }
 
         public String translate(String text, String sourceLang, String targetLang) {
@@ -60,7 +61,23 @@ public class Translator1 {
             bw.close();
         }
     public static void main(String[] args) throws IOException {
-        car_series();
+//        car_series();
+
+        ch.qos.logback.classic.Logger wireLogger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger("org.apache.http.wire");
+        wireLogger.setLevel(Level.OFF); // 禁用日志输出
+
+        ch.qos.logback.classic.Logger headersLogger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger("org.apache.http.headers");
+        headersLogger.setLevel(Level.OFF); // 禁用日志输出
+        ch.qos.logback.classic.Logger headersimpl = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger("org.apache.http.impl");
+        headersimpl.setLevel(Level.OFF); // 禁用日志输出
+        ch.qos.logback.classic.Logger headersclient = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger("org.apache.http.client");
+        headersclient.setLevel(Level.OFF); // 禁用日志输出
+
+        Translator1 translator = new Translator1();
+        String value = translator.translate("你好，帅哥","zh","en");
+        System.out.println(value);
+
+
 
 //        Translator1 translator = new Translator1();
 //        String result = translator.translate("2011款 620 1.5 雪地版精英型(6.18万)","zh","en");
