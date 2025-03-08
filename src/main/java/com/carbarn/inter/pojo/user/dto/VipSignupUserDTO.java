@@ -5,6 +5,7 @@ import lombok.Data;
 @Data
 public class VipSignupUserDTO {
     private long id; //用户id
+    private String nickname; //昵称
     private String address; //车商地址
     private String car_dealership; //车行名称
     private String real_name; //用户真实名字

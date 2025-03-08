@@ -6,6 +6,7 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.carbarn.inter.config.CarbarnConfig;
 import com.carbarn.inter.mapper.CarsMapper;
 import com.carbarn.inter.mapper.IndexMapper;
+import com.carbarn.inter.mapper.UserMapper;
 import com.carbarn.inter.pojo.CarTypePOJO;
 import com.carbarn.inter.pojo.CarsPOJO;
 import com.carbarn.inter.pojo.dto.cars.CarsOfUsersDTO;
@@ -13,10 +14,13 @@ import com.carbarn.inter.pojo.dto.cars.FirstPageCarsDTO;
 import com.carbarn.inter.pojo.dto.cars.SearchCarsDTO;
 import com.carbarn.inter.pojo.dto.cars.index.IndexDTO;
 import com.carbarn.inter.pojo.dto.cars.index.TypeMessageDTO;
+import com.carbarn.inter.pojo.user.pojo.UserPojo;
+import com.carbarn.inter.pojo.vin.VinPOJO;
 import com.carbarn.inter.service.CarsService;
 import com.carbarn.inter.utils.AjaxResult;
 import com.carbarn.inter.utils.Utils;
 import com.carbarn.inter.utils.http.JinyutangHttp;
+import com.carbarn.inter.utils.qixiubao.Qixiubao;
 import io.swagger.models.auth.In;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,7 +38,23 @@ public class CarsServiceImpl implements CarsService {
     private IndexMapper indexMapper;
 
     @Autowired
+    private UserMapper userMapper;
+
+    @Autowired
     private CarbarnConfig carbarnConfig;
+
+    public static HashMap<String,String> multi_values_fields = new HashMap<String,String>();
+
+    static {
+        multi_values_fields.put("label_string", "label");
+        multi_values_fields.put("car_condition_string", "car_condition");
+        multi_values_fields.put("coating_string", "coating");
+        multi_values_fields.put("component_string", "component");
+        multi_values_fields.put("engine_condition_string", "engine_condition");
+        multi_values_fields.put("transmission_condition_string", "transmission_condition");
+        multi_values_fields.put("number_of_transfers_string", "number_of_transfers");
+        multi_values_fields.put("mileage_contition_string", "mileage_contition");
+    }
 
     @Override
     public List<FirstPageCarsDTO> getCars() {
@@ -50,22 +70,24 @@ public class CarsServiceImpl implements CarsService {
     public Map<String, Object> getCarsByID(String language, long carid) {
 
         CarsPOJO carsPOJO =  carsMapper.getCarsByID(carid);
-        String[] labels_string = carsPOJO.getLabel_string().split(",");
-        if(labels_string.length> 0){
-            List<Integer> labels_int = new ArrayList<Integer>();
-            for(String label:labels_string){
-                labels_int.add(Integer.valueOf(label));
-            }
-            carsPOJO.setLabel(labels_int);
-        }
-
         if(carsPOJO == null){
             return new HashMap<String, Object>();
         }
 
+        UserPojo userPojo = userMapper.getUserInfoByID(carsPOJO.getUser_id());
+
         String carsPOJOJsonString = JSON.toJSONString(carsPOJO, SerializerFeature.WriteMapNullValue);
         JSONObject jsonObject = JSON.parseObject(carsPOJOJsonString);
         Map<String, Object> map = jsonObject;
+
+        Map<String, String> user_info = new HashMap<String, String>();
+        user_info.put("phone_num", userPojo.getPhone_num());
+        user_info.put("avatar", userPojo.getAvatar());
+        user_info.put("nickname", userPojo.getNickname());
+        user_info.put("address", userPojo.getAddress());
+        user_info.put("car_dealership", userPojo.getCar_dealership());
+        user_info.put("real_name", userPojo.getReal_name());
+        map.put("user_info", user_info);
 
         try{
             int type_id = carsPOJO.getType_id();
@@ -111,18 +133,18 @@ public class CarsServiceImpl implements CarsService {
                 field.setAccessible(true);
                 String key = field.getName();
 
-                if(key.equals("label")){
-                    List<Integer> real_ids = (List<Integer>) field.get(carsPOJO);
-                    List<String> labels_value = new ArrayList<String>();
-                    for(Integer real_id:real_ids){
-                        if(id_mapping.containsKey(real_id)){
-                            String real_name = id_mapping.get(real_id).getValue();
-                            labels_value.add(real_name);
-                        }
-                    }
+                if(multi_values_fields.containsKey(key)){
+                    String value_name = multi_values_fields.get(key);
+                    String[] real_ids = ((String) field.get(carsPOJO)).split(",");
+                    List<Integer> ids = Arrays.stream(real_ids).map(x -> {
+                        return Integer.valueOf(x);
+                    }).filter(x -> {
+                        return x != -1;
+                    }).collect(Collectors.toList());
+                    map.put(value_name, ids);
 
-                    map.put(key + "_name", labels_value);
-
+                }else if(multi_values_fields.values().contains(key)){
+                    continue;
                 }else{
                     if(field_mapping.containsKey(key)){
                         Object real_id = field.get(carsPOJO);
@@ -163,11 +185,32 @@ public class CarsServiceImpl implements CarsService {
             return map;
         }
 
-        List<JSONObject> vin_details = JinyutangHttp.searchVin(vin); //TODO
-        if (vin_details == null || vin_details.size() == 0) {
-            map.put("1", true);
-            return map;
+        String responseString = null;
+        VinPOJO vinPOJO = carsMapper.getVinInfos(vin); //先从自有vin库中查询是否有这个车架号
+        if(vinPOJO == null){
+            responseString = Qixiubao.searchVin(vin);
+            if(responseString == null){
+                map.put("1", true);
+                return map;
+            }else{
+                vinPOJO = new VinPOJO();
+                vinPOJO.setVin(vin);
+                vinPOJO.setInfos(responseString);
+                carsMapper.insertVin(vinPOJO);
+            }
+        }else{
+            responseString = vinPOJO.getInfos();
         }
+
+        List<JSONObject> vin_details = Qixiubao.parseResponse(responseString);
+
+//        List<JSONObject> vin_details = JinyutangHttp.searchVin(vin); //TODO
+//        String responseString = Qixiubao.searchVin(vin);
+//        List<JSONObject> vin_details = Qixiubao.parseResponse(responseString);
+//        if (vin_details == null || vin_details.size() == 0) {
+//            map.put("1", true);
+//            return map;
+//        }
 
         for(JSONObject message:vin_details){
             String brand = message.getString("brand");
@@ -341,19 +384,53 @@ public class CarsServiceImpl implements CarsService {
 
     @Override
     public AjaxResult insertNewCar(CarsPOJO carsPOJO) {
-        if(carsPOJO.getLabel().size() == 0){
-            List<Integer> labels = new ArrayList<Integer>();
-            labels.add(-1);
-            carsPOJO.setLabel(labels);
-        }
-
-        String label_string = carsPOJO.getLabel().stream().map(String::valueOf).collect(Collectors.joining(","));
-        carsPOJO.setLabel_string(label_string);
 
         boolean bool = carsMapper.existsByVin(carsPOJO.getVin());
         if(bool){
             return AjaxResult.error("车架号所属汽车已经上传过，请不要重复上传");
         }
+
+
+        if(carsPOJO.getLabel().size() > 0){
+            String label_string = carsPOJO.getLabel().stream().map(String::valueOf).collect(Collectors.joining(","));
+            carsPOJO.setLabel_string(label_string);
+        }
+
+        if(carsPOJO.getCar_condition().size() > 0){
+            String car_condition_string = carsPOJO.getCar_condition().stream().map(String::valueOf).collect(Collectors.joining(","));
+            carsPOJO.setCar_condition_string(car_condition_string);
+        }
+
+        if(carsPOJO.getCoating().size() > 0){
+            String coating_string = carsPOJO.getCoating().stream().map(String::valueOf).collect(Collectors.joining(","));
+            carsPOJO.setCoating_string(coating_string);
+        }
+
+        if(carsPOJO.getComponent().size() > 0){
+            String component_string = carsPOJO.getComponent().stream().map(String::valueOf).collect(Collectors.joining(","));
+            carsPOJO.setComponent_string(component_string);
+        }
+
+        if(carsPOJO.getEngine_condition().size() > 0){
+            String engine_condition_string = carsPOJO.getEngine_condition().stream().map(String::valueOf).collect(Collectors.joining(","));
+            carsPOJO.setEngine_condition_string(engine_condition_string);
+        }
+
+        if(carsPOJO.getTransmission_condition().size() > 0){
+            String transmission_condition_string = carsPOJO.getTransmission_condition().stream().map(String::valueOf).collect(Collectors.joining(","));
+            carsPOJO.setTransmission_condition_string(transmission_condition_string);
+        }
+
+        if(carsPOJO.getNumber_of_transfers().size() > 0){
+            String number_of_transfers_string = carsPOJO.getNumber_of_transfers().stream().map(String::valueOf).collect(Collectors.joining(","));
+            carsPOJO.setNumber_of_transfers_string(number_of_transfers_string);
+        }
+
+        if(carsPOJO.getMileage_contition().size() > 0){
+            String mileage_contition_string = carsPOJO.getMileage_contition().stream().map(String::valueOf).collect(Collectors.joining(","));
+            carsPOJO.setMileage_contition_string(mileage_contition_string);
+        }
+
         carsMapper.insertNewCar(carsPOJO);
         return AjaxResult.success("上传汽车成功");
     }
@@ -363,18 +440,18 @@ public class CarsServiceImpl implements CarsService {
         List<Integer> brand_ids = indexMapper.getBrandIdByKeywords(searchCarsDTO.getLanguage(), searchCarsDTO.getKeywords());
         List<Integer> series_ids = indexMapper.getSeriesIdByKeywords(searchCarsDTO.getLanguage(), searchCarsDTO.getKeywords());
 
-        if(brand_ids != null){
-            for(Integer brandid : brand_ids){
-                System.out.println(brandid);
-            }
-        }
-
-
-        if(series_ids != null){
-            for(Integer seriesid : series_ids){
-                System.out.println(seriesid);
-            }
-        }
+//        if(brand_ids != null){
+//            for(Integer brandid : brand_ids){
+//                System.out.println(brandid);
+//            }
+//        }
+//
+//
+//        if(series_ids != null){
+//            for(Integer seriesid : series_ids){
+//                System.out.println(seriesid);
+//            }
+//        }
 
 
         if((brand_ids == null || brand_ids.size() == 0)

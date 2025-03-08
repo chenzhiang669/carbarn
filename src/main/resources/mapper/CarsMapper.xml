@@ -339,7 +339,14 @@
     <select id="getCarsByID" resultType="com.carbarn.inter.pojo.CarsPOJO">
         SELECT
         *,
-        label as label_string
+        label as label_string,
+        car_condition as car_condition_string,
+        coating as coating_string,
+        component as component_string,
+        engine_condition as engine_condition_string,
+        transmission_condition as transmission_condition_string,
+        number_of_transfers as number_of_transfers_string,
+        mileage_contition as mileage_contition_string
         FROM
         cars
         where
@@ -386,8 +393,8 @@
         #{avi_date},#{car_age},#{mileage},#{vin},#{manufacture_date},#{plate_issue_date},#{price},#{floor_price},#{guide_price},
         #{power},#{battery_capacity},#{pure_electric_range},#{province},#{city},#{is_deal},#{is_lock},#{state},
         #{description},#{header_picture},#{all_pictures},#{proof},#{label_string},#{inspection_report},
-        #{car_condition},#{coating},#{component},#{engine_condition},#{transmission_condition},
-        #{number_of_transfers},#{mileage_contition},#{car_condition_desc})
+        #{car_condition_string},#{coating_string},#{component_string},#{engine_condition_string},#{transmission_condition_string},
+        #{number_of_transfers_string},#{mileage_contition_string},#{car_condition_desc})
     </insert>
 
     <select id="existsByVin" resultType="java.lang.Boolean">
@@ -405,6 +412,22 @@
         car_type
         where type_id = #{type_id}
         and `language` = #{language}
+        limit 1
+    </select>
+
+    <insert id="insertVin" parameterType="com.carbarn.inter.pojo.vin.VinPOJO">
+        insert into vin
+        (vin, infos)
+        values
+        (#{vin},#{infos})
+    </insert>
+
+    <select id="getVinInfos" resultType="com.carbarn.inter.pojo.vin.VinPOJO">
+        SELECT
+        id, vin, infos
+        FROM
+        vin
+        WHERE vin = #{vin}
         limit 1
     </select>
 </mapper>

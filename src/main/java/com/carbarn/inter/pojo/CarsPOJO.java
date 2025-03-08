@@ -58,71 +58,23 @@ public class CarsPOJO {
     private String	proof;
     private List<Integer> label = new ArrayList<Integer>();
 
+    private List<Integer> car_condition = new ArrayList<Integer>();
+    private List<Integer> coating = new ArrayList<Integer>();
+    private List<Integer> component = new ArrayList<Integer>();
+    private List<Integer> engine_condition = new ArrayList<Integer>();
+    private List<Integer> transmission_condition = new ArrayList<Integer>();
+    private List<Integer> number_of_transfers = new ArrayList<Integer>();
+    private List<Integer> mileage_contition = new ArrayList<Integer>();
+
     private String label_string = "-1";
     private String	inspection_report;
-    private int	car_condition = -1;
-    private int	coating = -1;
-    private int	component = -1;
-    private int	engine_condition = -1;
-    private int	transmission_condition = -1;
-    private int	number_of_transfers = -1;
-    private int	mileage_contition = -1;
+    private String	car_condition_string = "-1";
+    private String	coating_string = "-1";
+    private String	component_string = "-1";
+    private String	engine_condition_string = "-1";
+    private String	transmission_condition_string = "-1";
+    private String	number_of_transfers_string = "-1";
+    private String	mileage_contition_string = "-1";
     private String	car_condition_desc;
 
-    @Override
-    public String toString() {
-        return "CarsPOJO{" +
-                "id=" + id +
-                ", car_id=" + car_id +
-                ", user_id=" + user_id +
-                ", brand_id=" + brand_id +
-                ", series_id=" + series_id +
-                ", type_id=" + type_id +
-                ", color=" + color +
-                ", engine=" + engine +
-                ", transmission=" + transmission +
-                ", emission_standards=" + emission_standards +
-                ", type_of_manu=" + type_of_manu +
-                ", type_of_car=" + type_of_car +
-                ", origin_country=" + origin_country +
-                ", drive_type=" + drive_type +
-                ", box=" + box +
-                ", displacement=" + displacement +
-                ", displacement_type='" + displacement_type + '\'' +
-                ", seat_capacity=" + seat_capacity +
-                ", ctali_date='" + ctali_date + '\'' +
-                ", avi_date='" + avi_date + '\'' +
-                ", car_age=" + car_age +
-                ", mileage=" + mileage +
-                ", vin='" + vin + '\'' +
-                ", manufacture_date='" + manufacture_date + '\'' +
-                ", plate_issue_date='" + plate_issue_date + '\'' +
-                ", price=" + price +
-                ", floor_price=" + floor_price +
-                ", guide_price=" + guide_price +
-                ", power=" + power +
-                ", battery_capacity=" + battery_capacity +
-                ", pure_electric_range=" + pure_electric_range +
-                ", city='" + city + '\'' +
-                ", is_deal=" + is_deal +
-                ", is_lock=" + is_lock +
-                ", state=" + state +
-                ", upload_date=" + upload_date +
-                ", update_date=" + update_date +
-                ", description='" + description + '\'' +
-                ", header_picture='" + header_picture + '\'' +
-                ", all_pictures='" + all_pictures + '\'' +
-                ", proof='" + proof + '\'' +
-                ", label='" + label + '\'' +
-                ", inspection_report='" + inspection_report + '\'' +
-                ", car_condition=" + car_condition +
-                ", coating=" + coating +
-                ", component=" + component +
-                ", engine_condition=" + engine_condition +
-                ", transmission_condition=" + transmission_condition +
-                ", number_of_transfers=" + number_of_transfers +
-                ", mileage_contition=" + mileage_contition +
-                ", car_condition_desc='" + car_condition_desc + '\'' +
-                '}';
-    }
 }

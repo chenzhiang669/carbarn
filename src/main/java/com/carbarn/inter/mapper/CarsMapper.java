@@ -4,6 +4,7 @@ import com.carbarn.inter.pojo.CarsPOJO;
 import com.carbarn.inter.pojo.dto.cars.CarsOfUsersDTO;
 import com.carbarn.inter.pojo.dto.cars.FirstPageCarsDTO;
 import com.carbarn.inter.pojo.dto.cars.SearchCarsDTO;
+import com.carbarn.inter.pojo.vin.VinPOJO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -30,4 +31,8 @@ public interface CarsMapper {
 
     String getCarTypeDetails(@Param("type_id") int type_id,
                              @Param("language") String language);
+
+    void insertVin(VinPOJO vinPOJO);
+
+    VinPOJO getVinInfos(@Param("vin") String vin);
 }
