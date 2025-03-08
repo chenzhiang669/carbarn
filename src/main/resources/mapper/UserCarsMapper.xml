@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.carbarn.inter.mapper.UserCarsMapper">
+
+    <!--更改汽车状态：删除、下架、撤销审核-->
+    <update id="updateCarState">
+        update cars
+        set state = #{state}
+        where id = #{carid}
+    </update>
+
+
+    <select id="selectStateCount" resultType="com.carbarn.inter.pojo.usercar.StateCountPOJO">
+        select
+        state,
+        count(*) as cnt
+        from
+        cars
+        where user_id = #{user_id}
+        group by state
+    </select>
+
+    <select id="selectUserCars" resultType="com.carbarn.inter.pojo.usercar.UserCarPOJO">
+        select
+        a.id,
+        a.manufacture_date,
+        a.mileage,
+        a.price,
+        a.update_date,
+        a.state,
+        a.reason,
+        b.brand as brand,
+        c.series as series,
+        d.`type` as type
+        from
+        (select * from cars where user_id = #{user_id} and state = #{state}) a
+        left join (select brand,brand_id from car_brand where language = #{language}) b on a.brand_id = b.brand_id
+        left join (select series,series_id from car_series where language = #{language}) c on a.series_id = c.series_id
+        left join (select `type`,type_id from car_type where language = #{language}) d on a.type_id = d.type_id
+        where b.brand is not null and c.series is not null and d.`type` is not null
+    </select>
+
+</mapper>
