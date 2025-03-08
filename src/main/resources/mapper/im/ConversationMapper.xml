@@ -31,8 +31,8 @@
         FROM
         conversation
         WHERE
-        seller_id = #{sellerId}
-        and buyer_id = #{buyerId}
+        (seller_id = #{sellerId} and buyer_id = #{buyerId})
+        or (seller_id = #{buyerId} and buyer_id = #{sellerId})
         and is_deleted = 0
     </select>
 

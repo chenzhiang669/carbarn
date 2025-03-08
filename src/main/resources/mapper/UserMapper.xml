@@ -21,6 +21,7 @@
     <update id="vipsignup" parameterType="com.carbarn.inter.pojo.user.dto.VipSignupUserDTO">
         update users
         set address = #{address},
+        nickname = #{nickname},
         car_dealership = #{car_dealership},
         real_name = #{real_name},
         front_of_id = #{front_of_id},
