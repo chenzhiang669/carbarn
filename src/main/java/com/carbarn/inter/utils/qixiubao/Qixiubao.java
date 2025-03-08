@@ -15,6 +15,7 @@ import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.checkerframework.checker.units.qual.C;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -24,15 +25,11 @@ import java.util.Map;
 
 public class Qixiubao {
 
-    public static final String url = "http://test-open-api2.0.nanxinwang.com//VinDecoder/decode";
-    public static final String secret = "c60e8d3539b3748e882ed3beb4ac3f6c";
-    public static final String appid = "7f5a424c687328576f337b0986dd14bd";
-    public static List<JSONObject> http(Map<String, Object> map) throws IOException {
-
-        List<JSONObject> carTypes = new ArrayList<JSONObject>();
+    public static String http(Map<String, Object> map) throws IOException {
 
         CloseableHttpClient httpClient = HttpClients.createDefault();
-        HttpPost httpPost = new HttpPost(url);
+        HttpPost httpPost = new HttpPost(Contants.vin_url);
+
         MultipartEntityBuilder builder = MultipartEntityBuilder.create();
         builder.setCharset(java.nio.charset.Charset.forName("UTF-8"));
         builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
@@ -48,10 +45,16 @@ public class Qixiubao {
         // 获取响应状态码
         int statusCode = response.getStatusLine().getStatusCode();
         if(statusCode != 200){
-            return carTypes;
+            return null;
         }
 
         String responseString = EntityUtils.toString(response.getEntity(), "UTF-8");
+        return responseString;
+    }
+
+    public static List<JSONObject> parseResponse(String responseString) {
+        List<JSONObject> carTypes = new ArrayList<JSONObject>();
+
         JSONObject responseJson = JSON.parseObject(responseString);
         if(!responseJson.containsKey("result")){
             return carTypes;
@@ -64,19 +67,25 @@ public class Qixiubao {
 
         JSONArray models = resultJson.getJSONArray("models");
         for(int i = 0; i < models.size(); i++){
-            JSONObject model = parseModel(models.getJSONObject(i));
+            JSONObject model = standard_data(models.getJSONObject(i));
             carTypes.add(model);
         }
-
 
         return carTypes;
     }
 
-    private static JSONObject parseModel(JSONObject json) {
+    private static JSONObject standard_data(JSONObject json){
         JSONObject data = new JSONObject();
-        data.put("type", json.getOrDefault("model_name", null));
-        data.put("series", json.getOrDefault("series", null));
-        data.put("brand", json.getOrDefault("brand", null));
+        String model_name = (String) json.getOrDefault("model_name", "");
+        String series = (String) json.getOrDefault("series", "");
+        String brand = (String) json.getOrDefault("brand", "");
+        if("".equals(model_name) || "".equals(series) || "".equals(brand)){
+            return data;
+        }
+        String type = series + " " + model_name;
+        data.put("type", type);
+        data.put("series", series);
+        data.put("brand", brand);
         data.put("year", json.getOrDefault("years", null));
         data.put("language", "zh");
         data.put("price", 0.0);
@@ -127,9 +136,10 @@ public class Qixiubao {
             data.put("type_of_car", level);
         }
 
-        if(json.containsKey("trans_des")){
-            String trans_des = json.getString("trans_des");
-            data.put("transmission", trans_des);  //TODO
+        if(json.containsKey("shift_num")){
+            String shift_num = json.getString("shift_num");
+            String transmission = Contants.transmission.getOrDefault(shift_num, "自动");
+            data.put("transmission", transmission);
         }
 
         if(json.containsKey("emission_standard")){
@@ -137,14 +147,10 @@ public class Qixiubao {
             data.put("emission_standards", emission_standard);
         }
 
-        data.put("type_of_manu", "其他");
-//        if(json.containsKey("mum_type")){
-//            String capacity = json.getString("mum_type");
-//            data.put("type_of_manu", label);
-//        }
+        data.put("type_of_manu", "国产");
 
         if(json.containsKey("fuel_type")){
-            String fuel_type = Contants.emission_standards.getOrDefault(json.getString("fuel_type"), "其他");
+            String fuel_type = Contants.engines.getOrDefault(json.getString("fuel_type"), "其他");
             data.put("engine", fuel_type);
         }
 
@@ -178,13 +184,13 @@ public class Qixiubao {
         return data;
     }
 
-    public static List<JSONObject> searchVin(String vin) {
+    public static String searchVin(String vin) {
 
 
         Map<String, Object> parameters = new HashMap<>();
-        parameters.put("secret", secret);
-        parameters.put("appid", appid);
-        parameters.put("version", "4.6.0");
+        parameters.put("secret", Contants.secret);
+        parameters.put("appid", Contants.appid);
+        parameters.put("version", Contants.vin_version);
         parameters.put("timestamp", String.valueOf(System.currentTimeMillis() / 1000));
         parameters.put("vin", vin);
         EpcSign epcSign = new EpcSign();
@@ -192,10 +198,9 @@ public class Qixiubao {
         try {
 
             sign = epcSign.sign(parameters);
-            System.out.println(sign);
             parameters.put("sign", sign);
-            List<JSONObject> result = http(parameters);
-            return result;
+            String responseString = http(parameters);
+            return responseString;
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -204,13 +209,7 @@ public class Qixiubao {
     }
 
     public static void main(String[] args) throws IOException {
-//        System.out.println(String.valueOf(System.currentTimeMillis() / 1000));
-//        List<JSONObject> result = searchVin("LVHFC1652M6044846");
-//        for(JSONObject r:result){
-//            System.out.println(r.toJSONString());
-//        }
-
-
-        System.out.println(searchVin("LBIWG3E10P8196847"));
+        String responseString = searchVin("LBIWG3E10P8196847");
+        System.out.println(parseResponse(responseString));
     }
 }
