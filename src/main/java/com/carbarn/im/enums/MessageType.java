@@ -8,7 +8,7 @@ package com.carbarn.im.enums;
 public enum MessageType {
     TEXT("text"),
     IMAGE("image"),
-    VOICE("link"),
+    LINK("link"),
     ;
 
     private String type;

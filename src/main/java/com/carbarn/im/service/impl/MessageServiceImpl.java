@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-import static com.carbarn.im.enums.MessageType.TEXT;
+import static com.carbarn.im.enums.MessageType.*;
 import static com.carbarn.im.translator.TranslatorEnum.VOLC;
 
 /**
@@ -69,7 +69,12 @@ public class MessageServiceImpl implements IMessageService {
                 String translatedContent = translator.translate(sendMessageParam.getContent(), sendMessageParam.getSourceLang(), sendMessageParam.getTargetLang());
                 message.setTranslatedContent(translatedContent);
             }
+        }else if(IMAGE.getType().equals(sendMessageParam.getType())){
+            message.setTranslatedContent(sendMessageParam.getContent());
+        }else if(LINK.getType().equals(sendMessageParam.getType())){
+            message.setTranslatedContent(sendMessageParam.getContent());
         }
+
         messageMapper.insertMessage(message);
         return message;
     }
