@@ -104,8 +104,8 @@ public class UserCarsServiceImpl implements UserCarsService {
     }
 
     @Override
-    public AjaxResult selectUserCars(long user_id, int state) {
-        List<UserCarPOJO> usercarlist = userCarsMapper.selectUserCars(LanguageConstant.ZH, user_id, state);
+    public AjaxResult selectUserCars(long user_id, int state, String keywords) {
+        List<UserCarPOJO> usercarlist = userCarsMapper.selectUserCars(LanguageConstant.ZH, user_id, state, keywords);
         return AjaxResult.success("获取用户汽车信息成功", usercarlist);
 //        UserCarList on_sale = new UserCarList();
 //        on_sale.setKey(Constant.KEY_ON_SALE);
@@ -170,9 +170,9 @@ public class UserCarsServiceImpl implements UserCarsService {
     }
 
     @Override
-    public AjaxResult selectStateCount(long user_id) {
+    public AjaxResult selectStateCount(long user_id, String keywords) {
 
-        List<StateCountPOJO> stateCountPOJOS = userCarsMapper.selectStateCount(user_id);
+        List<StateCountPOJO> stateCountPOJOS = userCarsMapper.selectStateCount(LanguageConstant.ZH, user_id, keywords);
 
         if (stateCountPOJOS == null) {
             List<StateCountPOJO> list = new ArrayList<StateCountPOJO>();

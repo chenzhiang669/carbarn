@@ -14,4 +14,5 @@ public class UserCarPOJO {
     private String update_date;
     private String reason;
     private int state;
+    private String header_picture;
 }

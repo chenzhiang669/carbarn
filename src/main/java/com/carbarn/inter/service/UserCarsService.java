@@ -20,10 +20,10 @@ public interface UserCarsService {
 
     AjaxResult delist(int carid, long user_id);
 
-    AjaxResult selectUserCars(long user_id, int state);
+    AjaxResult selectUserCars(long user_id, int state, String keywords);
 
 
-    AjaxResult selectStateCount(long user_id);
+    AjaxResult selectStateCount(long user_id, String keywords);
 
     AjaxResult edit(int carid, long user_id);
 }

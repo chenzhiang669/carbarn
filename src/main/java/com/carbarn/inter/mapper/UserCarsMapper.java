@@ -20,8 +20,11 @@ public interface UserCarsMapper {
 
     List<UserCarPOJO> selectUserCars(@Param("language") String language,
                                      @Param("user_id") long user_id,
-                                     @Param("state") long state);
+                                     @Param("state") long state,
+                                     @Param("keywords") String keywords);
 
 
-    List<StateCountPOJO> selectStateCount(@Param("user_id") long user_id);
+    List<StateCountPOJO> selectStateCount(@Param("language") String language,
+                                          @Param("user_id") long user_id,
+                                          @Param("keywords") String keywords);
 }

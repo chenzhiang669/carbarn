@@ -77,12 +77,17 @@ public class UserCarsController {
             return AjaxResult.error("Missing required parameter: state");
         }
 
+        String keywords = null;
+        if(body_json.containsKey("keywords")){
+            keywords = body_json.getString("keywords");
+        }
+
         int state = body_json.getInteger("state");
 
         String user_id = (String) StpUtil.getLoginId();
         long userid = Long.valueOf(user_id);
 
-        return userCarsService.selectUserCars(userid, state);
+        return userCarsService.selectUserCars(userid, state, keywords);
     }
 
     @PostMapping("/edit")
@@ -101,10 +106,15 @@ public class UserCarsController {
 
 
     @PostMapping("/statecount")
-    public AjaxResult statecount() {
+    public AjaxResult statecount(@RequestBody String body) {
+        JSONObject body_json = JSON.parseObject(body);
+        String keywords = null;
+        if(body_json.containsKey("keywords")){
+            keywords = body_json.getString("keywords");
+        }
         String user_id = (String) StpUtil.getLoginId();
         long userid = Long.valueOf(user_id);
-        return userCarsService.selectStateCount(userid);
+        return userCarsService.selectStateCount(userid, keywords);
     }
 
 
