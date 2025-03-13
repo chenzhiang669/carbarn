@@ -101,6 +101,9 @@
         content,
         send_time,
         receive_time,
+        source_lang,
+        target_lang,
+        translated_content,
         status
         FROM
         message
