@@ -15,6 +15,10 @@ spring:
       max-lifetime: 1800000
       connection-timeout: 30000
       connection-test-query: SELECT 1
+  servlet:
+    multipart:
+      max-file-size: 50MB  # 单个文件最大大小
+      max-request-size: 100MB  # 请求总大小
 
 carbarn:
   local:
