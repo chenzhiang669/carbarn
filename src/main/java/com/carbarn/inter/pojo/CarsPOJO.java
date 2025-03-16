@@ -12,10 +12,10 @@ import java.util.stream.Collectors;
 public class CarsPOJO {
     private int	id;
     private int	car_id;
-    private int	user_id;
-    private int	brand_id;
-    private int	series_id;
-    private int	type_id;
+    private int	user_id = -1;
+    private int	brand_id = -1;
+    private int	series_id = -1;
+    private int	type_id = -1;
     private int vehicleType = -1;
     private int operate = -1;
     private int	color = -1;

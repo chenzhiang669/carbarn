@@ -101,24 +101,34 @@ public class CarsServiceImpl implements CarsService {
 
         try {
             int type_id = carsPOJO.getType_id();
-            TypeMessageDTO typeMessageDTO = indexMapper.getTypeMessage(language, type_id);
-            String brand = typeMessageDTO.getBrand();
-            String series = typeMessageDTO.getSeries();
-            String type = typeMessageDTO.getType();
-            int brand_id = typeMessageDTO.getBrand_id();
-            int series_id = typeMessageDTO.getSeries_id();
-            if (brand != null && series != null && type != null) {
-                String name = brand + " " + series + " " + type;
-                map.put("brand", brand);
-                map.put("brand_id", brand_id);
-                map.put("series", series);
-                map.put("series_id", series_id);
-                map.put("type", type);
-                map.put("name", name);
-            } else {
-                map.clear();
-                return map;
+            if(type_id == -1){
+                map.put("brand", null);
+                map.put("brand_id", -1);
+                map.put("series", null);
+                map.put("series_id", -1);
+                map.put("type", null);
+                map.put("name", null);
+            }else{
+                TypeMessageDTO typeMessageDTO = indexMapper.getTypeMessage(language, type_id);
+                String brand = typeMessageDTO.getBrand();
+                String series = typeMessageDTO.getSeries();
+                String type = typeMessageDTO.getType();
+                int brand_id = typeMessageDTO.getBrand_id();
+                int series_id = typeMessageDTO.getSeries_id();
+                if (brand != null && series != null && type != null) {
+                    String name = brand + " " + series + " " + type;
+                    map.put("brand", brand);
+                    map.put("brand_id", brand_id);
+                    map.put("series", series);
+                    map.put("series_id", series_id);
+                    map.put("type", type);
+                    map.put("name", name);
+                } else {
+                    map.clear();
+                    return map;
+                }
             }
+
 
 
             List<IndexDTO> indexes = indexMapper.getIndex(language);
@@ -268,13 +278,19 @@ public class CarsServiceImpl implements CarsService {
             type_map.put("name", type);
             type_map.put("type_id", typeid);
             map.put("type", type_map);
+
+            Map<String, Object> manufacture_date_map = new HashMap<String, Object>();
+            if(message.containsKey("manufacture_date") && message.get("manufacture_date") != null){
+                String manufacture_date = message.get("manufacture_date").toString();
+                manufacture_date_map.put("name", manufacture_date);
+                map.put("manufacture_date", manufacture_date_map);
+            }else{
+                String manufacture_date = Utils.getYearFromVin(vin);
+                manufacture_date_map.put("name", manufacture_date);
+                map.put("manufacture_date", manufacture_date_map);
+            }
         }
 
-
-        Map<String, Object> manufacture_date_map = new HashMap<String, Object>();
-        String manufacture_date = Utils.getYearFromVin(vin);
-        manufacture_date_map.put("name", manufacture_date);
-        map.put("manufacture_date", manufacture_date_map);
         return map;
     }
 

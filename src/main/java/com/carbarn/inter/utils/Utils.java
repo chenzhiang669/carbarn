@@ -45,15 +45,26 @@ public class Utils {
 
     //通过车架号解析出厂年份
     public static String getYearFromVin(String vin){
+//        String yearCode = vin.substring(9,10);
+//        int index = baseYearCode.indexOf(yearCode);
+//        if(index == -1){
+//            return Utils.getRandomDate();
+//        }else{
+//            int year = baseYear + index;
+//            String manufacture_date = Utils.getRandomDate().substring(4);
+//            String manufacture_year = "" + year + manufacture_date;
+//            return manufacture_year;
+//        }
+
         String yearCode = vin.substring(9,10);
         int index = baseYearCode.indexOf(yearCode);
         if(index == -1){
             return Utils.getRandomDate();
         }else{
             int year = baseYear + index;
-            String manufacture_date = Utils.getRandomDate().substring(4);
-            String manufacture_year = "" + year + manufacture_date;
-            return manufacture_year;
+//            String manufacture_date = Utils.getRandomDate().substring(4);
+//            String manufacture_year = "" + year + manufacture_date;
+            return "" + year;
         }
     }
 

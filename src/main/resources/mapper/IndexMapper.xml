@@ -154,11 +154,11 @@
         INSERT INTO car_type (type,type_id,series_id,brand_id,year,language,
         price,floor_price,guide_price,displacement,displacement_type,power,battery_capacity,
         pure_electric_range,color,transmission,emission_standards,type_of_manu,
-        engine,drive_type,box,type_of_car)
+        engine,drive_type,box,type_of_car, seat_capacity)
         VALUES (#{type},@next_type_id,#{series_id},#{brand_id},#{year},#{language},
         #{price},#{floor_price},#{guide_price},#{displacement},#{displacement_type},#{power},#{battery_capacity},
         #{pure_electric_range},#{color},#{transmission},#{emission_standards},#{type_of_manu},
-        #{engine},#{drive_type},#{box},#{type_of_car});
+        #{engine},#{drive_type},#{box},#{type_of_car},#{seat_capacity});
     </insert>
 
 

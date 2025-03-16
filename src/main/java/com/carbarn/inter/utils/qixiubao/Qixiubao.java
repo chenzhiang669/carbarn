@@ -65,9 +65,15 @@ public class Qixiubao {
             return carTypes;
         }
 
+        String prod_time = (String) resultJson.getOrDefault("prod_time", null);
+        if(prod_time != null && !"".equals(prod_time)){
+            prod_time = prod_time.substring(0, 4);
+        }
+
         JSONArray models = resultJson.getJSONArray("models");
         for(int i = 0; i < models.size(); i++){
             JSONObject model = standard_data(models.getJSONObject(i));
+            model.put("manufacture_date", prod_time);
             carTypes.add(model);
         }
 
@@ -95,6 +101,16 @@ public class Qixiubao {
         data.put("battery_capacity", 0.0);
         data.put("pure_electric_range", 0.0);
 
+        try{
+            if(json.containsKey("seat")){
+                String seat = json.getString("seat");
+                if(seat != null && !"".equals(seat)){
+                    data.put("seat_capacity", Integer.valueOf(seat));
+                }
+            }
+        }catch (Exception e){
+            data.put("seat_capacity", 0);
+        }
 
         try{
             if(json.containsKey("price")){

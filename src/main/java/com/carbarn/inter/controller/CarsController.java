@@ -155,17 +155,18 @@ public class CarsController {
     @PostMapping("/uploadNewCar")
     public AjaxResult uploadNewCar(@RequestHeader(name = "language", required = true) String language,
                                    @RequestBody CarsPOJO carsPOJO) {
-        if (carsPOJO.getUser_id() == 0) {
+        if (carsPOJO.getUser_id() == -1) {
             return AjaxResult.error("Missing required parameter: user_id");
-        } else if (carsPOJO.getBrand_id() == 0) {
-            return AjaxResult.error("Missing required parameter: brand_id");
         }
-        if (carsPOJO.getSeries_id() == 0) {
-            return AjaxResult.error("Missing required parameter: series_id");
-        }
-        if (carsPOJO.getType_id() == 0) {
-            return AjaxResult.error("Missing required parameter: type_id");
-        }
+//        else if (carsPOJO.getBrand_id() == 0) {
+//            return AjaxResult.error("Missing required parameter: brand_id");
+//        }
+//        if (carsPOJO.getSeries_id() == 0) {
+//            return AjaxResult.error("Missing required parameter: series_id");
+//        }
+//        if (carsPOJO.getType_id() == 0) {
+//            return AjaxResult.error("Missing required parameter: type_id");
+//        }
 
         return carsService.uploadNewCar(carsPOJO);
     }
@@ -174,18 +175,18 @@ public class CarsController {
     @PostMapping("/updateCar")
     public AjaxResult updateCar(@RequestHeader(name = "language", required = true) String language,
                                    @RequestBody CarsPOJO carsPOJO) {
-        if (carsPOJO.getUser_id() == 0) {
+        if (carsPOJO.getUser_id() == -1) {
             return AjaxResult.error("Missing required parameter: user_id");
         }
-        if (carsPOJO.getBrand_id() == 0) {
-            return AjaxResult.error("Missing required parameter: brand_id");
-        }
-        if (carsPOJO.getSeries_id() == 0) {
-            return AjaxResult.error("Missing required parameter: series_id");
-        }
-        if (carsPOJO.getType_id() == 0) {
-            return AjaxResult.error("Missing required parameter: type_id");
-        }
+//        if (carsPOJO.getBrand_id() == 0) {
+//            return AjaxResult.error("Missing required parameter: brand_id");
+//        }
+//        if (carsPOJO.getSeries_id() == 0) {
+//            return AjaxResult.error("Missing required parameter: series_id");
+//        }
+//        if (carsPOJO.getType_id() == 0) {
+//            return AjaxResult.error("Missing required parameter: type_id");
+//        }
         if (carsPOJO.getId() == 0) {
             return AjaxResult.error("Missing required parameter: id");
         }

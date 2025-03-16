@@ -30,6 +30,8 @@ public class CarTypePOJO {
     private	int	box = -1;
     private	int	type_of_car = -1;
 
+    private int seat_capacity = 0;
+
 
     public static CarTypePOJO getNewCarTypePojo(String message) {
 
