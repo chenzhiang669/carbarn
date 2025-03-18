@@ -9,6 +9,7 @@ public enum MessageType {
     TEXT("text"),
     IMAGE("image"),
     LINK("link"),
+    PRODUCT("product")
     ;
 
     private String type;
