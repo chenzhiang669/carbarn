@@ -35,5 +35,7 @@ public interface UserService {
 
     void updateUserInfo(UserPojo userPojo);
 
+    void updateLanguage(UserPojo userPojo);
+
     AjaxResult viewCount(long user_id);
 }

@@ -13,8 +13,8 @@
 
     <!--普通用户注册接口，只需要电话号码，头像， 昵称即可-->
     <insert id="signup" parameterType="com.carbarn.inter.pojo.user.dto.SignupUserDTO">
-        insert into users(user_count, phone_num, avatar, nickname, role)
-        value(#{user_count}, #{phone_num}, #{avatar}, #{nickname}, 0)
+        insert into users(user_count, phone_num, avatar, nickname, language, role)
+        value(#{user_count}, #{phone_num}, #{avatar}, #{nickname}, #{language}, 0)
     </insert>
 
     <!--vip用户注册接口，只需要根据电话号码进行用户字段更新即可-->
@@ -25,8 +25,7 @@
         car_dealership = #{car_dealership},
         real_name = #{real_name},
         front_of_id = #{front_of_id},
-        back_of_id = #{back_of_id},
-        language = #{language}
+        back_of_id = #{back_of_id}
         where id = #{id}
     </update>
 
@@ -69,6 +68,12 @@
         avatar = #{avatar},
         car_dealership = #{car_dealership},
         address = #{address}
+        where id = #{id}
+    </update>
+    
+    <update id="updateLanguage">
+        update users
+        set language = #{language}
         where id = #{id}
     </update>
 

@@ -75,6 +75,8 @@ public class MessageServiceImpl implements IMessageService {
             message.setTranslatedContent(sendMessageParam.getContent());
         }else if(PRODUCT.getType().equals(sendMessageParam.getType())){
             message.setTranslatedContent(sendMessageParam.getContent());
+        }else{
+            message.setTranslatedContent(sendMessageParam.getContent());
         }
 
         messageMapper.insertMessage(message);

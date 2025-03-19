@@ -48,6 +48,8 @@ public interface UserMapper {
 
     void updateUserInfo(UserPojo userPojo);
 
+    void updateLanguage(UserPojo userPojo);
+
     UserViewCountPojo userViewCount(@Param("user_id") long user_id);
 
     UserViewCountPojo userDtViewCount(@Param("user_id") long user_id,

@@ -103,6 +103,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public void updateLanguage(UserPojo userPojo) {
+        userMapper.updateLanguage(userPojo);
+    }
+
+    @Override
     public AjaxResult viewCount(long user_id) {
         LocalDate today_ = LocalDate.now();
         LocalDate yesterday_ = today_.minusDays(1);

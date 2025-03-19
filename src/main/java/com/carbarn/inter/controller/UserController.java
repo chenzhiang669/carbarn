@@ -25,7 +25,8 @@ public class UserController {
     private StringRedisTemplate stringRedisTemplate;
 
     @PostMapping("/signup")
-    public AjaxResult signup(@RequestBody SignupUserDTO signupUserDTO) {
+    public AjaxResult signup(@RequestHeader(name = "language", required = true) String language,
+                             @RequestBody SignupUserDTO signupUserDTO) {
 
         if(signupUserDTO.getPhone_num() == null || signupUserDTO.getVeri_code() == null){
             return AjaxResult.error("Missing required parameter: 'phone_num' or 'veri_code'");
@@ -40,7 +41,7 @@ public class UserController {
             }
         }
 
-
+        signupUserDTO.setLanguage(language);
         UserPojo userPojo = userService.signup(signupUserDTO);
         StpUtil.login(userPojo.getId());
         userPojo.setSatoken(StpUtil.getTokenValue());
@@ -75,6 +76,7 @@ public class UserController {
         }
 
     }
+
 
 //    @PostMapping("/updateNickname")
 //    public AjaxResult updateNickname(@RequestBody String body) {
@@ -146,6 +148,24 @@ public class UserController {
         userPojo.setId(Long.valueOf(user_id));
         userService.updateUserInfo(userPojo);
         return AjaxResult.success("修改用户信息成功");
+    }
+
+
+    @PostMapping("/updateLanguage")
+    public AjaxResult updateLanguage(@RequestBody UserPojo userPojo) {
+
+        try{
+            if(userPojo.getLanguage() == null || "".equals(userPojo.getLanguage())){
+                return AjaxResult.error("Missing required parameter: language");
+            }
+            String user_id = (String) StpUtil.getLoginId();
+            userPojo.setId(Long.valueOf(user_id));
+            userService.updateLanguage(userPojo);
+            return AjaxResult.success("修改用户语言成功");
+        }catch (Exception e){
+            return AjaxResult.error("修改用户语言失败");
+        }
+
     }
 
     @PostMapping("/viewCount")
