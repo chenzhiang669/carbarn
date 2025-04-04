@@ -42,7 +42,7 @@
         WHERE language = #{language}
         and brand_id = #{brand_id}
         and series_id = #{series_id}
-        order by year
+        order by year desc
     </select>
 
 
