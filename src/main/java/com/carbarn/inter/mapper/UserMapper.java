@@ -54,4 +54,6 @@ public interface UserMapper {
 
     UserViewCountPojo userDtViewCount(@Param("user_id") long user_id,
                                       @Param("dt") String dt);
+
+    void deRegister(@Param("user_id") long user_id);
 }

@@ -157,4 +157,10 @@ public class UserServiceImpl implements UserService {
 
         return AjaxResult.success("查询浏览量数据成功", json);
     }
+
+    //注销用户
+    @Override
+    public void deRegister(long user_id) {
+        userMapper.deRegister(user_id);
+    }
 }

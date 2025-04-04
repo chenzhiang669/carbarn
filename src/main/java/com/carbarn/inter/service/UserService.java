@@ -38,4 +38,6 @@ public interface UserService {
     void updateLanguage(UserPojo userPojo);
 
     AjaxResult viewCount(long user_id);
+
+    void deRegister(long user_id);
 }

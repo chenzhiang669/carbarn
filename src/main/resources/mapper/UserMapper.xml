@@ -82,6 +82,7 @@
         select *
         from users
         where phone_num = #{phone_num}
+        and delete_flag = 0
     </select>
 
     <select id="getUserInfoByID" resultType="com.carbarn.inter.pojo.user.pojo.UserPojo">
@@ -97,6 +98,7 @@
         FROM
         users
         WHERE phone_num = #{phone_num}
+        and delete_flag = 0
     </select>
 
     <select id="userViewCount" resultType="com.carbarn.inter.pojo.user.pojo.UserViewCountPojo">
@@ -128,4 +130,11 @@
         and dt = #{dt}
         group by user_id, dt
     </select>
+
+
+    <update id="deRegister">
+        update users
+        set delete_flag = 1
+        where id = #{user_id}
+    </update>
 </mapper>

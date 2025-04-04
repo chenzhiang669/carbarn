@@ -174,11 +174,23 @@ public class UserController {
         return userService.viewCount(Long.valueOf(user_id));
     }
 
+    //用户退出登录
     @PostMapping("/signout")
     public AjaxResult signout(@RequestHeader(name = "satoken", required = true) String satoken) {
         String token = StpUtil.getTokenValue();
         StpUtil.logout();
         stringRedisTemplate.delete(token);
         return AjaxResult.success("退出登录成功");
+    }
+
+    //注销用户: 注销用户后，用户不能再使用了。但是可以使用同一个手机号重新注册
+    @PostMapping("/deRegister")
+    public AjaxResult deRegister(@RequestHeader(name = "satoken", required = true) String satoken) {
+        String user_id = (String) StpUtil.getLoginId();
+        userService.deRegister(Long.valueOf(user_id)); //注销掉用户
+        String token = StpUtil.getTokenValue();
+        StpUtil.logout();
+        stringRedisTemplate.delete(token); //将用户在redis中的satoken删除
+        return AjaxResult.success("用户注销成功");
     }
 }
