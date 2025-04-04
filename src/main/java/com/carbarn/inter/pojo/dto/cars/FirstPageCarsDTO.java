@@ -15,6 +15,8 @@ public class FirstPageCarsDTO {
     private String header_picture;
     private String manufacture_date; //出厂日期
 
+    private int vehicleType; //新车，二手车
+
     @Override
     public String toString() {
         return "FirstPageCarsDTO{" +

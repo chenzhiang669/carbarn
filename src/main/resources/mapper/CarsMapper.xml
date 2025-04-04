@@ -101,14 +101,15 @@
         select
         a.id as id,
         a.user_id as user_id,
-        concat(b.brand, " ", c.series, " ", d.`type`) as name,
+        concat(b.brand, " ", d.`type`) as name,
         a.plate_issue_date as plate_issue_date,
         a.mileage as mileage,
         a.price as price,
         a.upload_date as upload_date,
         a.city as city,
         a.header_picture as header_picture,
-        a.manufacture_date as manufacture_date
+        a.manufacture_date as manufacture_date,
+        a.vehicleType as vehicleType
         from
         (SELECT
         *
@@ -132,6 +133,12 @@
             </if>
             <if test="city != null and city != ''">
                 AND city = #{city}
+            </if>
+            <if test="vehicleType != null and !vehicleType.isEmpty()">
+                AND vehicleType IN
+                <foreach item="item" collection="vehicleType" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
             </if>
             <if test="type_of_car != null and !type_of_car.isEmpty()">
                 AND type_of_car IN
@@ -214,14 +221,15 @@
         select
         a.id as id,
         a.user_id as user_id,
-        concat(b.brand, " ", c.series, " ", d.`type`) as name,
+        concat(b.brand, " ", d.`type`) as name,
         a.plate_issue_date as plate_issue_date,
         a.mileage as mileage,
         a.price as price,
         a.upload_date as upload_date,
         a.city as city,
         a.header_picture as header_picture,
-        a.manufacture_date as manufacture_date
+        a.manufacture_date as manufacture_date,
+        a.vehicleType as vehicleType
         from
         (SELECT
         *
@@ -259,6 +267,12 @@
             </if>
             <if test="searchCarsDTO.city != null and searchCarsDTO.city != ''">
                 AND city = #{searchCarsDTO.city}
+            </if>
+            <if test="vehicleType != null and !vehicleType.isEmpty()">
+                AND vehicleType IN
+                <foreach item="item" collection="vehicleType" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
             </if>
             <if test="searchCarsDTO.type_of_car != null and !searchCarsDTO.type_of_car.isEmpty()">
                 AND type_of_car IN

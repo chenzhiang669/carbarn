@@ -1,5 +1,6 @@
 package com.carbarn.inter.pojo.dto.cars;
 
+import io.swagger.models.auth.In;
 import lombok.Data;
 
 import java.util.ArrayList;
@@ -19,6 +20,8 @@ public class SearchCarsDTO {
     private int series_id = -1;
 
     private int type_id = -1;
+
+    private List<Integer> vehicleType = new ArrayList<Integer>();  //新车 or 二手车
 
     private List<Integer> type_of_car = new ArrayList<Integer>(); //车辆类型
 

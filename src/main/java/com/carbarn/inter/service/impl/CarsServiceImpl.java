@@ -37,7 +37,7 @@ public class CarsServiceImpl implements CarsService {
 
     public static int newcar = 0; //新车(有增值税发票)
     public static int usedcar_with_invoice = 1; //二手车(有增值税发票)
-    public static int usedcar_without_invoice = 2; //二手车(有增值税发票)
+    public static int usedcar_without_invoice = 2; //二手车(没有增值税发票)
 
     public static int operate_save = 0; //操作: 保存
     public static int operate_deploy = 1; //操作: 发布
@@ -116,7 +116,8 @@ public class CarsServiceImpl implements CarsService {
                 int brand_id = typeMessageDTO.getBrand_id();
                 int series_id = typeMessageDTO.getSeries_id();
                 if (brand != null && series != null && type != null) {
-                    String name = brand + " " + series + " " + type;
+//                    String name = brand + " " + series + " " + type;
+                    String name = brand + " " + type;
                     map.put("brand", brand);
                     map.put("brand_id", brand_id);
                     map.put("series", series);
@@ -132,7 +133,7 @@ public class CarsServiceImpl implements CarsService {
 
 
             List<IndexDTO> indexes = indexMapper.getIndex(language);
-            Map<Integer, IndexDTO> id_mapping = new HashMap<Integer, IndexDTO>();
+            Map<String, IndexDTO> id_mapping = new HashMap<String, IndexDTO>();
             Map<String, IndexDTO> field_mapping = new HashMap<String, IndexDTO>();
 
             for (IndexDTO indexDTO : indexes) {
@@ -141,7 +142,7 @@ public class CarsServiceImpl implements CarsService {
                 String field = indexDTO.getField();
 
                 if (is_mapping == 0) {
-                    id_mapping.put(id, indexDTO);
+                    id_mapping.put(field + id, indexDTO);
                     field_mapping.put(field, indexDTO);
                 }
             }
@@ -169,8 +170,8 @@ public class CarsServiceImpl implements CarsService {
                     if (field_mapping.containsKey(key)) {
                         Object real_id = field.get(carsPOJO);
 
-                        if (id_mapping.containsKey(real_id) && key.equals(id_mapping.get(real_id).getField())) {
-                            String real_name = id_mapping.get(real_id).getValue();
+                        if (id_mapping.containsKey(key + real_id)) {
+                            String real_name = id_mapping.get(key + real_id).getValue();
                             map.put(key + "_name", real_name);
                         } else {
                             map.put(key + "_name", null);
@@ -489,7 +490,8 @@ public class CarsServiceImpl implements CarsService {
         if (operate == operate_save) {
             carsPOJO.setState(Constant.STATE_ON_DRAFT);
         } else if (operate == operate_deploy) {
-            carsPOJO.setState(Constant.STATE_ON_REVIEW);
+//            carsPOJO.setState(Constant.STATE_ON_REVIEW);
+            carsPOJO.setState(Constant.STATE_ON_SALE);
         } else {
             return AjaxResult.error("error: operate should be one of [0,1]");
         }
@@ -520,7 +522,8 @@ public class CarsServiceImpl implements CarsService {
         if (operate == operate_save) {
             carsPOJO.setState(Constant.STATE_ON_DRAFT);
         } else if (operate == operate_deploy) {
-            carsPOJO.setState(Constant.STATE_ON_REVIEW);
+//            carsPOJO.setState(Constant.STATE_ON_REVIEW);
+            carsPOJO.setState(Constant.STATE_ON_SALE);
         } else {
             return AjaxResult.error("error: operate should be one of [0,1]");
         }
