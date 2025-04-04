@@ -101,6 +101,9 @@ public class MessageServiceImpl implements IMessageService {
     public BasePageResp<Message> getMessagesByPage(Long userId, Long conversationId, Integer pageNum, Integer pageSize) {
         PageMethod.startPage(pageNum, pageSize);
         List<Message> messages = messageMapper.getAllMessages(userId, conversationId);
+        if(CollectionUtils.isNotEmpty(messages)){
+            messageMapper.updateMessageStatus(userId, conversationId);
+        }
         PageInfo<Message> messagePage = new PageInfo<>(messages);
         BasePageResp<Message> messagePageResp = new BasePageResp<>();
         messagePageResp.setCurrent(messagePage.getPageNum()).setSize(messagePage.getPageSize())
