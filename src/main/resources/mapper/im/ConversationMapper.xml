@@ -61,7 +61,7 @@
         and is_deleted = 0
     </select>
 
-    <select id="getById" resultType="com.carbarn.im.pojo.Conversation">
+    <select id="getById" resultMap="conversation">
         SELECT
         id,
         seller_id,

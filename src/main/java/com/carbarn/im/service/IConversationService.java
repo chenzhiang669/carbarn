@@ -2,6 +2,7 @@ package com.carbarn.im.service;
 
 import com.carbarn.im.pojo.resp.ConversationPageResp;
 import com.carbarn.im.pojo.vo.StartConversationVo;
+import com.carbarn.inter.utils.AjaxResult;
 
 /**
  * @author zoulingxi
@@ -15,4 +16,6 @@ public interface IConversationService {
     ConversationPageResp getConversationsByPage(Long userId, Integer pageNum, Integer pageSize);
 
     void clearUnread(Long userId);
+
+    AjaxResult conversationUsers(long conversationId);
 }

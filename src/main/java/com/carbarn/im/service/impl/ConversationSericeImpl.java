@@ -9,13 +9,19 @@ import com.carbarn.im.pojo.vo.ConversationVo;
 import com.carbarn.im.pojo.vo.StartConversationVo;
 import com.carbarn.im.service.IConversationService;
 import com.carbarn.im.service.IMessageService;
+import com.carbarn.inter.pojo.User;
+import com.carbarn.inter.pojo.user.pojo.UserPojo;
 import com.carbarn.inter.service.UserService;
+import com.carbarn.inter.utils.AjaxResult;
 import com.github.pagehelper.PageInfo;
 import com.github.pagehelper.page.PageMethod;
+import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.carbarn.im.enums.ConversationStatus.active;
 
@@ -83,5 +89,26 @@ public class ConversationSericeImpl implements IConversationService {
     public void clearUnread(Long userId) {
         // 清除未读消息
         messageService.readMessages(userId);
+    }
+
+    @Override
+    public AjaxResult conversationUsers(long conversationId) {
+        Conversation conversation = conversationMapper.getById(conversationId);
+        if(conversation == null){
+            return AjaxResult.error("会话id无效");
+        }
+
+        long buyer_id = conversation.getBuyerId();
+        long seller_id = conversation.getSellerId();
+
+        UserPojo buyer = userService.getUserInfoByID(buyer_id);
+        UserPojo seller = userService.getUserInfoByID(seller_id);
+
+
+        Map<String, UserPojo> userInfos = new HashMap<String, UserPojo>();
+        userInfos.put("buyer", buyer);
+        userInfos.put("seller", seller);
+
+        return AjaxResult.success("获取会话用户信息成功", userInfos);
     }
 }
