@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.carbarn.contract.mapper.ContractMapper">
+    <insert id="createNewContract" parameterType="com.carbarn.contract.pojo.ContractPOJO">
+        insert into contract
+        (contract_id,car_id,buyer_id,buyer_nickname,buyer_state,
+        buyer_guarantee_fund,buyer_phone_num,seller_id,seller_state,
+        seller_guarantee_fund,buyer_address,price,cnt,other_agreements)
+        values
+        (#{contract_id},#{car_id},#{buyer_id},#{buyer_nickname},#{buyer_state},
+        #{buyer_guarantee_fund},#{buyer_phone_num}, #{seller_id},#{seller_state},
+        #{seller_guarantee_fund},#{buyer_address},
+        #{price},#{cnt},#{other_agreements})
+    </insert>
+
+
+    <update id="updateContract" parameterType="com.carbarn.contract.pojo.ContractPOJO">
+        update contract
+        set
+        contract_id = #{contract_id},
+        car_id = #{car_id},
+        buyer_id = #{buyer_id},
+        buyer_nickname = #{buyer_nickname},
+        buyer_state = #{buyer_state},
+        buyer_guarantee_fund = #{buyer_guarantee_fund},
+        buyer_phone_num = #{buyer_phone_num},
+        seller_id = #{seller_id},
+        seller_state = #{seller_state},
+        seller_guarantee_fund = #{seller_guarantee_fund},
+        buyer_address = #{buyer_address},
+        buyer_email = #{buyer_email},
+        price = #{price},
+        cnt = #{cnt},
+        other_agreements = #{other_agreements},
+        buyer_confirm_time = #{buyer_confirm_time},
+        seller_confirm_time = #{seller_confirm_time}
+        where contract_id = #{contract_id}
+    </update>
+
+    <!--更新买家状态-->
+    <update id="updateBuyerState">
+        update contract
+        set buyer_state = #{buyer_state}
+        where contract_id = #{contract_id}
+    </update>
+
+    <!--更新卖家状态-->
+    <update id="updateSellerState">
+        update contract
+        set seller_state = #{seller_state}
+        where contract_id = #{contract_id}
+    </update>
+
+
+    <select id="getSellerState" resultType="java.lang.Integer">
+        select
+        seller_id
+        from
+        contract
+        where
+        contract_id = #{contract_id}
+    </select>
+
+    <select id="getContractInfo" resultType="com.carbarn.contract.pojo.ContractPOJO">
+        select
+        *
+        from
+        contract
+        where
+        contract_id = #{contract_id}
+    </select>
+
+    <select id="isContractExits" resultType="java.lang.Integer">
+        select
+        count(*) as cnt
+        from
+        contract
+        where
+        car_id = #{car_id}
+        and buyer_id = #{buyer_id}
+        and seller_id = #{seller_id}
+    </select>
+
+    <!--判断二手车是否已经被某个买家锁定合同了-->
+    <select id="isusedCarLocks" resultType="java.lang.Integer">
+        select
+        count(*) as cnt
+        from
+        contract
+        where
+        car_id = #{car_id}
+    </select>
+
+    <select id="userContracts" resultType="com.carbarn.contract.pojo.dto.UserContractDTO">
+        select
+        a.contract_id as contract_id,
+        a.buyer_id as buyer_id,
+        a.buyer_state as buyer_state,
+        a.buyer_guarantee_fund as buyer_guarantee_fund,
+        a.seller_id as seller_id,
+        a.seller_state as seller_state,
+        a.seller_guarantee_fund as seller_guarantee_fund,
+        a.create_time as create_time,
+        a.car_id as car_id,
+        a.price as price,
+        a.cnt as cnt,
+        b.vehicleType as vehicleType,
+        b.header_picture as header_picture,
+        c.brand as brand,
+        d.series as series,
+        e.`type` as type
+        from
+        (
+        select
+        *
+        from
+        contract
+        <where>
+            <if test="searchContractDTO.seller_id != 0">
+                AND seller_id = #{searchContractDTO.seller_id}
+            </if>
+            <if test="searchContractDTO.buyer_id != 0">
+                AND buyer_id = #{searchContractDTO.buyer_id}
+            </if>
+            <if test="searchContractDTO.seller_states != null and !searchContractDTO.seller_states.isEmpty()">
+                AND seller_state IN
+                <foreach item="item" collection="searchContractDTO.seller_states" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="searchContractDTO.buyer_states != null and !searchContractDTO.buyer_states.isEmpty()">
+                AND buyer_state IN
+                <foreach item="item" collection="searchContractDTO.buyer_states" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+        ) a
+        left join (select * from cars) b on a.car_id = b.id
+        left join (select brand,brand_id from car_brand where language = #{searchContractDTO.language}) c on b.brand_id = c.brand_id
+        left join (select series,series_id from car_series where language = #{searchContractDTO.language}) d on b.series_id = d.series_id
+        left join (select `type`,type_id from car_type where language = #{searchContractDTO.language}) e on b.type_id = e.type_id
+        where c.brand is not null and d.series is not null and e.`type` is not null
+        order by a.update_time desc
+        limit #{searchContractDTO.pageStart}, #{searchContractDTO.pageSize}
+    </select>
+
+</mapper>
