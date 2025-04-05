@@ -22,5 +22,9 @@ public interface ContractService {
 
     void returnContract(String language, String contract_id);
 
+    void seller_pay_fund_success(String contract_id);
+
+    void buyer_pay_fund_success(String contract_id);
+
 
 }

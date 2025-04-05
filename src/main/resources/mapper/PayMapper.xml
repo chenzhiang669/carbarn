@@ -19,11 +19,11 @@
     <insert id="insertNewOrder" parameterType="com.carbarn.inter.pojo.pay.OrderPOJO">
         insert into payment
         (user_id,order_type,cusid,appid,version,trxamt,reqsn,expiretime,notify_url,
-        validtime,body,limit_pay,randomstr,paytype,signtype,sign,isdirectpay)
+        validtime,body,limit_pay,randomstr,paytype,signtype,sign,isdirectpay,contract_id)
         values
         (#{user_id},#{order_type},#{cusid},#{appid},#{version},#{trxamt},#{reqsn},
         #{expiretime},#{notify_url},#{validtime},#{body},
-        #{limit_pay},#{randomstr},#{paytype},#{signtype},#{sign},#{isdirectpay})
+        #{limit_pay},#{randomstr},#{paytype},#{signtype},#{sign},#{isdirectpay},#{contract_id})
     </insert>
 
 

@@ -9,4 +9,6 @@ public class CreateOrderDTO {
     private String pay_type;
 
     private String order_type;
+
+    private String contract_id;
 }

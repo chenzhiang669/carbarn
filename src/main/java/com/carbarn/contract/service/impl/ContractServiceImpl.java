@@ -172,6 +172,7 @@ public class ContractServiceImpl implements ContractService {
     }
 
     //卖家支付保障金成功
+    @Override
     public void seller_pay_fund_success(String contract_id) {
         contractMapper.updateBuyerState(contract_id, buyer_state_seller_confirm); //买家状态更改为: 卖家已确认
         contractMapper.updateSellerState(contract_id, seller_state_waiting_buyer_confirm); //卖家状态更改为：等待买家确认(支付保障金)
@@ -179,6 +180,7 @@ public class ContractServiceImpl implements ContractService {
     }
 
     //买家支付保障金成功
+    @Override
     public void buyer_pay_fund_success(String contract_id) {
         contractMapper.updateBuyerState(contract_id, buyer_state_platform_review); //买家状态更改为: 等待平台审核
         contractMapper.updateSellerState(contract_id, seller_state_waiting_buyer_paycar); //卖家状态更改为：等待买家支付车款
