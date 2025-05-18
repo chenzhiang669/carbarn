@@ -489,6 +489,17 @@
         WHERE vin = #{vin}
     </select>
 
+    <select id="isVinExisted" resultType="com.carbarn.inter.pojo.dto.cars.VinExistedDTO">
+        SELECT
+        vin,
+        user_id
+        FROM
+        cars
+        WHERE vin = #{vin}
+        and state != 5
+        limit 1
+    </select>
+
     <select id="getCarTypeDetails" resultType="java.lang.String">
         select
         details

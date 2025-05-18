@@ -95,20 +95,23 @@ public class CarsController {
     @PostMapping("/upload/vin")
     public AjaxResult uploadCar(@RequestHeader(name = "language", required = true) String language,
                                 @RequestBody String body) {
+
+        String user_id = (String) StpUtil.getLoginId();
+
         JSONObject json_body = JSON.parseObject(body);
         if (!json_body.containsKey("vin")) {
             return AjaxResult.error("Missing required parameter: vin");
         }
 
         String vin = json_body.getString("vin");
-        Map<String, Object> map = carsService.getByVin_new(vin);
-        if (map.containsKey("0")) {
-            return AjaxResult.error("该车架号已经上传过，请不要重复上传");
-        } else if (map.containsKey("1")) {
-            return AjaxResult.error("未找到该车架号");
-        } else {
-            return AjaxResult.success("成功找到车架号", map);
-        }
+        return carsService.getByVin_new(vin, Integer.valueOf(user_id));
+//        if (map.containsKey("0")) {
+//            return AjaxResult.error("该车架号已经上传过，请不要重复上传");
+//        } else if (map.containsKey("1")) {
+//            return AjaxResult.error("未找到该车架号");
+//        } else {
+//            return AjaxResult.success("成功找到车架号", map);
+//        }
     }
 
 
@@ -182,20 +185,14 @@ public class CarsController {
     @PostMapping("/uploadNewCar")
     public AjaxResult uploadNewCar(@RequestHeader(name = "language", required = true) String language,
                                    @RequestBody CarsPOJO carsPOJO) {
-        if (carsPOJO.getUser_id() == -1) {
-            return AjaxResult.error("Missing required parameter: user_id");
-        }
-//        else if (carsPOJO.getBrand_id() == 0) {
-//            return AjaxResult.error("Missing required parameter: brand_id");
-//        }
-//        if (carsPOJO.getSeries_id() == 0) {
-//            return AjaxResult.error("Missing required parameter: series_id");
-//        }
-//        if (carsPOJO.getType_id() == 0) {
-//            return AjaxResult.error("Missing required parameter: type_id");
+//        if (carsPOJO.getUser_id() == -1) {
+//            return AjaxResult.error("Missing required parameter: user_id");
 //        }
 
-        return carsService.uploadNewCar(carsPOJO);
+        String user_id = (String) StpUtil.getLoginId();
+        carsPOJO.setUser_id(Integer.valueOf(user_id));
+
+        return carsService.uploadNewCar(carsPOJO, Integer.valueOf(user_id));
     }
 
 

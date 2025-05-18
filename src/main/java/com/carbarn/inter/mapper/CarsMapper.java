@@ -21,6 +21,8 @@ public interface CarsMapper {
 
     boolean existsByVin(String vin);
 
+    VinExistedDTO isVinExisted(String vin);
+
     void insertNewCar(CarsPOJO carsPOJO);
 
     long getCaridByRandomString(@Param("randomString") String randomString);

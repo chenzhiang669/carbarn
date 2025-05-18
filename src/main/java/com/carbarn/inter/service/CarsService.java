@@ -20,13 +20,13 @@ public interface CarsService {
 
 //    Map<String, Object> getByVin(String vin);
 
-    Map<String, Object> getByVin_new(String vin);
+    AjaxResult getByVin_new(String vin, int user_id);
 
     Map<String, Object> fillMessage(String language, int type_id);
 
     AjaxResult insertNewCar(CarsPOJO carsPOJO);
 
-    AjaxResult uploadNewCar(CarsPOJO carsPOJO);
+    AjaxResult uploadNewCar(CarsPOJO carsPOJO, int user_id);
 
     AjaxResult updateCar(CarsPOJO carsPOJO);
 

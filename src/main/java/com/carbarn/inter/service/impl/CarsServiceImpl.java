@@ -417,13 +417,15 @@ public class CarsServiceImpl implements CarsService {
 
 
     @Override
-    public Map<String, Object> getByVin_new(String vin) {
+    public AjaxResult getByVin_new(String vin, int user_id) {
         Map<String, Object> map = new HashMap<String, Object>();
-        boolean is_vin_exist = carsMapper.existsByVin(vin); // 生成0或1
+//        boolean is_vin_exist = carsMapper.existsByVin(vin); // 生成0或1
+        int is_vin_exist = isVinExisted(vin, user_id);
 
-        if (is_vin_exist) {
-            map.put("0", true);
-            return map;
+        if (is_vin_exist == 1) {
+            return AjaxResult.error("你已发布过该车架号的车辆，不允许重复发布");
+        }else if(is_vin_exist == 2){
+            return AjaxResult.error("车辆被其他车商抢先发布，如需继续发布，需准备证明材料并联系客服下架车辆后再发布");
         }
 
         String responseString = null;
@@ -431,8 +433,7 @@ public class CarsServiceImpl implements CarsService {
         if (vinPOJO == null) {
             responseString = QixiubaoHttp.searchVin(vin);
             if (responseString == null) {
-                map.put("1", true);
-                return map;
+                return AjaxResult.error("未找到该车架号");
             } else {
                 vinPOJO = new VinPOJO();
                 vinPOJO.setVin(vin);
@@ -446,7 +447,7 @@ public class CarsServiceImpl implements CarsService {
         JSONObject json = JSON.parseObject(responseString);
         if (!json.containsKey("result")) {
             map.put("1", true);
-            return map;
+            return AjaxResult.error("未找到该车架号");
         }
 
         JSONObject result = json.getJSONObject("result");
@@ -462,7 +463,7 @@ public class CarsServiceImpl implements CarsService {
 
         if (!result.containsKey("models")) {
             map.put("1", true);
-            return map;
+            return AjaxResult.error("未找到该车架号");
         }
 
         JSONArray models = result.getJSONArray("models");
@@ -534,7 +535,21 @@ public class CarsServiceImpl implements CarsService {
 
         }
 
-        return map;
+        return AjaxResult.success("成功找到车架号", map);
+    }
+
+    private int isVinExisted(String vin, int user_id) {
+        VinExistedDTO vinExistedDTO = carsMapper.isVinExisted(vin);
+        if (vinExistedDTO == null) {
+            return 0;
+        } else {
+            int user_id_of_vin = vinExistedDTO.getUser_id();
+            if (user_id == user_id_of_vin) {
+                return 1;
+            } else {
+                return 2;
+            }
+        }
     }
 
     private CarTypePOJO createNewCarTypePOJO(JSONObject message) {
@@ -707,18 +722,28 @@ public class CarsServiceImpl implements CarsService {
 
 
     @Override
-    public AjaxResult uploadNewCar(CarsPOJO carsPOJO) {
+    public AjaxResult uploadNewCar(CarsPOJO carsPOJO, int user_id) {
         int vehicleType = carsPOJO.getVehicleType();
         //如果是二手车，需要校验车架号是否上传过
         if (vehicleType == usedcar_with_invoice || vehicleType == usedcar_without_invoice) {
 
-            if (carsPOJO.getVin() == null) {
+            String vin = carsPOJO.getVin();
+            if (vin == null) {
                 return AjaxResult.error("Missing required parameter: vin");
             } else {
-                boolean bool = carsMapper.existsByVin(carsPOJO.getVin());
-                if (bool) {
-                    return AjaxResult.error("车架号所属汽车已经上传过，请不要重复上传");
+
+                int is_vin_exist = isVinExisted(vin, user_id);
+
+                if (is_vin_exist == 1) {
+                    return AjaxResult.error("你已发布过该车辆，不允许重复发布");
+                }else if(is_vin_exist == 2){
+                    return AjaxResult.error("车辆被其他车商抢先发布，如需继续发布，需准备证明材料并联系客服下架车辆后再发布");
                 }
+
+//                boolean bool = carsMapper.existsByVin(carsPOJO.getVin());
+//                if (bool) {
+//                    return AjaxResult.error("车架号所属汽车已经上传过，请不要重复上传");
+//                }
             }
 
         } else if (vehicleType == newcar) {
@@ -934,7 +959,7 @@ public class CarsServiceImpl implements CarsService {
 
     @Override
     public AjaxResult getStateCars(OperateSearchCarsDTO operateSearchCarsDTO) {
-        try{
+        try {
             List<OperateCarsDTO> carsPOJOS = carsMapper.getStateCars(operateSearchCarsDTO);
 
             List<IndexDTO> indexes = indexMapper.getIndex("zh");
@@ -996,7 +1021,7 @@ public class CarsServiceImpl implements CarsService {
             }
 
             return AjaxResult.success(result);
-        }catch (Exception e){
+        } catch (Exception e) {
             return AjaxResult.error("getStateCars failed");
         }
 
