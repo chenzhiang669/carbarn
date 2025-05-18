@@ -14,4 +14,7 @@ public interface SeaWallMapper {
 
     List<SeaWallPOJO> getSeaWall(@Param("seaWallPageDTO")SeaWallPageDTO seaWallPageDTO);
 
+    void insertNewSeaWall(SeaWallPOJO seaWallPOJO);
+
+    void deleteSeaWall(@Param("id") int id);
 }

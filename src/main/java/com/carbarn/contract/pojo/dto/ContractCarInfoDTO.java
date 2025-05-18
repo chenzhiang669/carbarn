@@ -14,6 +14,8 @@ public class ContractCarInfoDTO {
 
     private int car_id;
 
+    private String name;
+
     private String manufacture_date;
 
     private String vin;
@@ -49,6 +51,7 @@ public class ContractCarInfoDTO {
     public static ContractCarInfoDTO getContractCarInfoDTO(Map<String, Object> carsInfo){
         ContractCarInfoDTO contractCarInfoDTO = new ContractCarInfoDTO();
         contractCarInfoDTO.setCar_id((Integer) carsInfo.get("id"));
+        contractCarInfoDTO.setName((String) carsInfo.get("name"));
         contractCarInfoDTO.setManufacture_date((String) carsInfo.get("manufacture_date"));
         contractCarInfoDTO.setVin((String) carsInfo.getOrDefault("vin",null));
         contractCarInfoDTO.setMileage(Double.valueOf(carsInfo.getOrDefault("mileage", 0.0).toString()) );

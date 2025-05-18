@@ -25,7 +25,12 @@ public class Utils {
     }
 
     public static long getRandomLong(){
-        long randomLong = ThreadLocalRandom.current().nextLong(1000L, 10001L);
+        long randomLong = getRandomLong(1000L, 10001L);
+        return randomLong;
+    }
+
+    public static long getRandomLong(long start, long end){
+        long randomLong = ThreadLocalRandom.current().nextLong(start, end);
         return randomLong;
     }
 
@@ -91,7 +96,7 @@ public class Utils {
     }
 
     public static void main(String[] args) {
-        long year = Utils.getRandomLong();
+        long year = Utils.getRandomLong(10000000L, 99999999L);
         System.out.println(year);
 
     }

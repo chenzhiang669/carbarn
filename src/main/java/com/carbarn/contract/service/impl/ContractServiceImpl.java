@@ -1,36 +1,38 @@
 package com.carbarn.contract.service.impl;
 
-import static com.carbarn.contract.contants.ContractState.*;
-
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.carbarn.contract.contants.ContractState;
+import com.carbarn.contract.contants.ContractUtils;
 import com.carbarn.contract.mapper.ContractMapper;
-import com.carbarn.contract.pojo.dto.*;
 import com.carbarn.contract.pojo.ContractPOJO;
+import com.carbarn.contract.pojo.dto.*;
 import com.carbarn.contract.service.ContractService;
 import com.carbarn.inter.config.ParamKeys;
 import com.carbarn.inter.mapper.ParamsMapper;
 import com.carbarn.inter.mapper.UserMapper;
 import com.carbarn.inter.pojo.user.pojo.UserPojo;
 import com.carbarn.inter.service.CarsService;
-import com.carbarn.inter.service.impl.CarsServiceImpl;
 import com.carbarn.inter.utils.AjaxResult;
-import org.checkerframework.checker.units.qual.A;
+import com.carbarn.inter.utils.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static com.carbarn.contract.contants.ContractState.*;
 
 @Service
 public class ContractServiceImpl implements ContractService {
 
     public static int operate_save = 0; //操作: 保存
     public static int operate_confirm = 1; //操作: 确认
-
-    public static DateTimeFormatter dateTimeFormater1 = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
     public static DateTimeFormatter dateTimeFormater2 = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     @Autowired
     private ContractMapper contractMapper;
@@ -41,6 +43,7 @@ public class ContractServiceImpl implements ContractService {
 
     @Autowired
     private ParamsMapper paramsMapper;
+
 
 
     //创建新合同
@@ -71,8 +74,7 @@ public class ContractServiceImpl implements ContractService {
 
         contractPOJO.setBuyer_state(buyer_state_draft); //买家状态为草稿箱
         contractPOJO.setSeller_state(seller_state_draft); //卖家状态为草稿箱
-        String datetime = LocalDateTime.now().format(dateTimeFormater1);
-        String contract_id = datetime + "-" + car_id + "-" + buyer_id + "-" + seller_id; //生成合同id: 时间(年月日时分秒)-汽车id-买家id-卖家id
+        String contract_id = ContractUtils.createContractId(car_id, buyer_id, seller_id); //生成合同id: 时间(年月日时分秒)-汽车id-买家id-卖家id
         contractPOJO.setContract_id(contract_id);
 
         UserPojo buyerInfo = userMapper.getUserInfoByID(buyer_id); //从用户系统中获取买家信息
@@ -90,6 +92,8 @@ public class ContractServiceImpl implements ContractService {
             contractPOJO.setSeller_guarantee_fund(300.0);
         }
 
+        String pay_note = String.valueOf(Utils.getRandomLong(10000000L, 99999999L)); //获取8位数字，作为卖家线下转账时的备注
+        contractPOJO.setPay_note(pay_note);
         contractMapper.createNewContract(contractPOJO);  //创建新合同
 
         ContractFullMessageDTO contractFullMessageDTO = transformContractInfo(language, contractPOJO, buyerInfo, sellerInfo, carsInfo);
@@ -127,6 +131,16 @@ public class ContractServiceImpl implements ContractService {
         }
     }
 
+    @Override
+    public AjaxResult deleteContract(String contract_id) {
+        try{
+            contractMapper.deleteContract(contract_id);
+            return AjaxResult.success("delete contract：" + contract_id + " success.");
+        }catch (Exception e){
+            return AjaxResult.error("delete contract：" + contract_id + " fail.");
+        }
+    }
+
     //获取合同信息
     @Override
     public ContractFullMessageDTO getContractInfo(String language, String contract_id) {
@@ -161,7 +175,32 @@ public class ContractServiceImpl implements ContractService {
 
     @Override
     public List<UserContractDTO> userContracts(SearchContractDTO searchContractDTO) {
-        return contractMapper.userContracts(searchContractDTO);
+        List<UserContractDTO> userContractDTOS = contractMapper.userContracts(searchContractDTO);
+        String payment_infomation = paramsMapper.getValue(ParamKeys.param_payment_information);
+        long breach_duration = Long.valueOf(paramsMapper.getValue(ParamKeys.param_breach_duration));
+        for(UserContractDTO userContractDTO : userContractDTOS){
+            JSONArray payment_infomation_json = JSON.parseArray(String.format(payment_infomation, userContractDTO.getPay_note()));
+            userContractDTO.setPayment_information(payment_infomation_json);
+
+            long currentTime = System.currentTimeMillis();
+            if(searchContractDTO.getBuyer_id() != 0){
+                long operation_first_review_time = userContractDTO.getOperation_first_review_time();
+                if(operation_first_review_time != 0){
+                    long passdays = (currentTime - operation_first_review_time) / ContractUtils.day_milliseconds;
+                    String remaining_days = String.valueOf(breach_duration - passdays);
+                    userContractDTO.setRemaining_days(remaining_days);
+                }
+            }else if(searchContractDTO.getSeller_id() != 0){
+                long operation_second_review_time = userContractDTO.getOperation_second_review_time();
+                if(operation_second_review_time != 0){
+                    long passdays = (currentTime - operation_second_review_time) / ContractUtils.day_milliseconds;
+                    String remaining_days = String.valueOf(breach_duration - passdays);
+                    userContractDTO.setRemaining_days(remaining_days);
+                }
+            }
+        }
+
+        return userContractDTOS;
     }
 
     //买家退回合同
@@ -187,6 +226,86 @@ public class ContractServiceImpl implements ContractService {
         //TODO 更新字段 pay_buyer_guarantee_fund 为true
     }
 
+    @Override
+    public void updateBuyerState(String contract_id, int buyer_state) {
+        contractMapper.updateBuyerState(contract_id, buyer_state);
+        if(buyer_state == buyer_state_platform_wating_paycar){
+            long timestamp = System.currentTimeMillis();
+            contractMapper.updateFirstReviewTime(contract_id, timestamp);
+        }else if(buyer_state == buyer_state_inspection_car){
+            long timestamp = System.currentTimeMillis();
+            contractMapper.updateSecondReviewTime(contract_id, timestamp);
+        }
+    }
+
+    @Override
+    public void updateSellerState(String contract_id, int seller_state) {
+        contractMapper.updateSellerState(contract_id, seller_state);
+    }
+
+    @Override
+    public void updateOperationContract(ContractPOJO contractPOJO) {
+        contractMapper.updateOperationContract(contractPOJO);
+    }
+
+    @Override
+    public void updateUserContract(ContractPOJO contractPOJO) {
+        contractMapper.updateUserContract(contractPOJO);
+    }
+
+    @Override
+    public AjaxResult getBuyerContractStateCount(long buyer_id) {
+        List<UserContractStateDTO> userContractStateDTOS = contractMapper.getBuyerContractStateCount(buyer_id);
+        Map<Integer, UserContractStateDTO> state_object = new HashMap<Integer, UserContractStateDTO>();
+        for(UserContractStateDTO userContractStateDTO : userContractStateDTOS){
+            state_object.put(userContractStateDTO.getState(), userContractStateDTO);
+        }
+
+        List<UserContractStateDTO> result = new ArrayList<UserContractStateDTO>();
+
+        for(int state : buyer_states){
+            if(!state_object.containsKey(state)){
+                UserContractStateDTO userContractStateDTO = new UserContractStateDTO();
+                userContractStateDTO.setState(state);
+                userContractStateDTO.setCnt(0);
+                result.add(userContractStateDTO);
+            }else{
+                result.add(state_object.get(state));
+            }
+        }
+        return AjaxResult.success("get buyer state count success.", result);
+    }
+
+    @Override
+    public AjaxResult getSellerContractStateCount(long seller_id) {
+        List<UserContractStateDTO> userContractStateDTOS =  contractMapper.getSellerContractStateCount(seller_id);
+        Map<Integer, UserContractStateDTO> state_object = new HashMap<Integer, UserContractStateDTO>();
+        for(UserContractStateDTO userContractStateDTO : userContractStateDTOS){
+            state_object.put(userContractStateDTO.getState(), userContractStateDTO);
+        }
+
+        List<UserContractStateDTO> result = new ArrayList<UserContractStateDTO>();
+
+        for(int state : seller_states){
+            if(!state_object.containsKey(state)){
+                UserContractStateDTO userContractStateDTO = new UserContractStateDTO();
+                userContractStateDTO.setState(state);
+                userContractStateDTO.setCnt(0);
+                result.add(userContractStateDTO);
+            }else{
+                result.add(state_object.get(state));
+            }
+        }
+
+        int deleteNum = contractMapper.getSellerContractDeleteCount(seller_id);
+        UserContractStateDTO userContractStateDTO = new UserContractStateDTO();
+        userContractStateDTO.setState(-1);
+        userContractStateDTO.setCnt(deleteNum);
+        result.add(userContractStateDTO);
+
+        return AjaxResult.success("get seller state count success.", result);
+    }
+
     //平台审核通过
     public void review_success(String contract_id) {
         contractMapper.updateBuyerState(contract_id, buyer_state_platform_wating_paycar); //买家状态更改为: 等待支付车款
@@ -194,13 +313,13 @@ public class ContractServiceImpl implements ContractService {
 
     //买家支付车款成功
     public void buyer_paycar_success(String contract_id) {
-        contractMapper.updateBuyerState(contract_id, buyer_state_platform_wating_transport); //买家状态更改为: 车辆运输中
+        contractMapper.updateBuyerState(contract_id, buyer_state_inspection_car); //买家状态更改为: 验车
         contractMapper.updateSellerState(contract_id, seller_state_waiting_deliver_car); //卖家状态更改为：车辆待交付
     }
 
     //平台验车成功
     public void platform_inspection_car_success(String contract_id) {
-        contractMapper.updateBuyerState(contract_id, buyer_state_inspection_car); //买家状态更改为: 验车
+        contractMapper.updateBuyerState(contract_id, buyer_state_platform_wating_transport); //买家状态更改为: 运输中
         contractMapper.updateSellerState(contract_id, seller_state_finished); //卖家状态更改为：交易完成
     }
 

@@ -1,6 +1,10 @@
 package com.carbarn.inter.service.impl;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.carbarn.inter.config.ParamKeys;
+import com.carbarn.inter.mapper.ParamsMapper;
 import com.carbarn.inter.mapper.UserMapper;
 import com.carbarn.inter.pojo.User;
 import com.carbarn.inter.pojo.user.dto.SignupUserDTO;
@@ -15,12 +19,15 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Random;
 
 @Service
 public class UserServiceImpl implements UserService {
     @Autowired
     private UserMapper userMapper;
 
+    @Autowired
+    private ParamsMapper paramsMapper;
 
     @Override
     public User selectByUsername(String username) {
@@ -52,12 +59,31 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserPojo signup(SignupUserDTO signupUserDTO) {
+        String phone_number = signupUserDTO.getPhone_num();
+        int phone_number_length = phone_number.length();
+        String phone_number_last4num = phone_number.substring(phone_number_length - 4, phone_number_length);
         boolean bool = userMapper.isPhoneNumExist(signupUserDTO.getPhone_num());
-        if(!bool){
-            String nickname = "用户" + Utils.getRandomChar(10);
+        if (!bool) {
+
+            Random random = new Random();
+            String default_avatars = paramsMapper.getValue(ParamKeys.param_user_default_avatar);
+            String[] default_avatars_arrays = default_avatars.split(",");
+            int random_index = random.nextInt(default_avatars_arrays.length);
+            signupUserDTO.setAvatar(default_avatars_arrays[random_index]);
+
+
+            String default_nicknames = paramsMapper.getValue(ParamKeys.param_user_default_nickname);
+            String[] default_nicknames_arrays = default_nicknames.split(",");
+            random_index = random.nextInt(default_nicknames_arrays.length);
+            String nickname = default_nicknames_arrays[random_index];
+            signupUserDTO.setNickname(nickname + phone_number_last4num);
+
+
             long user_count = Utils.getRandomLong();
-            signupUserDTO.setNickname(nickname);
             signupUserDTO.setUser_count(user_count);
+//            String nickname = "用户" + Utils.getRandomChar(10);
+//            signupUserDTO.setNickname(nickname);
+
             userMapper.signup(signupUserDTO);
         }
 
@@ -115,18 +141,18 @@ public class UserServiceImpl implements UserService {
         String today = today_.format(formatter);
         String yesterday = yesterday_.format(formatter);
 
-        UserViewCountPojo total_count =  userMapper.userViewCount(user_id);
-        if(total_count == null){
+        UserViewCountPojo total_count = userMapper.userViewCount(user_id);
+        if (total_count == null) {
             total_count = new UserViewCountPojo();
         }
 
-        UserViewCountPojo today_count =  userMapper.userDtViewCount(user_id, today);
-        if(today_count == null){
+        UserViewCountPojo today_count = userMapper.userDtViewCount(user_id, today);
+        if (today_count == null) {
             today_count = new UserViewCountPojo();
         }
-        UserViewCountPojo yesterday_count =  userMapper.userDtViewCount(user_id, yesterday);
+        UserViewCountPojo yesterday_count = userMapper.userDtViewCount(user_id, yesterday);
 
-        if(yesterday_count == null){
+        if (yesterday_count == null) {
             yesterday_count = new UserViewCountPojo();
         }
 

@@ -14,10 +14,14 @@ public class ContractFullMessageDTO {
     private boolean pay_buyer_guarantee_fund;
     private double seller_guarantee_fund;
     private boolean pay_seller_guarantee_fund;
+    private int buyer_state;
+    private int seller_state;
     private String other_agreements;
     private String buyer_confirm_time;
     private String seller_confirm_time;
     private String create_time;
+    private String operationContract;
+    private String userContract;
 
     private ContractUserInfoDTO buyer_info;
 
@@ -34,9 +38,13 @@ public class ContractFullMessageDTO {
         contractFullMessageDTO.setSeller_id(contractPOJO.getSeller_id());
         contractFullMessageDTO.setBuyer_guarantee_fund(contractPOJO.getBuyer_guarantee_fund());
         contractFullMessageDTO.setSeller_guarantee_fund(contractPOJO.getSeller_guarantee_fund());
+        contractFullMessageDTO.setBuyer_state(contractPOJO.getBuyer_state());
+        contractFullMessageDTO.setSeller_state(contractPOJO.getSeller_state());
         contractFullMessageDTO.setOther_agreements(contractPOJO.getOther_agreements());
         contractFullMessageDTO.setBuyer_confirm_time(contractPOJO.getBuyer_confirm_time());
         contractFullMessageDTO.setCreate_time(contractPOJO.getCreate_time());
+        contractFullMessageDTO.setOperationContract(contractPOJO.getOperationContract());
+        contractFullMessageDTO.setUserContract(contractPOJO.getUserContract());
         return contractFullMessageDTO;
     }
 }

@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.carbarn.meeting.mapper.MeetingMapper">
+
+    <insert id="createNewMeeting" parameterType="com.carbarn.meeting.pojo.MeetingPOJO">
+        insert into meeting
+        (meeting_id, buyer_id,buyer_timezone, seller_id, seller_timezone, car_id,start_time,end_time,description)
+        values
+        (#{meeting_id},#{buyer_id},#{buyer_timezone}, #{seller_id},#{seller_timezone},#{car_id},#{start_time},#{end_time},#{description})
+    </insert>
+
+    <update id="setMeetingTime" parameterType="com.carbarn.meeting.pojo.MeetingPOJO">
+        update meeting
+        set
+        buyer_timezone = #{buyer_timezone},
+        seller_timezone = #{seller_timezone},
+        start_time = #{start_time},
+        end_time = #{end_time},
+        description = #{description}
+        where meeting_id = #{meeting_id}
+    </update>
+
+    <update id="updateMeeting" parameterType="com.carbarn.meeting.pojo.MeetingPOJO">
+        update meeting
+        set
+        app_link = #{app_link},
+        live_link = #{live_link},
+        meeting_no = #{meeting_no},
+        url = #{url}
+        where meeting_id = #{meeting_id}
+    </update>
+
+    <select id="getMeetingInfo" resultType="com.carbarn.meeting.pojo.MeetingPOJO">
+        select
+        *
+        from
+        meeting
+        where
+        meeting_id = #{meeting_id}
+    </select>
+
+    <select id="getUserMeetings" resultType="com.carbarn.meeting.pojo.MeetingPOJO">
+        select
+        *
+        from
+        meeting
+        where
+        (buyer_id = #{user_id} or seller_id = #{user_id})
+        and end_time > #{current_time}
+        and meeting_no is not null
+        order by end_time asc
+        limit #{searchMeetingDTO.pageStart}, #{searchMeetingDTO.pageSize}
+    </select>
+    
+    <select id="isGoingToStartMeeting" resultType="com.carbarn.meeting.pojo.dto.GoingToStartMeetingDTO">
+        select
+        a.meeting_id,
+        b.nickname as buyer_nickname,
+        b.phone_num as buyer_phonenum,
+        c.nickname as seller_nickname,
+        c.phone_num as seller_phonenum
+        from
+        (select
+        *
+        from
+        meeting
+        where
+        start_time > #{currentTime}
+        and start_time - #{currentTime} &lt; #{time_interval}
+        and meeting_no is not null
+        and buyer_invite_infos is null
+        and seller_invite_infos is null
+        ) a
+        left join (select * from users) b on a.buyer_id = b.id
+        left join (select * from users) c on a.seller_id = c.id
+    </select>
+
+    <update id="updateInviteInfos">
+        update meeting
+        set buyer_invite_infos = #{buyer_invite_infos},
+        seller_invite_infos = #{seller_invite_infos}
+        where meeting_id = #{meeting_id}
+    </update>
+
+    <select id="isFinishedMeetings" resultType="com.carbarn.meeting.pojo.dto.FinishedMeetingDTO">
+        select
+        meeting_id,
+        buyer_invite_infos,
+        seller_invite_infos
+        from
+        meeting
+        where
+        #{currentTime} - end_time >= #{delete_minute_interval}
+        and meeting_no is not null
+        and is_invite_delete = 0
+        and (buyer_invite_infos is not null or seller_invite_infos is not null);
+    </select>
+    
+    <update id="update_is_invite_delete">
+        update meeting
+        set is_invite_delete = 1
+        where meeting_id = #{meeting_id}
+    </update>
+</mapper>

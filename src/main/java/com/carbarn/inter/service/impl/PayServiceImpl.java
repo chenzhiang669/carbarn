@@ -105,7 +105,7 @@ public class PayServiceImpl implements PayService {
             String trxamt = String.valueOf((int)(buyer_guarantee_fund * 100));
             orderPOJO.setTrxamt(trxamt);
         }else if(seller_id == user_id){
-            double seller_guarantee_fund = (int)contractPOJO.getSeller_guarantee_fund();
+            double seller_guarantee_fund = contractPOJO.getSeller_guarantee_fund();
             String trxamt = String.valueOf((int)(seller_guarantee_fund * 100));
             orderPOJO.setTrxamt(trxamt);
         }

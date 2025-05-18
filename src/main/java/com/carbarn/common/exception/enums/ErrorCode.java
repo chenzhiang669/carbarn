@@ -6,7 +6,7 @@ package com.carbarn.common.exception.enums;
  * @Date 2025/1/11 13:13
  */
 public enum ErrorCode {
-    SUCCESS(0, "成功"),
+    SUCCESS(200, "成功"),
 
     //  客户端错误段
     BAD_REQUEST(400, "请求参数不正确"),

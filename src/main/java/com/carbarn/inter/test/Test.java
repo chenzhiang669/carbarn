@@ -16,11 +16,15 @@ import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class Test {
     public static void main(String[] args) throws IOException, SQLException {
-        insert_type_car_details();
-
+//        insert_type_car_details();
+        String phone_number = "18715026765";
+        int phone_number_length = phone_number.length();
+        String phone_number_last4num = phone_number.substring(phone_number_length - 4, phone_number_length);
+        System.out.println(phone_number_last4num);
     }
 
 

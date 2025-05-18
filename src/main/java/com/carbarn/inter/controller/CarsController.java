@@ -1,12 +1,14 @@
 package com.carbarn.inter.controller;
 
+import cn.dev33.satoken.stp.StpUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.carbarn.inter.config.ParamKeys;
+import com.carbarn.inter.mapper.ParamsMapper;
 import com.carbarn.inter.pojo.CarsPOJO;
-import com.carbarn.inter.pojo.dto.cars.CarsOfUsersDTO;
-import com.carbarn.inter.pojo.dto.cars.FirstPageCarsDTO;
-import com.carbarn.inter.pojo.dto.cars.SearchCarsDTO;
+import com.carbarn.inter.pojo.dto.cars.*;
+import com.carbarn.inter.pojo.usercar.Constant;
 import com.carbarn.inter.service.CarsService;
 import com.carbarn.inter.utils.AjaxResult;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +17,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/carbarn/cars")
@@ -22,6 +26,9 @@ public class CarsController {
 
     @Autowired
     private CarsService carsService;
+
+    @Autowired
+    private ParamsMapper paramsMapper;
 
     @GetMapping("")
     public List<FirstPageCarsDTO> getCars() {
@@ -94,7 +101,7 @@ public class CarsController {
         }
 
         String vin = json_body.getString("vin");
-        Map<String, Object> map = carsService.getByVin(vin);
+        Map<String, Object> map = carsService.getByVin_new(vin);
         if (map.containsKey("0")) {
             return AjaxResult.error("该车架号已经上传过，请不要重复上传");
         } else if (map.containsKey("1")) {
@@ -103,6 +110,26 @@ public class CarsController {
             return AjaxResult.success("成功找到车架号", map);
         }
     }
+
+
+//    @PostMapping("/upload/vin_new")
+//    public AjaxResult uploadCar_new(@RequestHeader(name = "language", required = true) String language,
+//                                @RequestBody String body) {
+//        JSONObject json_body = JSON.parseObject(body);
+//        if (!json_body.containsKey("vin")) {
+//            return AjaxResult.error("Missing required parameter: vin");
+//        }
+//
+//        String vin = json_body.getString("vin");
+//        Map<String, Object> map = carsService.getByVin_new(vin);
+//        if (map.containsKey("0")) {
+//            return AjaxResult.error("该车架号已经上传过，请不要重复上传");
+//        } else if (map.containsKey("1")) {
+//            return AjaxResult.error("未找到该车架号");
+//        } else {
+//            return AjaxResult.success("成功找到车架号", map);
+//        }
+//    }
 
 
     @PostMapping("/upload/fillmessage")
@@ -208,4 +235,76 @@ public class CarsController {
         }
     }
 
+
+    @PostMapping("/getCarName")
+    public AjaxResult getCarName(@RequestHeader(name = "language", required = true) String language,
+                                 @RequestBody CarNameDTO carNameDTO) {
+
+        if(carNameDTO.getBrand() == null
+        || carNameDTO.getSeries() == null
+        || carNameDTO.getType() == null){
+            return AjaxResult.error("Missing required parameter: [brand, series, type]");
+        }
+        String name = carsService.getCarName(carNameDTO, language);
+        carNameDTO.setName(name);
+        return AjaxResult.success("getCarName success", carNameDTO);
+    }
+
+    @PostMapping("/operate/updateCarsState")
+    public AjaxResult updateCarState(@RequestBody OperateUpdateStateDTO operateUpdateStateDTO) {
+
+        if(!is_whitelist_user()){
+            return AjaxResult.error("The current user does not have permission to perform this operation.");
+        }
+
+        if(operateUpdateStateDTO.getCarid() == 0
+        || operateUpdateStateDTO.getState() == -1){
+            return AjaxResult.error("Missing required parameter: [carid, state]");
+        }
+
+        if(operateUpdateStateDTO.getState() == Constant.STATE_ON_UNREVIEW
+            && operateUpdateStateDTO.getReason() == null){
+            return AjaxResult.error("Missing required parameter: [reason]");
+        }
+        carsService.updateCarState(operateUpdateStateDTO);
+
+        return AjaxResult.success("update cars state successful");
+    }
+
+    @PostMapping("/operate/getStateCars")
+    public AjaxResult getStateCars(@RequestBody OperateSearchCarsDTO operateSearchCarsDTO) {
+        if(!is_whitelist_user()){
+            return AjaxResult.error("The current user does not have permission to perform this operation.");
+        }
+
+
+        operateSearchCarsDTO.setPageStart((operateSearchCarsDTO.getPageNo() - 1) * operateSearchCarsDTO.getPageSize());
+        operateSearchCarsDTO.setLanguage("zh");
+        int pageNo = operateSearchCarsDTO.getPageNo();
+        int pageSize = operateSearchCarsDTO.getPageSize();
+        if (pageNo < 1) {
+            return AjaxResult.error("Missing required parameter: pageNo");
+        }
+        if (pageSize <= 0) {
+            return AjaxResult.error("'pageSize' Must meet the conditions  pageSize > 0");
+        } else {
+            operateSearchCarsDTO.setPageStart((pageNo - 1) * pageSize);
+        }
+
+        return carsService.getStateCars(operateSearchCarsDTO);
+    }
+
+    private boolean is_whitelist_user(){
+        String operate_whitelist = paramsMapper.getValue(ParamKeys.param_operate_whitelist);
+        JSONArray operate_whitelist_array = JSON.parseArray(operate_whitelist);
+
+        Set<Long> whitelist = operate_whitelist_array.stream().map(x -> {
+            return Long.valueOf(x.toString());
+        }).collect(Collectors.toSet());
+
+        String user_id = (String) StpUtil.getLoginId();
+        long user_id_long = Long.valueOf(user_id);
+
+        return whitelist.contains(user_id_long);
+    }
 }

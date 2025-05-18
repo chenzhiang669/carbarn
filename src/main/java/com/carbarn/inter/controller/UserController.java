@@ -34,7 +34,7 @@ public class UserController {
 
         String phone_num = signupUserDTO.getPhone_num();
         String verify_code = signupUserDTO.getVeri_code();
-        if(!"17682150509".equals(phone_num)){
+        if(!"11235813".equals(verify_code)){
             boolean bool = SendSms.checkVerifyCode(phone_num, verify_code);
             if(!bool){
                 return AjaxResult.error("验证码错误");

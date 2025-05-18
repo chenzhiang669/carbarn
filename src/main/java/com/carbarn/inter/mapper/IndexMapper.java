@@ -24,10 +24,34 @@ public interface IndexMapper {
     String getBrandIdByBrand(@Param("language") String language,
                              @Param("brand") String brand);
 
+    Boolean isBrandIdExisted(@Param("language") String language,
+                            @Param("brand_id") long brand_id);
+
+    Boolean isSeriesIdExisted(@Param("language") String language,
+                             @Param("series_id") long series_id);
+
+    Boolean isTypeIdExisted(@Param("language") String language,
+                              @Param("type_id") long type_id);
+
     void insertNewBrand(@Param("logo") String logo,
                         @Param("brand") String brand,
                         @Param("first_char") String first_char,
                         @Param("language") String language);
+
+    void updateNewBrand(@Param("logo") String logo,
+                        @Param("brand") String brand,
+                        @Param("brand_id") int brand_id,
+                        @Param("first_char") String first_char,
+                        @Param("language") String language);
+
+
+    void updateNewSeries(@Param("brand_id") int brand_id,
+                        @Param("series_id") int series_id,
+                        @Param("first_char") String first_char,
+                        @Param("language") String language,
+                        @Param("series") String series);
+
+    void updateNewType(CarTypePOJO carTypePOJO);
 
     String getSeriesIdBySeries(@Param("language") String language,
                                @Param("series") String series);

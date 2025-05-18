@@ -22,5 +22,8 @@ public class ContractPOJO {
     private String buyer_confirm_time;
     private String seller_confirm_time;
     private String create_time;
+    private String operationContract;
+    private String userContract;
+    private String pay_note;
     private int operate = -1; //操作类型: 保存 / 确认
 }

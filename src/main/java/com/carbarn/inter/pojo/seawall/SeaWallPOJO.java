@@ -4,7 +4,11 @@ import lombok.Data;
 
 @Data
 public class SeaWallPOJO {
+    private int id;
+
     private String title;
+
+    private int seaWallType = -1;
 
     private String picture;
 

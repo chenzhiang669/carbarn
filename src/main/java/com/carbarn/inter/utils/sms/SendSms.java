@@ -19,15 +19,62 @@ public class SendSms {
     private static String smsAccount = "82089e98";
 
     private static String zh_templateId = "ST_8261c7cb";
-
-    private static String other_language_templateId = "ST_826116c8";
     private static String sign = "卓雅科技";
-
     private static String scene = "注册验证码";
 
+//    private static String zh_templateId = "ST_83ffcf22";
+//    private static String sign = "车出海";
+//    private static String scene = "注册验证码";
+
+    private static String other_language_templateId = "ST_83ca0ddd";
+
     public static void main(String[] args) throws IOException {
-        sendVerifyCodeV2("18715026765", "zh");
-//        checkVerifyCode("18715026765", "666228");
+
+//        boolean bool = sendForeign("00971562469818", "en");
+//        System.out.println(bool);
+//
+//        bool = sendForeign("+79999602183", "en");
+//        System.out.println(bool);
+//
+//        boolean bool = sendForeign("+37369333486", "en");
+//        System.out.println(bool);
+
+//        boolean bool = sendForeign("+971562469818", "en");
+//        System.out.println(bool);
+        boolean bool = sendVerifyCodeV2("19055144098", "zh");
+        System.out.println(bool);
+//
+//        bool = sendVerifyCodeV2("+971526112200", "zh");
+//        System.out.println(bool);
+
+
+//        boolean bool = checkVerifyCode("+86 18715026765", "549920");
+//        System.out.println(bool);
+    }
+
+    public static boolean sendForeign(String phoneNum, String language) {
+        try {
+            SmsService smsService = SmsServiceImpl.getInstance(new SmsServiceInfoConfig(AccessKeyId, SecretAccessKey));
+            SmsSendVerifyCodeRequest req = new SmsSendVerifyCodeRequest();
+            req.setPhoneNumber(phoneNum);
+            req.setSmsAccount(smsAccount);
+            req.setTemplateId(other_language_templateId);
+            req.setSign("Carvata");
+            req.setExpireTime(600);
+            req.setScene(scene);
+
+            SmsSendResponse response = smsService.sendVerifyCodeV2(req);
+            System.out.println(JSON.toJSONString(response));
+            String code = response.getCode();
+            if (code == null) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     public static boolean sendVerifyCodeV2(String phoneNum, String language) {
@@ -36,7 +83,7 @@ public class SendSms {
             SmsSendVerifyCodeRequest req = new SmsSendVerifyCodeRequest();
             req.setPhoneNumber(phoneNum);
             req.setSmsAccount(smsAccount);
-            if ("zh".equals(language)) {
+            if ("zh".equals(language) || phoneNum.startsWith("+86")) {
                 req.setTemplateId(zh_templateId);
             } else {
                 req.setTemplateId(other_language_templateId);
@@ -48,9 +95,9 @@ public class SendSms {
             SmsSendResponse response = smsService.sendVerifyCodeV2(req);
             System.out.println(JSON.toJSONString(response));
             String code = response.getCode();
-            if(code == null){
+            if (code == null) {
                 return true;
-            }else{
+            } else {
                 return false;
             }
         } catch (Exception e) {
@@ -74,9 +121,9 @@ public class SendSms {
             SmsCheckVerifyCodeResponse response = smsService.checkVerifyCode(req);
             System.out.println(JSON.toJSONString(response));
             String result = response.getResult();
-            if("0".equals(result)){
+            if ("0".equals(result)) {
                 return true;
-            }else{
+            } else {
                 return false;
             }
         } catch (Exception e) {

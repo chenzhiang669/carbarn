@@ -1,9 +1,7 @@
 package com.carbarn.inter.mapper;
 
 import com.carbarn.inter.pojo.CarsPOJO;
-import com.carbarn.inter.pojo.dto.cars.CarsOfUsersDTO;
-import com.carbarn.inter.pojo.dto.cars.FirstPageCarsDTO;
-import com.carbarn.inter.pojo.dto.cars.SearchCarsDTO;
+import com.carbarn.inter.pojo.dto.cars.*;
 import com.carbarn.inter.pojo.vin.VinPOJO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -39,4 +37,8 @@ public interface CarsMapper {
     void insertVin(VinPOJO vinPOJO);
 
     VinPOJO getVinInfos(@Param("vin") String vin);
+
+    void updateCarState(@Param("operateUpdateStateDTO") OperateUpdateStateDTO operateUpdateStateDTO);
+
+    List<OperateCarsDTO> getStateCars(@Param("operateSearchCarsDTO") OperateSearchCarsDTO operateSearchCarsDTO);
 }

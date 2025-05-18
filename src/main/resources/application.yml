@@ -17,5 +17,5 @@ sa-token:
 
 
 mybatis:
-  mapper-locations: classpath:mapper/*.xml,classpath:mapper/im/*.xml,classpath:mapper/contract/*.xml
+  mapper-locations: classpath:mapper/*.xml,classpath:mapper/im/*.xml,classpath:mapper/contract/*.xml,classpath:mapper/meeting/*.xml
   type-aliases-package: com.carbarn.*.pojo

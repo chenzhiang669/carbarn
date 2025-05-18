@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.carbarn.inter.mapper.AsyncMapper">
+
+    <select id="getTypeDetails" resultType="com.carbarn.inter.pojo.async.TypeDetailsDTO">
+        select
+        type_id,
+        `language`,
+        details
+        from
+        car_type
+        where
+        type_id = #{type_id}
+        and `language` = #{language}
+        limit 1
+    </select>
+
+    <update id="updateTypeDetails">
+        update car_type
+        set details = #{details}
+        where type_id = #{type_id}
+        and `language` = #{language}
+    </update>
+
+</mapper>

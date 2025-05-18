@@ -32,13 +32,13 @@ public class Translator1 {
                 translateTextRequest.setTargetLanguage(targetLang);
                 translateTextRequest.setTextList(Collections.singletonList(text));
                 TranslateTextResponse translateText = translateService.translateText(translateTextRequest);
-                System.out.println(translateText);
+//                System.out.println(translateText);
                 String result = translateText.getTranslationList().get(0).getTranslation();
                 return result;
             } catch (Exception e) {
-                LOGGER.error("translate error, text: {}, sourceLang: {}, targetLang: {}", text, sourceLang, targetLang, e);
+                return "";
+//                LOGGER.error("translate error, text: {}, sourceLang: {}, targetLang: {}", text, sourceLang, targetLang);
             }
-            return "";
         }
 
         public static void car_series() throws IOException {
@@ -73,9 +73,24 @@ public class Translator1 {
         ch.qos.logback.classic.Logger headersclient = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger("org.apache.http.client");
         headersclient.setLevel(Level.OFF); // 禁用日志输出
 
+        BufferedReader br = new BufferedReader(new FileReader(new File("D:/carbarn/翻译/car_type_zh.csv")));
+        BufferedWriter bw = new BufferedWriter(new FileWriter(new File("D:/carbarn/翻译/car_type-en.csv")));
+
+        String line = null;
         Translator1 translator = new Translator1();
-        String value = translator.translate("你好，帅哥","zh","en");
-        System.out.println(value);
+        System.out.println(translator.translate("缸盖材料", "zh", "en"));
+//        while((line = br.readLine()) != null){
+//            String[] infos = line.split(",");
+//            String brand = infos[0];
+//            String id = infos[1];
+//            String value = translator.translate(brand,"zh","en");
+//            System.out.println(value + "\t" + id);
+//            bw.write(value + "\t" + id + "\n");
+//
+//        }
+//        bw.flush();
+//        bw.close();
+
 
 
 

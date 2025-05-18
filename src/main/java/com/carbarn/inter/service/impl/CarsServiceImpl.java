@@ -1,6 +1,7 @@
 package com.carbarn.inter.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.carbarn.inter.config.CarbarnConfig;
@@ -9,20 +10,18 @@ import com.carbarn.inter.mapper.IndexMapper;
 import com.carbarn.inter.mapper.UserMapper;
 import com.carbarn.inter.pojo.CarTypePOJO;
 import com.carbarn.inter.pojo.CarsPOJO;
-import com.carbarn.inter.pojo.dto.cars.CarsOfUsersDTO;
-import com.carbarn.inter.pojo.dto.cars.FirstPageCarsDTO;
-import com.carbarn.inter.pojo.dto.cars.SearchCarsDTO;
+import com.carbarn.inter.pojo.dto.cars.*;
 import com.carbarn.inter.pojo.dto.cars.index.IndexDTO;
 import com.carbarn.inter.pojo.dto.cars.index.TypeMessageDTO;
 import com.carbarn.inter.pojo.user.pojo.UserPojo;
 import com.carbarn.inter.pojo.usercar.Constant;
 import com.carbarn.inter.pojo.vin.VinPOJO;
+import com.carbarn.inter.service.AsyncService;
 import com.carbarn.inter.service.CarsService;
 import com.carbarn.inter.utils.AjaxResult;
 import com.carbarn.inter.utils.Utils;
-import com.carbarn.inter.utils.http.JinyutangHttp;
-import com.carbarn.inter.utils.qixiubao.Qixiubao;
-import io.swagger.models.auth.In;
+import com.carbarn.inter.utils.qixiubao.QixiubaoHttp;
+import com.carbarn.inter.utils.qixiubao.Transform;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -53,6 +52,9 @@ public class CarsServiceImpl implements CarsService {
     @Autowired
     private CarbarnConfig carbarnConfig;
 
+    @Autowired
+    private AsyncService asyncService;
+
     public static HashMap<String, String> multi_values_fields = new HashMap<String, String>();
 
     static {
@@ -73,7 +75,11 @@ public class CarsServiceImpl implements CarsService {
 
     @Override
     public List<FirstPageCarsDTO> searchCars(SearchCarsDTO searchCarsDTO) {
-        return carsMapper.searchCars(searchCarsDTO);
+        List<FirstPageCarsDTO> firstPageCarsDTOS = carsMapper.searchCars(searchCarsDTO);
+        for (FirstPageCarsDTO firstPageCarsDTO : firstPageCarsDTOS) {
+            firstPageCarsDTO.setName(getCarName(firstPageCarsDTO.getBrand(), firstPageCarsDTO.getSeries(), firstPageCarsDTO.getType()));
+        }
+        return firstPageCarsDTOS;
     }
 
     @Override
@@ -101,14 +107,14 @@ public class CarsServiceImpl implements CarsService {
 
         try {
             int type_id = carsPOJO.getType_id();
-            if(type_id == -1){
+            if (type_id == -1) {
                 map.put("brand", null);
                 map.put("brand_id", -1);
                 map.put("series", null);
                 map.put("series_id", -1);
                 map.put("type", null);
                 map.put("name", null);
-            }else{
+            } else {
                 TypeMessageDTO typeMessageDTO = indexMapper.getTypeMessage(language, type_id);
                 String brand = typeMessageDTO.getBrand();
                 String series = typeMessageDTO.getSeries();
@@ -117,7 +123,8 @@ public class CarsServiceImpl implements CarsService {
                 int series_id = typeMessageDTO.getSeries_id();
                 if (brand != null && series != null && type != null) {
 //                    String name = brand + " " + series + " " + type;
-                    String name = brand + " " + type;
+//                    String name = brand + " " + type;
+                    String name = getCarName(brand, series, type);
                     map.put("brand", brand);
                     map.put("brand_id", brand_id);
                     map.put("series", series);
@@ -129,7 +136,6 @@ public class CarsServiceImpl implements CarsService {
                     return map;
                 }
             }
-
 
 
             List<IndexDTO> indexes = indexMapper.getIndex(language);
@@ -190,15 +196,229 @@ public class CarsServiceImpl implements CarsService {
         return map;
     }
 
+    public AjaxResult getCarsByID_New(String language, long carid) {
+
+        CarsPOJO carsPOJO = carsMapper.getCarsByID(carid);
+        if (carsPOJO == null) {
+            return AjaxResult.error("the carid: " + carid + " don't exist");
+        }
+
+        CarDetailsDTO carDetailsDTO = new CarDetailsDTO();
+        carDetailsDTO.setId(carid);
+        carDetailsDTO.setUser_id(carsPOJO.getUser_id());
+        carDetailsDTO.setHeader_picture(carsPOJO.getHeader_picture());
+        carDetailsDTO.setAll_pictures(carsPOJO.getAll_pictures());
+        carDetailsDTO.setPrice(carsPOJO.getPrice());
+        carDetailsDTO.setGuide_price(carsPOJO.getGuide_price());
+        carDetailsDTO.setFloor_price(carsPOJO.getFloor_price());
+        carDetailsDTO.setVin(carsPOJO.getVin());
+        carDetailsDTO.setProof(carsPOJO.getProof());
+        carDetailsDTO.setVehicleType(carsPOJO.getVehicleType());
+        carDetailsDTO.setInspection_report(carsPOJO.getInspection_report());
+
+        UserPojo userPojo = userMapper.getUserInfoByID(carsPOJO.getUser_id());
+        CarUserInfoDTO carUserInfoDTO = CarUserInfoDTO.getCarUserInfoDTO(userPojo);
+        carDetailsDTO.setUser_info(carUserInfoDTO);  //卖家用户信息
+
+        String carsPOJOJsonString = JSON.toJSONString(carsPOJO, SerializerFeature.WriteMapNullValue);
+        JSONObject jsonObject = JSON.parseObject(carsPOJOJsonString);
+        Map<String, Object> map = jsonObject;
+
+
+        try {
+            int type_id = carsPOJO.getType_id();
+            if (type_id == -1) {
+                return AjaxResult.error("the carid: " + carid + " don't exist");
+            } else {
+                TypeMessageDTO typeMessageDTO = indexMapper.getTypeMessage(language, type_id);
+                String brand = typeMessageDTO.getBrand();
+                String series = typeMessageDTO.getSeries();
+                String type = typeMessageDTO.getType();
+                int brand_id = typeMessageDTO.getBrand_id();
+                int series_id = typeMessageDTO.getSeries_id();
+                if (brand != null && series != null && type != null) {
+                    String name = getCarName(brand, series, type);
+                    carDetailsDTO.setBrand_id(brand_id);
+                    carDetailsDTO.setBrand(brand);
+                    carDetailsDTO.setSeries_id(series_id);
+                    carDetailsDTO.setSeries(series);
+                    carDetailsDTO.setType_id(type_id);
+                    carDetailsDTO.setType(type);
+                    carDetailsDTO.setName(name);
+                } else {
+                    return AjaxResult.error("the carid: " + carid + " don't exist");
+                }
+            }
+
+
+            List<IndexDTO> indexDTOS = indexMapper.getIndex(language);
+            Map<String, IndexDTO> field_id_Index_Map = new HashMap<String, IndexDTO>();
+//            Map<String, IndexDTO> field_mapping = new HashMap<String, IndexDTO>();
+
+            for (IndexDTO indexDTO : indexDTOS) {
+                int is_mapping = indexDTO.getIs_mapping();
+                int id = indexDTO.getValue_id();
+                String field = indexDTO.getField();
+
+                if (is_mapping == 0) {
+                    field_id_Index_Map.put(field + id, indexDTO);
+//                    field_mapping.put(field, indexDTO);
+                }
+            }
+
+            Class<?> clazz = carsPOJO.getClass();
+            Field[] fields = clazz.getDeclaredFields();
+
+            List<CarInfosDTO> car_infos = new ArrayList<CarInfosDTO>();
+
+            for (Field field : fields) {
+                field.setAccessible(true);
+                String key = field.getName();
+                Object real_id = field.get(carsPOJO);
+                String field_id = key + real_id;
+
+                if (multi_values_fields.containsKey(key)) {
+                    String value_name = multi_values_fields.get(key);
+                    String[] real_ids = ((String) field.get(carsPOJO)).split(",");
+                    List<Integer> ids = Arrays.stream(real_ids).map(x -> {
+                        return Integer.valueOf(x);
+                    }).filter(x -> {
+                        return x != -1;
+                    }).collect(Collectors.toList());
+                    map.put(value_name, ids);
+
+                } else if (multi_values_fields.values().contains(key)) {
+                    continue;
+                } else {
+                    if (field_id_Index_Map.containsKey(field_id)) {
+                        IndexDTO indexDTO = field_id_Index_Map.get(field_id);
+                        CarInfosDTO carInfosDTO = new CarInfosDTO();
+                        carInfosDTO.setKey(indexDTO.getIndex());
+                        carInfosDTO.setValue(indexDTO.getValue());
+                        carInfosDTO.setValue_id(indexDTO.getValue_id());
+                        car_infos.add(carInfosDTO);
+                    }
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+        return AjaxResult.success("get cardetails success", carDetailsDTO);
+    }
+
     @Override
     public CarsOfUsersDTO getCarsOfUsers(long userid) {
         return carsMapper.getCarsOfUsers(userid);
     }
 
+//    @Override
+//    public Map<String, Object> getByVin(String vin) {
+//        Map<String, Object> map = new HashMap<String, Object>();
+//        Random random = new Random();
+//        boolean is_vin_exist = carsMapper.existsByVin(vin); // 生成0或1
+//
+//        if (is_vin_exist) {
+//            map.put("0", true);
+//            return map;
+//        }
+//
+//        String responseString = null;
+//        VinPOJO vinPOJO = carsMapper.getVinInfos(vin); //先从自有vin库中查询是否有这个车架号
+//        if (vinPOJO == null) {
+//            responseString = QixiubaoHttp.searchVin(vin);
+//            if (responseString == null) {
+//                map.put("1", true);
+//                return map;
+//            } else {
+//                vinPOJO = new VinPOJO();
+//                vinPOJO.setVin(vin);
+//                vinPOJO.setInfos(responseString);
+//                carsMapper.insertVin(vinPOJO);
+//            }
+//        } else {
+//            responseString = vinPOJO.getInfos();
+//        }
+//
+//        List<JSONObject> vin_details = Qixiubao.parseResponse(responseString);
+//
+////        List<JSONObject> vin_details = JinyutangHttp.searchVin(vin); //TODO
+////        String responseString = Qixiubao.searchVin(vin);
+////        List<JSONObject> vin_details = Qixiubao.parseResponse(responseString);
+////        if (vin_details == null || vin_details.size() == 0) {
+////            map.put("1", true);
+////            return map;
+////        }
+//
+//        for (JSONObject message : vin_details) {
+//            String brand = message.getString("brand");
+//            String series = message.getString("series");
+//            String brand_first_char = Utils.getFirstLetter(brand);
+//            String series_first_char = Utils.getFirstLetter(series);
+//            String type = message.getString("type");
+//            String language = message.getOrDefault("language", "zh").toString();
+//
+//            String brand_id = indexMapper.getBrandIdByBrand(language, brand);
+//            if (brand_id == null) {
+//                System.out.println(String.format("数据库中没有该品牌：%s，插入新品牌", brand));
+//                brand_id = insertNewBrand("https://www.cctv.com", brand, brand_first_char, language);
+//            }
+//
+//            int brandid = Integer.valueOf(brand_id);
+//            message.put("brand_id", brandid);
+//            Map<String, Object> brand_map = new HashMap<String, Object>();
+//            brand_map.put("name", brand);
+//            brand_map.put("brand_id", brandid);
+//            map.put("brand", brand_map);
+//
+//
+//            String series_id = indexMapper.getSeriesIdBySeries(language, series);
+//            if (series_id == null) {
+//                System.out.println(String.format("数据库中没有该车系：%s，插入新车系", series));
+//                series_id = insertNewSeries(brandid, series_first_char, language, series);
+//            }
+//            int seriesid = Integer.valueOf(series_id);
+//            message.put("series_id", seriesid);
+//            Map<String, Object> series_map = new HashMap<String, Object>();
+//            series_map.put("name", series);
+//            series_map.put("series_id", seriesid);
+//            map.put("series", series_map);
+//
+//            String type_id = indexMapper.getTypeIdByType(language, type);
+//            if (type_id == null) {
+//                System.out.println(String.format("数据库中没有该车型: %s，插入新车型", type));
+//                CarTypePOJO carTypePOJO = createNewCarTypePOJO(message);
+//                type_id = insertNewtype(carTypePOJO);
+//            }
+//
+//            int typeid = Integer.valueOf(type_id);
+//            Map<String, Object> type_map = new HashMap<String, Object>();
+//            type_map.put("name", type);
+//            type_map.put("type_id", typeid);
+//            map.put("type", type_map);
+//            map.put("name", getCarName(brand, series, type));
+//
+//            Map<String, Object> manufacture_date_map = new HashMap<String, Object>();
+//            if (message.containsKey("manufacture_date") && message.get("manufacture_date") != null) {
+//                String manufacture_date = message.get("manufacture_date").toString();
+//                manufacture_date_map.put("name", manufacture_date);
+//                map.put("manufacture_date", manufacture_date_map);
+//            } else {
+//                String manufacture_date = Utils.getYearFromVin(vin);
+//                manufacture_date_map.put("name", manufacture_date);
+//                map.put("manufacture_date", manufacture_date_map);
+//            }
+//        }
+//
+//        return map;
+//    }
+
+
     @Override
-    public Map<String, Object> getByVin(String vin) {
+    public Map<String, Object> getByVin_new(String vin) {
         Map<String, Object> map = new HashMap<String, Object>();
-        Random random = new Random();
         boolean is_vin_exist = carsMapper.existsByVin(vin); // 生成0或1
 
         if (is_vin_exist) {
@@ -209,7 +429,7 @@ public class CarsServiceImpl implements CarsService {
         String responseString = null;
         VinPOJO vinPOJO = carsMapper.getVinInfos(vin); //先从自有vin库中查询是否有这个车架号
         if (vinPOJO == null) {
-            responseString = Qixiubao.searchVin(vin);
+            responseString = QixiubaoHttp.searchVin(vin);
             if (responseString == null) {
                 map.put("1", true);
                 return map;
@@ -223,73 +443,95 @@ public class CarsServiceImpl implements CarsService {
             responseString = vinPOJO.getInfos();
         }
 
-        List<JSONObject> vin_details = Qixiubao.parseResponse(responseString);
+        JSONObject json = JSON.parseObject(responseString);
+        if (!json.containsKey("result")) {
+            map.put("1", true);
+            return map;
+        }
 
-//        List<JSONObject> vin_details = JinyutangHttp.searchVin(vin); //TODO
-//        String responseString = Qixiubao.searchVin(vin);
+        JSONObject result = json.getJSONObject("result");
+        //获取出厂日期
+        String manufacture_date = "";
+        if (result.containsKey("prod_time")) {
+            String prod_time = result.getString("prod_time");
+            manufacture_date = prod_time.substring(0, 4);
+        } else {
+            manufacture_date = Utils.getYearFromVin(vin);
+        }
+
+
+        if (!result.containsKey("models")) {
+            map.put("1", true);
+            return map;
+        }
+
+        JSONArray models = result.getJSONArray("models");
 //        List<JSONObject> vin_details = Qixiubao.parseResponse(responseString);
-//        if (vin_details == null || vin_details.size() == 0) {
-//            map.put("1", true);
-//            return map;
-//        }
+        for (int i = 0; i < models.size(); i++) {
+            JSONObject model = models.getJSONObject(i);
 
-        for (JSONObject message : vin_details) {
-            String brand = message.getString("brand");
-            String series = message.getString("series");
-            String brand_first_char = Utils.getFirstLetter(brand);
-            String series_first_char = Utils.getFirstLetter(series);
-            String type = message.getString("type");
-            String language = message.getOrDefault("language", "zh").toString();
+            String brand = model.getString("brand");
+            String series = model.getString("series");
+            String type = series + " " + model.getString("model_name");
+            int brand_id = model.getInteger("brand_id");
+            int series_id = model.getInteger("series_id");
+            int type_id = model.getInteger("model_id");
 
-            String brand_id = indexMapper.getBrandIdByBrand(language, brand);
-            if (brand_id == null) {
-                System.out.println(String.format("数据库中没有该品牌：%s，插入新品牌", brand));
-                brand_id = insertNewBrand("https://www.cctv.com", brand, brand_first_char, language);
+            boolean is_brandid_exist = indexMapper.isBrandIdExisted("zh", brand_id);
+            if (!is_brandid_exist) {
+                System.out.println("info: there is no brand_id " + brand_id + " => brand:" + brand + ", insert it to car_brand");
+                String brand_first_char = Utils.getFirstLetter(brand);
+                updateNewBrand("", brand, brand_id, brand_first_char, "zh");
             }
 
-            int brandid = Integer.valueOf(brand_id);
-            message.put("brand_id", brandid);
+
+            boolean is_seriesid_exist = indexMapper.isSeriesIdExisted("zh", series_id);
+            if (!is_seriesid_exist) {
+                System.out.println("info: there is no series_id " + series_id + " => series:" + series + ", insert it to car_series");
+                String first_char = Utils.getFirstLetter(series);
+                updateNewSeries(brand_id, series_id, first_char, "zh", series);
+            }
+
+            boolean is_typeid_exist = indexMapper.isTypeIdExisted("zh", type_id);
+            if (!is_typeid_exist) {
+                System.out.println("info: there is no type_id " + type_id + " => type:" + type + ", insert it to car_type");
+                JSONObject standard_data = Transform.standard_data(model);
+                JSONObject details_json = QixiubaoHttp.searchTypeDetails(String.valueOf(type_id));
+                String details = details_json.getString("params");
+                CarTypePOJO carTypePOJO = createNewCarTypePOJO(standard_data);
+                JSONObject battery_infos = Transform.getBatteryInfosFromDetails(details);
+                double battery_capacity = battery_infos.getDouble("battery_capacity");
+                double pure_electric_range = battery_infos.getDouble("pure_electric_range");
+                carTypePOJO.setDetails(details);
+                carTypePOJO.setBattery_capacity(battery_capacity);
+                carTypePOJO.setPure_electric_range(pure_electric_range);
+                carTypePOJO.setLanguage("zh");
+                carTypePOJO.setBrand_id(brand_id);
+                carTypePOJO.setSeries_id(series_id);
+                carTypePOJO.setType_id(type_id);
+                updateNewType(carTypePOJO);
+            }
+
             Map<String, Object> brand_map = new HashMap<String, Object>();
             brand_map.put("name", brand);
-            brand_map.put("brand_id", brandid);
+            brand_map.put("brand_id", brand_id);
             map.put("brand", brand_map);
 
-
-            String series_id = indexMapper.getSeriesIdBySeries(language, series);
-            if (series_id == null) {
-                System.out.println(String.format("数据库中没有该车系：%s，插入新车系", series));
-                series_id = insertNewSeries(brandid, series_first_char, language, series);
-            }
-            int seriesid = Integer.valueOf(series_id);
-            message.put("series_id", seriesid);
             Map<String, Object> series_map = new HashMap<String, Object>();
             series_map.put("name", series);
-            series_map.put("series_id", seriesid);
+            series_map.put("series_id", series_id);
             map.put("series", series_map);
 
-            String type_id = indexMapper.getTypeIdByType(language, type);
-            if (type_id == null) {
-                System.out.println(String.format("数据库中没有该车型: %s，插入新车型", type));
-                CarTypePOJO carTypePOJO = createNewCarTypePOJO(message);
-                type_id = insertNewtype(carTypePOJO);
-            }
-
-            int typeid = Integer.valueOf(type_id);
             Map<String, Object> type_map = new HashMap<String, Object>();
             type_map.put("name", type);
-            type_map.put("type_id", typeid);
+            type_map.put("type_id", type_id);
             map.put("type", type_map);
+            map.put("name", getCarName(brand, series, type));
 
             Map<String, Object> manufacture_date_map = new HashMap<String, Object>();
-            if(message.containsKey("manufacture_date") && message.get("manufacture_date") != null){
-                String manufacture_date = message.get("manufacture_date").toString();
-                manufacture_date_map.put("name", manufacture_date);
-                map.put("manufacture_date", manufacture_date_map);
-            }else{
-                String manufacture_date = Utils.getYearFromVin(vin);
-                manufacture_date_map.put("name", manufacture_date);
-                map.put("manufacture_date", manufacture_date_map);
-            }
+            manufacture_date_map.put("name", manufacture_date);
+            map.put("manufacture_date", manufacture_date_map);
+
         }
 
         return map;
@@ -504,6 +746,10 @@ public class CarsServiceImpl implements CarsService {
         long id = carsMapper.getCaridByRandomString(randomString);
         HashMap<String, Long> result = new HashMap<String, Long>();
         result.put("id", id);
+
+        //异步翻译车型详细信息
+        int type_id = carsPOJO.getType_id();
+        asyncService.typeDetailsRealTimeTranslate(type_id);
         return AjaxResult.success("上传新车辆成功", result);
     }
 
@@ -599,7 +845,11 @@ public class CarsServiceImpl implements CarsService {
                 && (series_ids == null || series_ids.size() == 0)) {
             return new ArrayList<FirstPageCarsDTO>();
         } else {
-            return carsMapper.searchCarsByKeywords(searchCarsDTO, brand_ids, series_ids);
+            List<FirstPageCarsDTO> firstPageCarsDTOS = carsMapper.searchCarsByKeywords(searchCarsDTO, brand_ids, series_ids);
+            for (FirstPageCarsDTO firstPageCarsDTO : firstPageCarsDTOS) {
+                firstPageCarsDTO.setName(getCarName(firstPageCarsDTO.getBrand(), firstPageCarsDTO.getSeries(), firstPageCarsDTO.getType()));
+            }
+            return firstPageCarsDTOS;
         }
     }
 
@@ -623,6 +873,15 @@ public class CarsServiceImpl implements CarsService {
         return brand_id;
     }
 
+    public synchronized void updateNewBrand(String logo,
+                                            String brand,
+                                            int brand_id,
+                                            String first_char,
+                                            String language) {
+
+        indexMapper.updateNewBrand(logo, brand, brand_id, first_char, language);
+    }
+
 
     public synchronized String insertNewSeries(int brand_id,
                                                String first_char,
@@ -638,6 +897,14 @@ public class CarsServiceImpl implements CarsService {
         return series_id;
     }
 
+    public synchronized void updateNewSeries(int brand_id,
+                                             int series_id,
+                                             String first_char,
+                                             String language,
+                                             String series) {
+        indexMapper.updateNewSeries(brand_id, series_id, first_char, language, series);
+    }
+
     private synchronized String insertNewtype(CarTypePOJO carTypePOJO) {
         String type = carTypePOJO.getType();
         String language = carTypePOJO.getLanguage();
@@ -651,12 +918,103 @@ public class CarsServiceImpl implements CarsService {
     }
 
 
+    private synchronized void updateNewType(CarTypePOJO carTypePOJO) {
+        indexMapper.updateNewType(carTypePOJO);
+    }
+
+    @Override
+    public String getCarName(CarNameDTO carNameDTO, String language) {
+        return getCarName(carNameDTO.getBrand(), carNameDTO.getSeries(), carNameDTO.getType());
+    }
+
+    @Override
+    public void updateCarState(OperateUpdateStateDTO operateUpdateStateDTO) {
+        carsMapper.updateCarState(operateUpdateStateDTO);
+    }
+
+    @Override
+    public AjaxResult getStateCars(OperateSearchCarsDTO operateSearchCarsDTO) {
+        try{
+            List<OperateCarsDTO> carsPOJOS = carsMapper.getStateCars(operateSearchCarsDTO);
+
+            List<IndexDTO> indexes = indexMapper.getIndex("zh");
+            Map<String, IndexDTO> id_mapping = new HashMap<String, IndexDTO>();
+            Map<String, IndexDTO> field_mapping = new HashMap<String, IndexDTO>();
+            for (IndexDTO indexDTO : indexes) {
+                int is_mapping = indexDTO.getIs_mapping();
+                int id = indexDTO.getValue_id();
+                String field = indexDTO.getField();
+
+                if (is_mapping == 0) {
+                    id_mapping.put(field + id, indexDTO);
+                    field_mapping.put(field, indexDTO);
+                }
+            }
+
+
+            List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
+            for (OperateCarsDTO car : carsPOJOS) {
+                String carsPOJOJsonString = JSON.toJSONString(car, SerializerFeature.WriteMapNullValue);
+                JSONObject jsonObject = JSON.parseObject(carsPOJOJsonString);
+                Class<?> clazz = car.getClass();
+                Field[] fields = clazz.getDeclaredFields();
+
+                Map<String, Object> tmp = jsonObject;
+
+                for (Field field : fields) {
+                    field.setAccessible(true);
+                    String key = field.getName();
+
+                    if (multi_values_fields.containsKey(key)) {
+                        String value_name = multi_values_fields.get(key);
+                        String[] real_ids = ((String) field.get(car)).split(",");
+                        List<Integer> ids = Arrays.stream(real_ids).map(x -> {
+                            return Integer.valueOf(x);
+                        }).filter(x -> {
+                            return x != -1;
+                        }).collect(Collectors.toList());
+                        tmp.put(value_name, ids);
+
+                    } else if (multi_values_fields.values().contains(key)) {
+                        continue;
+                    } else {
+                        if (field_mapping.containsKey(key)) {
+                            Object real_id = field.get(car);
+
+                            if (id_mapping.containsKey(key + real_id)) {
+                                String real_name = id_mapping.get(key + real_id).getValue();
+                                tmp.put(key + "_name", real_name);
+                            } else {
+                                tmp.put(key + "_name", null);
+                            }
+
+                        }
+                    }
+                }
+
+                result.add(tmp);
+            }
+
+            return AjaxResult.success(result);
+        }catch (Exception e){
+            return AjaxResult.error("getStateCars failed");
+        }
+
+    }
+
+
     public String getRandomString() {
         LocalDateTime localDateTime = LocalDateTime.now();
 
         String time = localDateTime.format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
         String randomChar = Utils.getRandomChar(10);
         return time + randomChar;
+    }
+
+    public String getCarName(String brand, String series, String type) {
+        String _type = type.replaceAll(java.util.regex.Pattern.quote(series), "").trim();
+        String _series = series.replaceAll(java.util.regex.Pattern.quote(brand), "").trim();
+        return brand + " " + _series + " " + _type;
     }
 
 }

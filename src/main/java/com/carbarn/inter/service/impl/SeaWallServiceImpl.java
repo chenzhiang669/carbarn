@@ -19,4 +19,14 @@ public class SeaWallServiceImpl implements SeaWallService {
     public List<SeaWallPOJO> getSeaWall(SeaWallPageDTO seaWallPageDTO) {
         return seaWallMapper.getSeaWall(seaWallPageDTO);
     }
+
+    @Override
+    public void insertNewSeaWall(SeaWallPOJO seaWallPOJO) {
+        seaWallMapper.insertNewSeaWall(seaWallPOJO);
+    }
+
+    @Override
+    public void deleteSeaWall(int id) {
+        seaWallMapper.deleteSeaWall(id);
+    }
 }

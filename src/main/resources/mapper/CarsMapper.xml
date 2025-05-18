@@ -101,6 +101,9 @@
         select
         a.id as id,
         a.user_id as user_id,
+        b.brand as brand,
+        c.series as series,
+        d.`type` as type,
         concat(b.brand, " ", d.`type`) as name,
         a.plate_issue_date as plate_issue_date,
         a.mileage as mileage,
@@ -221,6 +224,9 @@
         select
         a.id as id,
         a.user_id as user_id,
+        b.brand as brand,
+        c.series as series,
+        d.`type` as type,
         concat(b.brand, " ", d.`type`) as name,
         a.plate_issue_date as plate_issue_date,
         a.mileage as mileage,
@@ -268,9 +274,9 @@
             <if test="searchCarsDTO.city != null and searchCarsDTO.city != ''">
                 AND city = #{searchCarsDTO.city}
             </if>
-            <if test="vehicleType != null and !vehicleType.isEmpty()">
+            <if test="searchCarsDTO.vehicleType != null and !searchCarsDTO.vehicleType.isEmpty()">
                 AND vehicleType IN
-                <foreach item="item" collection="vehicleType" open="(" separator="," close=")">
+                <foreach item="item" collection="searchCarsDTO.vehicleType" open="(" separator="," close=")">
                     #{item}
                 </foreach>
             </if>
@@ -508,4 +514,43 @@
         WHERE vin = #{vin}
         limit 1
     </select>
+
+    <!--运营人员获取各种状态的汽车-->
+    <select id="getStateCars" resultType="com.carbarn.inter.pojo.dto.cars.OperateCarsDTO">
+        select
+        b.brand,
+        c.series,
+        d.`type`,
+        a.*
+        from
+        (select
+        *
+        from
+        cars
+        <where>
+            <if test="operateSearchCarsDTO.states != null and !operateSearchCarsDTO.states.isEmpty()">
+                AND state IN
+                <foreach item="item" collection="operateSearchCarsDTO.states" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+        ) a left join (select brand_id, brand from car_brand where `language`= #{operateSearchCarsDTO.language}) b on a.brand_id = b.brand_id
+        left join (select series_id, series from car_series where `language`= #{operateSearchCarsDTO.language}) c on a.series_id = c.series_id
+        left join (select type_id, `type` from car_type where `language`= #{operateSearchCarsDTO.language}) d on a.type_id = d.type_id
+        where b.brand_id is not null and c.series_id is not null and d.type_id is not null
+        order by update_date desc
+        limit #{operateSearchCarsDTO.pageStart}, #{operateSearchCarsDTO.pageSize}
+    </select>
+
+
+    <update id="updateCarState">
+        update cars
+        set state = #{operateUpdateStateDTO.state}
+        <if test="operateUpdateStateDTO.reason != null">
+            , reason = #{operateUpdateStateDTO.reason}
+        </if>
+        where id = #{operateUpdateStateDTO.carid}
+    </update>
+
 </mapper>

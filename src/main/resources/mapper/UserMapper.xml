@@ -25,7 +25,10 @@
         car_dealership = #{car_dealership},
         real_name = #{real_name},
         front_of_id = #{front_of_id},
-        back_of_id = #{back_of_id}
+        back_of_id = #{back_of_id},
+        province=#{province},
+        city=#{city},
+        invitation_code=#{invitation_code}
         where id = #{id}
     </update>
 
@@ -86,9 +89,14 @@
     </select>
 
     <select id="getUserInfoByID" resultType="com.carbarn.inter.pojo.user.pojo.UserPojo">
-        select *
-        from users
-        where id = #{id}
+        select
+        a.*,
+        b.name as province_name,
+        c.name as city_name
+        from
+        (select * from users where id = #{id}) a
+        left join (select * from area where level = 1) b on a.province = b.code
+        left join (select * from area where level = 2) c on a.city = c.code
     </select>
 
 

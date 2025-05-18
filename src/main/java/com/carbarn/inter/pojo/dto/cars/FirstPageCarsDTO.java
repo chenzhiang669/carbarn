@@ -6,6 +6,9 @@ import lombok.Data;
 public class FirstPageCarsDTO {
     private long id;
     private long user_id;
+    private String brand;
+    private String series;
+    private String type;
     private String name;
     private String plate_issue_date;
     private double mileage;
@@ -22,6 +25,9 @@ public class FirstPageCarsDTO {
         return "FirstPageCarsDTO{" +
                 "id=" + id +
                 ", user_id=" + user_id +
+                ", brand='" + brand + '\'' +
+                ", series='" + series + '\'' +
+                ", type='" + type + '\'' +
                 ", name='" + name + '\'' +
                 ", plate_issue_date='" + plate_issue_date + '\'' +
                 ", mileage=" + mileage +
@@ -30,6 +36,7 @@ public class FirstPageCarsDTO {
                 ", city='" + city + '\'' +
                 ", header_picture='" + header_picture + '\'' +
                 ", manufacture_date='" + manufacture_date + '\'' +
+                ", vehicleType=" + vehicleType +
                 '}';
     }
 }

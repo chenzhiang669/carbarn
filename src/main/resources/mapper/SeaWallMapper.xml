@@ -14,9 +14,22 @@
             <if test="seaWallPageDTO.keywords != null and seaWallPageDTO.keywords != ''">
                 AND title like '%${seaWallPageDTO.keywords}%'
             </if>
+            and delete_flag = 0
         </where>
         order by create_time desc
         limit #{seaWallPageDTO.pageStart}, #{seaWallPageDTO.pageSize}
     </select>
+
+
+    <insert id="insertNewSeaWall" parameterType="com.carbarn.inter.pojo.seawall.SeaWallPOJO">
+        insert into seawall(title, seaWallType, picture, url)
+        values(#{title}, #{seaWallType}, #{picture}, #{url})
+    </insert>
+
+    <update id="deleteSeaWall">
+        update seawall
+        set delete_flag = 1
+        where id = #{id}
+    </update>
 
 </mapper>

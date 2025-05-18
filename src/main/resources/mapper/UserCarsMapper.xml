@@ -48,6 +48,7 @@
         <if test="keywords != null and keywords.trim() != ''">
             AND (b.brand LIKE CONCAT('%', #{keywords, jdbcType=VARCHAR}, '%') OR c.series LIKE CONCAT('%', #{keywords, jdbcType=VARCHAR}, '%'))
         </if>
+        order by update_date desc
     </select>
 
 </mapper>

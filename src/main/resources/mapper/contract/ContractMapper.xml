@@ -5,19 +5,18 @@
         insert into contract
         (contract_id,car_id,buyer_id,buyer_nickname,buyer_state,
         buyer_guarantee_fund,buyer_phone_num,seller_id,seller_state,
-        seller_guarantee_fund,buyer_address,price,cnt,other_agreements)
+        seller_guarantee_fund,buyer_address,price,cnt,other_agreements,pay_note)
         values
         (#{contract_id},#{car_id},#{buyer_id},#{buyer_nickname},#{buyer_state},
         #{buyer_guarantee_fund},#{buyer_phone_num}, #{seller_id},#{seller_state},
         #{seller_guarantee_fund},#{buyer_address},
-        #{price},#{cnt},#{other_agreements})
+        #{price},#{cnt},#{other_agreements},#{pay_note})
     </insert>
 
 
     <update id="updateContract" parameterType="com.carbarn.contract.pojo.ContractPOJO">
         update contract
         set
-        contract_id = #{contract_id},
         car_id = #{car_id},
         buyer_id = #{buyer_id},
         buyer_nickname = #{buyer_nickname},
@@ -37,6 +36,13 @@
         where contract_id = #{contract_id}
     </update>
 
+    <update id="deleteContract">
+        update contract
+        set
+        delete_flag = 1
+        where contract_id = #{contract_id}
+    </update>
+
     <!--更新买家状态-->
     <update id="updateBuyerState">
         update contract
@@ -51,10 +57,22 @@
         where contract_id = #{contract_id}
     </update>
 
+    <update id="updateFirstReviewTime">
+        update contract
+        set operation_first_review_time = #{operation_first_review_time}
+        where contract_id = #{contract_id}
+    </update>
+
+    <update id="updateSecondReviewTime">
+        update contract
+        set operation_second_review_time = #{operation_second_review_time}
+        where contract_id = #{contract_id}
+    </update>
+
 
     <select id="getSellerState" resultType="java.lang.Integer">
         select
-        seller_id
+        seller_state
         from
         contract
         where
@@ -96,19 +114,26 @@
         a.contract_id as contract_id,
         a.buyer_id as buyer_id,
         a.buyer_state as buyer_state,
+        a.buyer_nickname as buyer_nickname,
         a.buyer_guarantee_fund as buyer_guarantee_fund,
         a.seller_id as seller_id,
         a.seller_state as seller_state,
+        f.nickname as seller_nickname,
         a.seller_guarantee_fund as seller_guarantee_fund,
         a.create_time as create_time,
         a.car_id as car_id,
         a.price as price,
         a.cnt as cnt,
+        a.operationContract as operationContract,
+        a.userContract as userContract,
+        a.pay_note as pay_note,
         b.vehicleType as vehicleType,
         b.header_picture as header_picture,
         c.brand as brand,
         d.series as series,
-        e.`type` as type
+        e.`type` as type,
+        a.operation_first_review_time as operation_first_review_time,
+        a.operation_second_review_time as operation_second_review_time
         from
         (
         select
@@ -134,15 +159,65 @@
                     #{item}
                 </foreach>
             </if>
+            and delete_flag = 0
         </where>
         ) a
         left join (select * from cars) b on a.car_id = b.id
         left join (select brand,brand_id from car_brand where language = #{searchContractDTO.language}) c on b.brand_id = c.brand_id
         left join (select series,series_id from car_series where language = #{searchContractDTO.language}) d on b.series_id = d.series_id
         left join (select `type`,type_id from car_type where language = #{searchContractDTO.language}) e on b.type_id = e.type_id
+        left join (select * from users) f on a.seller_id = f.id
         where c.brand is not null and d.series is not null and e.`type` is not null
         order by a.update_time desc
         limit #{searchContractDTO.pageStart}, #{searchContractDTO.pageSize}
+    </select>
+
+    <update id="updateOperationContract" parameterType="com.carbarn.contract.pojo.ContractPOJO">
+        update contract
+        set operationContract = #{operationContract}
+        where contract_id = #{contract_id}
+    </update>
+
+    <update id="updateUserContract" parameterType="com.carbarn.contract.pojo.ContractPOJO">
+        update contract
+        set userContract = #{userContract}
+        where contract_id = #{contract_id}
+    </update>
+
+    <select id="getBuyerContractStateCount" resultType="com.carbarn.contract.pojo.dto.UserContractStateDTO">
+        select
+        buyer_state as state,
+        count(*) as cnt
+        from
+        contract
+        where
+        buyer_id = #{buyer_id}
+        and delete_flag = 0
+        group by buyer_state
+        order by state asc
+    </select>
+
+    <select id="getSellerContractStateCount" resultType="com.carbarn.contract.pojo.dto.UserContractStateDTO">
+        select
+        seller_state as state,
+        count(*) as cnt
+        from
+        contract
+        where
+        seller_id = #{seller_id}
+        and delete_flag = 0
+        group by seller_state
+        order by state asc
+    </select>
+
+    <select id="getSellerContractDeleteCount" resultType="java.lang.Integer">
+        select
+        count(*) as cnt
+        from
+        contract
+        where
+        seller_id = #{seller_id}
+        and delete_flag = 1
     </select>
 
 </mapper>

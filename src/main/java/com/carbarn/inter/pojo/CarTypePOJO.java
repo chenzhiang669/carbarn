@@ -32,6 +32,8 @@ public class CarTypePOJO {
 
     private int seat_capacity = 0;
 
+    private String details;
+
 
     public static CarTypePOJO getNewCarTypePojo(String message) {
 

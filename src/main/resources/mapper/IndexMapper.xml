@@ -90,6 +90,16 @@
         limit 1
     </select>
 
+    <select id="isBrandIdExisted" resultType="java.lang.Boolean">
+        SELECT
+        count(*) as bool
+        FROM
+        car_brand
+        WHERE language = #{language}
+        and brand_id = #{brand_id}
+    </select>
+
+
     <select id="getSeriesIdBySeries" resultType="java.lang.String">
         SELECT
         series_id
@@ -98,6 +108,24 @@
         WHERE language = #{language}
         and series = #{series}
         limit 1
+    </select>
+
+    <select id="isSeriesIdExisted" resultType="java.lang.Boolean">
+        SELECT
+        count(*) as bool
+        FROM
+        car_series
+        WHERE language = #{language}
+        and series_id = #{series_id}
+    </select>
+
+    <select id="isTypeIdExisted" resultType="java.lang.Boolean">
+        SELECT
+        count(*) as bool
+        FROM
+        car_type
+        WHERE language = #{language}
+        and type_id = #{type_id}
     </select>
 
     <select id="getTypeIdByType" resultType="java.lang.String">
@@ -137,6 +165,23 @@
         VALUES (#{first_char}, #{brand}, #{logo}, #{language}, @next_brand_id);
     </insert>
 
+    <insert id="updateNewBrand">
+        INSERT INTO car_brand (first_char, brand, logo, language, brand_id)
+        VALUES (#{first_char}, #{brand}, #{logo}, #{language}, #{brand_id})
+        ON DUPLICATE KEY UPDATE
+        first_char = #{first_char},
+        brand = #{brand}
+    </insert>
+
+    <insert id="updateNewSeries">
+        INSERT INTO car_series (first_char, series, brand_id, language, series_id)
+        VALUES (#{first_char}, #{series}, #{brand_id}, #{language}, #{series_id})
+        ON DUPLICATE KEY UPDATE
+        first_char = #{first_char},
+        series = #{series},
+        brand_id = #{brand_id}
+    </insert>
+
     <insert id="insertNewSeries">
         SELECT MAX(series_id) INTO @next_series_id FROM car_series;
 
@@ -159,6 +204,40 @@
         #{price},#{floor_price},#{guide_price},#{displacement},#{displacement_type},#{power},#{battery_capacity},
         #{pure_electric_range},#{color},#{transmission},#{emission_standards},#{type_of_manu},
         #{engine},#{drive_type},#{box},#{type_of_car},#{seat_capacity});
+    </insert>
+
+    <insert id="updateNewType" parameterType="com.carbarn.inter.pojo.CarTypePOJO">
+        INSERT INTO car_type (type,type_id,series_id,brand_id,year,language,
+        price,floor_price,guide_price,displacement,displacement_type,power,battery_capacity,
+        pure_electric_range,color,transmission,emission_standards,type_of_manu,
+        engine,drive_type,box,type_of_car, seat_capacity,details)
+        VALUES (#{type},#{type_id},#{series_id},#{brand_id},#{year},#{language},
+        #{price},#{floor_price},#{guide_price},#{displacement},#{displacement_type},#{power},#{battery_capacity},
+        #{pure_electric_range},#{color},#{transmission},#{emission_standards},#{type_of_manu},
+        #{engine},#{drive_type},#{box},#{type_of_car},#{seat_capacity},#{details})
+        ON DUPLICATE KEY UPDATE
+        type= #{type},
+        series_id= #{series_id},
+        brand_id= #{brand_id},
+        year= #{year},
+        price= #{price},
+        floor_price= #{floor_price},
+        guide_price= #{guide_price},
+        displacement= #{displacement},
+        displacement_type= #{displacement_type},
+        power= #{power},
+        battery_capacity = ${battery_capacity},
+        pure_electric_range = ${pure_electric_range},
+        color= #{color},
+        transmission= #{transmission},
+        emission_standards= #{emission_standards},
+        type_of_manu= #{type_of_manu},
+        engine= #{engine},
+        drive_type= #{drive_type},
+        box= #{box},
+        type_of_car= #{type_of_car},
+        seat_capacity =#{seat_capacity},
+        details = #{details}
     </insert>
 
 
