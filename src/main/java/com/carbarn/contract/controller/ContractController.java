@@ -104,6 +104,31 @@ public class ContractController {
         return AjaxResult.success("获取用户合同信息成功", userContractDTOS);
     }
 
+    @PostMapping("/userDeletedContracts")
+    public AjaxResult userDeletedContracts(@RequestHeader(name = "language", required = true) String language,
+                                    @RequestBody SearchContractDTO searchContractDTO) {
+        //TODO 通过satoken获取的用户id 和 contractPOJO中的buyer_id进行校验是否一致。
+        int pageNo = searchContractDTO.getPageNo();
+        int pageSize = searchContractDTO.getPageSize();
+        if (pageNo < 1) {
+            return AjaxResult.error("Missing required parameter: pageNo");
+        }
+        if (pageSize <= 0) {
+            return AjaxResult.error("'pageSize' Must meet the conditions  pageSize > 0");
+        } else {
+            searchContractDTO.setPageStart((pageNo - 1) * pageSize);
+        }
+
+        long seller_id = searchContractDTO.getSeller_id();
+        if(seller_id == 0){
+            return AjaxResult.error("Missing required parameter: seller_id");
+        }
+
+        searchContractDTO.setLanguage(language);
+        List<UserContractDTO> userContractDTOS =  contractService.userDeletedContracts(searchContractDTO);
+        return AjaxResult.success("获取用户合同信息成功", userContractDTOS);
+    }
+
     @PostMapping("/updateBuyerState")
     public AjaxResult updateBuyerState(@RequestHeader(name = "language", required = true) String language,
                                     @RequestBody ContractPOJO contractPOJO) {

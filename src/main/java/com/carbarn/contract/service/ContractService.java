@@ -23,6 +23,8 @@ public interface ContractService {
 
     List<UserContractDTO> userContracts(SearchContractDTO searchContractDTO);
 
+    List<UserContractDTO> userDeletedContracts(SearchContractDTO searchContractDTO);
+
     void returnContract(String language, String contract_id);
 
     void seller_pay_fund_success(String contract_id);

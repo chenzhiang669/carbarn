@@ -1,4 +1,4 @@
-package com.carbarn.inter.utils.tonglian;
+package com.carbarn.inter.utils.tonglian.mainland;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -13,8 +13,6 @@ import java.util.Map;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSession;
-
-import org.apache.commons.logging.Log;
 
 public class HttpConnectionUtil {
 	private HttpURLConnection conn;

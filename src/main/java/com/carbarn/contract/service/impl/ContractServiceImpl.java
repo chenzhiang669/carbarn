@@ -203,6 +203,12 @@ public class ContractServiceImpl implements ContractService {
         return userContractDTOS;
     }
 
+    @Override
+    public List<UserContractDTO> userDeletedContracts(SearchContractDTO searchContractDTO) {
+        List<UserContractDTO> userContractDTOS = contractMapper.userDeletedContracts(searchContractDTO);
+        return userContractDTOS;
+    }
+
     //买家退回合同
     @Override
     public void returnContract(String language, String contract_id) {

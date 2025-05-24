@@ -1,4 +1,4 @@
-package com.carbarn.inter.utils.tonglian;
+package com.carbarn.inter.utils.tonglian.mainland;
 
 public class SybConstants {
 //	测试环境测试参数

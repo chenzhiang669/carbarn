@@ -44,6 +44,8 @@ public interface ContractMapper {
 
     List<UserContractDTO> userContracts(@Param("searchContractDTO") SearchContractDTO searchContractDTO);
 
+    List<UserContractDTO> userDeletedContracts(@Param("searchContractDTO") SearchContractDTO searchContractDTO);
+
     void updateOperationContract(ContractPOJO contractPOJO);
 
     void updateUserContract(ContractPOJO contractPOJO);
