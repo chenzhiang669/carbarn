@@ -5,6 +5,8 @@ public class ParamKeys {
 
     public static String param_payment = "com.carbarn.param.payment";
 
+    public static String param_payment_global = "com.carbarn.param.payment.global";
+
     public static String param_meeting = "com.carbarn.param.meeting";
 
     public static String param_operate_whitelist = "com.carbarn.param.operate.whitelist";
@@ -25,4 +27,7 @@ public class ParamKeys {
     public static String param_chepai_ocr = "com.carbarn.param.chepai.ocr";
 
     public static String async_translate_language = "com.carbarn.param.async.translate.language";
+
+    public static String param_sms = "com.carbarn.param.sms";
+
 }
