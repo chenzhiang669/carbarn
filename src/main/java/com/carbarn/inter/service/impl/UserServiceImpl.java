@@ -62,7 +62,7 @@ public class UserServiceImpl implements UserService {
         String phone_number = signupUserDTO.getPhone_num();
         int phone_number_length = phone_number.length();
         String phone_number_last4num = phone_number.substring(phone_number_length - 4, phone_number_length);
-        boolean bool = userMapper.isPhoneNumExist(signupUserDTO.getPhone_num());
+        boolean bool = userMapper.isPhoneNumExist(signupUserDTO.getPhone_num(), signupUserDTO.getArea_code());
         if (!bool) {
 
             Random random = new Random();

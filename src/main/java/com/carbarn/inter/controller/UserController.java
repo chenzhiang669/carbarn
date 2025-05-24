@@ -3,6 +3,9 @@ package com.carbarn.inter.controller;
 import cn.dev33.satoken.session.SaSession;
 import cn.dev33.satoken.stp.StpUtil;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.carbarn.inter.config.ParamKeys;
+import com.carbarn.inter.mapper.ParamsMapper;
 import com.carbarn.inter.pojo.user.dto.SignupUserDTO;
 import com.carbarn.inter.pojo.user.dto.VipSignupUserDTO;
 import com.carbarn.inter.pojo.user.pojo.UserPojo;
@@ -10,6 +13,7 @@ import com.carbarn.inter.service.UserService;
 import com.carbarn.inter.utils.AjaxResult;
 import com.carbarn.inter.utils.sms.SendSms;
 import io.swagger.annotations.Api;
+import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.*;
@@ -24,6 +28,9 @@ public class UserController {
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
 
+    @Autowired
+    private ParamsMapper paramsMapper;
+
     @PostMapping("/signup")
     public AjaxResult signup(@RequestHeader(name = "language", required = true) String language,
                              @RequestBody SignupUserDTO signupUserDTO) {
@@ -34,8 +41,27 @@ public class UserController {
 
         String phone_num = signupUserDTO.getPhone_num();
         String verify_code = signupUserDTO.getVeri_code();
+
+        String area_code = signupUserDTO.getArea_code();
+        if(area_code != null && !"".equals(area_code)){
+            phone_num = area_code + phone_num;
+        }else if(phone_num.contains("+86")){
+            signupUserDTO.setArea_code("+86");
+            signupUserDTO.setPhone_num(phone_num.substring(3));
+        }else{
+            signupUserDTO.setArea_code("+86");
+            phone_num = "+86" + phone_num;
+        }
+
         if(!"11235813".equals(verify_code)){
-            boolean bool = SendSms.checkVerifyCode(phone_num, verify_code);
+            String param_sms = paramsMapper.getValue(ParamKeys.param_sms);
+            JSONObject sms_json = JSON.parseObject(param_sms);
+            String AccessKeyId = sms_json.getString("AccessKeyId");
+            String SecretAccessKey = sms_json.getString("SecretAccessKey");
+            String smsAccount = sms_json.getString("smsAccount");
+            String scene = sms_json.getString("scene");
+
+            boolean bool = SendSms.checkVerifyCode(phone_num, verify_code, AccessKeyId,SecretAccessKey,smsAccount,scene);
             if(!bool){
                 return AjaxResult.error("验证码错误");
             }

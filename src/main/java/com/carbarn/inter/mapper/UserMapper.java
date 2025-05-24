@@ -42,7 +42,8 @@ public interface UserMapper {
 
     UserPojo getUserInfoByID(@Param("id") long id);
 
-    Boolean isPhoneNumExist(@Param("phone_num") String phone_num);
+    Boolean isPhoneNumExist(@Param("phone_num") String phone_num,
+                            @Param("area_code") String area_code);
 
     void updateRole(@Param("user_id") long user_id, @Param("role") int role);
 
