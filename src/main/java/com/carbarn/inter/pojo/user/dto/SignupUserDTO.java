@@ -6,6 +6,7 @@ import lombok.Data;
 @Data
 public class SignupUserDTO {
     private String phone_num; //电话号码
+    private String area_code; //区号
     private String veri_code; //验证码
     private long user_count = 3423;
     private String avatar = "http://image.chechuhai.top/carbarn/files/default_avatar/uVxyH4HqcP1740213823406.webp"; //头像
