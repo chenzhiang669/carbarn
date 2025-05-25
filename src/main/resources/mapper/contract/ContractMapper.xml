@@ -133,7 +133,8 @@
         d.series as series,
         e.`type` as type,
         a.operation_first_review_time as operation_first_review_time,
-        a.operation_second_review_time as operation_second_review_time
+        a.operation_second_review_time as operation_second_review_time,
+        a.delete_flag as delete_flag
         from
         (
         select
@@ -197,7 +198,8 @@
         d.series as series,
         e.`type` as type,
         a.operation_first_review_time as operation_first_review_time,
-        a.operation_second_review_time as operation_second_review_time
+        a.operation_second_review_time as operation_second_review_time,
+        a.delete_flag as delete_flag
         from
         (
         select

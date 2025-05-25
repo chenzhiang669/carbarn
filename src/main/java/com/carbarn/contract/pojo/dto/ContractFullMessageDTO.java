@@ -22,6 +22,7 @@ public class ContractFullMessageDTO {
     private String create_time;
     private String operationContract;
     private String userContract;
+    private int delete_flag;
 
     private ContractUserInfoDTO buyer_info;
 
@@ -45,6 +46,7 @@ public class ContractFullMessageDTO {
         contractFullMessageDTO.setCreate_time(contractPOJO.getCreate_time());
         contractFullMessageDTO.setOperationContract(contractPOJO.getOperationContract());
         contractFullMessageDTO.setUserContract(contractPOJO.getUserContract());
+        contractFullMessageDTO.setDelete_flag(contractPOJO.getDelete_flag());
         return contractFullMessageDTO;
     }
 }

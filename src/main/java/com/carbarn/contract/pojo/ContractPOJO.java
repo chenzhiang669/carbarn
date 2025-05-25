@@ -26,4 +26,5 @@ public class ContractPOJO {
     private String userContract;
     private String pay_note;
     private int operate = -1; //操作类型: 保存 / 确认
+    private int delete_flag;
 }
