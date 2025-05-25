@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.carbarn.inter.mapper.TranslateMapper">
+
+    <select id="getTranslateData" resultType="com.carbarn.inter.pojo.translate.TranslatePOJO">
+        select
+        `key`,
+        value
+        from
+        translate
+        where
+        `language` = #{language}
+    </select>
+</mapper>

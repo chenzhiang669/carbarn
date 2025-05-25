@@ -41,6 +41,12 @@ public class VolcTranslator implements Translator {
         translateService.setSecretKey(secretAccessKey);
     }
 
+    public void init(String apiKeyId,
+                     String secretAccessKey) {
+        translateService = TranslateServiceImpl.getInstance();
+        translateService.setAccessKey(apiKeyId);
+        translateService.setSecretKey(secretAccessKey);
+    }
     @Override
     public String translate(String text, String sourceLang, String targetLang) {
         try {
