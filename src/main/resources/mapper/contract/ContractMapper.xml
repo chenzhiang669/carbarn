@@ -5,11 +5,12 @@
         insert into contract
         (contract_id,car_id,buyer_id,buyer_nickname,buyer_state,
         buyer_guarantee_fund,buyer_phone_num,seller_id,seller_state,
-        seller_guarantee_fund,buyer_address,price,cnt,other_agreements,pay_note)
+        seller_guarantee_fund,buyer_address,buyer_email,
+        price,cnt,other_agreements,pay_note)
         values
         (#{contract_id},#{car_id},#{buyer_id},#{buyer_nickname},#{buyer_state},
         #{buyer_guarantee_fund},#{buyer_phone_num}, #{seller_id},#{seller_state},
-        #{seller_guarantee_fund},#{buyer_address},
+        #{seller_guarantee_fund},#{buyer_address},#{buyer_email},
         #{price},#{cnt},#{other_agreements},#{pay_note})
     </insert>
 
@@ -40,6 +41,13 @@
         update contract
         set
         delete_flag = 1
+        where contract_id = #{contract_id}
+    </update>
+
+    <update id="removeContract">
+        update contract
+        set
+        delete_flag = 2
         where contract_id = #{contract_id}
     </update>
 
@@ -268,4 +276,55 @@
         and delete_flag = 1
     </select>
 
+
+    <update id="updateSellerConfirmTime">
+        update contract
+        set
+        seller_confirm_time = #{seller_confirm_time}
+        where contract_id = #{contract_id}
+    </update>
+
+
+    <update id="updateSellerId">
+        update contract
+        set
+        seller_id = #{target_user_id}
+        where seller_id = #{original_user_id}
+    </update>
+
+
+    <select id="getIncomeBySellerId" resultType="java.lang.Double">
+        select
+        sum(price * cnt) as income
+        from
+        contract
+        where
+        seller_id = #{user_id}
+        and delete_flag = 0
+    </select>
+
+    <select id="getOrderNumBySellerId" resultType="java.lang.Integer">
+        select
+        count(*) as orders
+        from
+        contract
+        where
+        seller_id = #{user_id}
+        and delete_flag = 0
+    </select>
+
+    <select id="contractDeal" resultType="com.carbarn.inter.pojo.firstpage.FirstPageContractDealDTO">
+        select
+        a.price as price,
+        c.brand as brand,
+        d.series as series,
+        e.`type` as type
+        from
+        (select * from contract where buyer_state >= 7 and delete_flag = 0 order by update_time desc limit 10) a
+        left join (select * from cars) b on a.car_id = b.id
+        left join (select brand,brand_id from car_brand where language = #{language}) c on b.brand_id = c.brand_id
+        left join (select series,series_id from car_series where language = #{language}) d on b.series_id = d.series_id
+        left join (select `type`,type_id from car_type where language = #{language}) e on b.type_id = e.type_id
+        where c.brand is not null and d.series is not null and e.`type` is not null
+    </select>
 </mapper>

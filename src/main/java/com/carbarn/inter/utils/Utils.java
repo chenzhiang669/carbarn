@@ -75,8 +75,9 @@ public class Utils {
 
 
     public static String getFirstLetter(String chinese) {
-        if(chinese.matches(regex)){
-            return chinese.substring(0,1).toUpperCase();
+        String firstchar = chinese.substring(0,1);
+        if(firstchar.matches(regex)){
+            return firstchar.toUpperCase();
         }
 
         StringBuilder pinyinName = new StringBuilder();
@@ -96,8 +97,9 @@ public class Utils {
     }
 
     public static void main(String[] args) {
-        long year = Utils.getRandomLong(10000000L, 99999999L);
-        System.out.println(year);
+//        long year = Utils.getRandomLong(10000000L, 99999999L);
+//        System.out.println(year);
+        System.out.println(getFirstLetter("绿色"));
 
     }
 }

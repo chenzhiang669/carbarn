@@ -15,4 +15,11 @@ public interface EventService {
 
     void updateContactCount(EventPojo eventPojo);
 
+    void insertCarSeekCount(EventPojo eventPojo);
+
+    void insertCarCount(EventPojo eventPojo);
+
+    void insertUserCollect(EventPojo eventPojo);
+
+    void deleteUserCollect(EventPojo eventPojo);
 }

@@ -12,4 +12,6 @@ public class StartConversationParam {
 
     //    private Long buyerId;
     private Long sellerId;
+
+    private Long buyerId;
 }

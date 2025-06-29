@@ -24,9 +24,7 @@ public class FeedBackController {
     public AjaxResult feedback(@RequestBody FeedBackDTO feedBackDTO) {
 
         try{
-            if(feedBackDTO.getUser_id() == -1){
-                return AjaxResult.error("Missing required parameter 'user_id'");
-            }else if(feedBackDTO.getDescription() == null){
+            if(feedBackDTO.getDescription() == null){
                 return AjaxResult.error("Missing required parameter 'description'");
             }else if(feedBackDTO.getUrl() == null){
                 return AjaxResult.error("Missing required parameter 'url'");

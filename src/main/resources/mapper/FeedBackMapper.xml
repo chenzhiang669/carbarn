@@ -3,8 +3,8 @@
 <mapper namespace="com.carbarn.inter.mapper.FeedBackMapper">
 
     <insert id="insertFeedBack" parameterType="com.carbarn.inter.pojo.feedback.FeedBackDTO">
-        insert into feedback(user_id, description, url)
+        insert into feedback(description, url)
         values
-        (#{user_id}, #{description}, #{url})
+        (#{description}, #{url})
     </insert>
 </mapper>

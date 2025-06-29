@@ -50,6 +50,7 @@ public class UserContractDTO {
     private long operation_second_review_time;
     private List<Object> payment_information;
     private String remaining_days;
+    private int delete_flag;
 
 
 }

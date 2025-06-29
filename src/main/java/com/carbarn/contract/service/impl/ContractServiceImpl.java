@@ -72,6 +72,7 @@ public class ContractServiceImpl implements ContractService {
 //            }
 //        }
 
+        contractPOJO.setDelete_flag(0);
         contractPOJO.setBuyer_state(buyer_state_draft); //买家状态为草稿箱
         contractPOJO.setSeller_state(seller_state_draft); //卖家状态为草稿箱
         String contract_id = ContractUtils.createContractId(car_id, buyer_id, seller_id); //生成合同id: 时间(年月日时分秒)-汽车id-买家id-卖家id
@@ -81,6 +82,7 @@ public class ContractServiceImpl implements ContractService {
         UserPojo sellerInfo = userMapper.getUserInfoByID(seller_id); //从用户系统中获取卖家信息
         contractPOJO.setBuyer_nickname(buyerInfo.getNickname()); //新合同买家的昵称默认使用用户系统中的昵称
         contractPOJO.setBuyer_phone_num(buyerInfo.getPhone_num()); //新合同买家的电话号码默认使用用户系统中的电话号码
+        contractPOJO.setBuyer_email(buyerInfo.getEmail());
 
         String param_contract = paramsMapper.getValue(ParamKeys.param_contract);  //从参数库表中获取相关信息
         if(param_contract != null){
@@ -138,6 +140,16 @@ public class ContractServiceImpl implements ContractService {
             return AjaxResult.success("delete contract：" + contract_id + " success.");
         }catch (Exception e){
             return AjaxResult.error("delete contract：" + contract_id + " fail.");
+        }
+    }
+
+    @Override
+    public AjaxResult removeContract(String contract_id) {
+        try{
+            contractMapper.removeContract(contract_id);
+            return AjaxResult.success("remove contract：" + contract_id + " success.");
+        }catch (Exception e){
+            return AjaxResult.error("remove contract：" + contract_id + " fail.");
         }
     }
 
@@ -221,7 +233,10 @@ public class ContractServiceImpl implements ContractService {
     public void seller_pay_fund_success(String contract_id) {
         contractMapper.updateBuyerState(contract_id, buyer_state_seller_confirm); //买家状态更改为: 卖家已确认
         contractMapper.updateSellerState(contract_id, seller_state_waiting_buyer_confirm); //卖家状态更改为：等待买家确认(支付保障金)
-        //TODO 更新字段 pay_seller_guarantee_fund 为true
+
+        //卖家支付保障成功视为确认，此时更改卖家的确认时间
+        String seller_confirm_time = LocalDateTime.now().format(dateTimeFormater2);
+        contractMapper.updateSellerConfirmTime(contract_id, seller_confirm_time);
     }
 
     //买家支付保障金成功
@@ -229,7 +244,6 @@ public class ContractServiceImpl implements ContractService {
     public void buyer_pay_fund_success(String contract_id) {
         contractMapper.updateBuyerState(contract_id, buyer_state_platform_review); //买家状态更改为: 等待平台审核
         contractMapper.updateSellerState(contract_id, seller_state_waiting_buyer_paycar); //卖家状态更改为：等待买家支付车款
-        //TODO 更新字段 pay_buyer_guarantee_fund 为true
     }
 
     @Override

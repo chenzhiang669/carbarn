@@ -51,4 +51,38 @@
         order by update_date desc
     </select>
 
+
+
+    <select id="selectUserLikeCars" resultType="com.carbarn.inter.pojo.dto.cars.FirstPageCarsDTO">
+        select
+        a.id as id,
+        a.user_id as user_id,
+        b.brand as brand,
+        c.series as series,
+        d.`type` as type,
+        concat(b.brand, " ", d.`type`) as name,
+        a.plate_issue_date as plate_issue_date,
+        a.mileage as mileage,
+        a.price as price,
+        a.guide_price as guide_price,
+        a.upload_date as upload_date,
+        a.city as city,
+        a.header_picture as header_picture,
+        a.manufacture_date as manufacture_date,
+        a.vehicleType as vehicleType,
+        1 as is_like
+        from
+        (select user_id, car_id from view_collect where user_id = #{user_id}) vc
+        left join (select * from cars) a on vc.car_id = a.id
+        left join (select brand,brand_id from car_brand where language = #{language}) b on a.brand_id = b.brand_id
+        left join (select series,series_id from car_series where language = #{language}) c on a.series_id = c.series_id
+        left join (select `type`,type_id from car_type where language = #{language}) d on a.type_id = d.type_id
+        where a.id is not null and b.brand is not null and c.series is not null and d.`type` is not null
+        <if test="keywords != null and keywords.trim() != ''">
+            AND (b.brand LIKE CONCAT('%', #{keywords, jdbcType=VARCHAR}, '%') OR c.series LIKE CONCAT('%', #{keywords, jdbcType=VARCHAR}, '%'))
+        </if>
+        order by a.update_date desc
+        limit #{pageStart}, #{pageSize}
+    </select>
+
 </mapper>

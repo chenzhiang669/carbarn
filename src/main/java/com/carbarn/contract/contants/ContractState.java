@@ -35,6 +35,5 @@ public class ContractState {
     public static int seller_state_waiting_buyer_paycar = 5; //等待买家支付车款(尾款)
     public static int seller_state_waiting_deliver_car = 6; //车辆待交付
     public static int seller_state_finished = 7; //完成
-
     public static Integer[] seller_states = new Integer[]{0,1,2,3,4,5,6,7};
 }

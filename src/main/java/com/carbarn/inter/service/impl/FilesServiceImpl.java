@@ -12,6 +12,8 @@ import com.carbarn.inter.utils.Utils;
 import com.carbarn.inter.utils.alibaba.ChepaiOcr;
 import com.carbarn.inter.utils.alibaba.PlateMasking;
 import com.carbarn.inter.utils.qiniuyun.QiniuyunUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,6 +22,8 @@ import java.io.IOException;
 
 @Service
 public class FilesServiceImpl implements FilesService {
+
+    private static final Logger logger = LoggerFactory.getLogger(FilesServiceImpl.class);
 
     public static String basePath = "carbarn/files/";
     @Autowired
@@ -37,6 +41,7 @@ public class FilesServiceImpl implements FilesService {
         String appcode = json.getString("appcode");
 
         String result = ChepaiOcr.chepaiORC(host, path, appcode, bytes);
+        logger.info("车牌识别结果:{}", result);
         JSONObject result_json = JSON.parseObject(result);
         if(result_json.containsKey("plates")){
             JSONArray plates = result_json.getJSONArray("plates");
@@ -59,6 +64,13 @@ public class FilesServiceImpl implements FilesService {
 
                     w = (int) (w * 1.8);
                     h = (int) (h * 2.8);
+
+                    logger.info("车牌识别位,x:{},y:{},w:{},h:{}", x,y,w,h);
+
+                    if(w / h > 5){
+                        h = (int)(w / 2.5);
+                        logger.info("车牌识别位置调整,x:{},y:{},w:{},h:{}", x,y,w,h);
+                    }
 
                     return PlateMasking.masking(x,y,w,h,picture_type,bytes);
                 }
@@ -117,6 +129,7 @@ public class FilesServiceImpl implements FilesService {
                 picture.setType(type);
                 pictureMapper.insertFiles(picture);
 
+                logger.info("图片url:{}", url);
                 return url;
             }
 

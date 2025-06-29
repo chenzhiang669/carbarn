@@ -1,13 +1,12 @@
 package com.carbarn.inter.service.impl;
 
+import cn.dev33.satoken.stp.StpUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.carbarn.inter.config.CarbarnConfig;
-import com.carbarn.inter.mapper.CarsMapper;
-import com.carbarn.inter.mapper.IndexMapper;
-import com.carbarn.inter.mapper.UserMapper;
+import com.carbarn.inter.mapper.*;
 import com.carbarn.inter.pojo.CarTypePOJO;
 import com.carbarn.inter.pojo.CarsPOJO;
 import com.carbarn.inter.pojo.dto.cars.*;
@@ -38,6 +37,8 @@ public class CarsServiceImpl implements CarsService {
     public static int usedcar_with_invoice = 1; //二手车(有增值税发票)
     public static int usedcar_without_invoice = 2; //二手车(没有增值税发票)
 
+    public static int newcar_without_invoice = 3; //二手车(没有增值税发票)
+
     public static int operate_save = 0; //操作: 保存
     public static int operate_deploy = 1; //操作: 发布
 
@@ -54,6 +55,12 @@ public class CarsServiceImpl implements CarsService {
 
     @Autowired
     private AsyncService asyncService;
+
+    @Autowired
+    private EventMapper eventMapper;
+
+    @Autowired
+    private TranslationDescriptionMapper translationDescriptionMapper;
 
     public static HashMap<String, String> multi_values_fields = new HashMap<String, String>();
 
@@ -90,11 +97,26 @@ public class CarsServiceImpl implements CarsService {
             return new HashMap<String, Object>();
         }
 
+        String description = translationDescriptionMapper.getValue(carid,"cars","description", language);
+        if(description != null){
+            carsPOJO.setDescription(description);
+        }
+
         UserPojo userPojo = userMapper.getUserInfoByID(carsPOJO.getUser_id());
 
         String carsPOJOJsonString = JSON.toJSONString(carsPOJO, SerializerFeature.WriteMapNullValue);
         JSONObject jsonObject = JSON.parseObject(carsPOJOJsonString);
         Map<String, Object> map = jsonObject;
+
+        map.put("is_like", 0);
+        if(StpUtil.isLogin()){
+            String user_id_string = (String) StpUtil.getLoginId();
+            long user_id = Long.valueOf(user_id_string);
+            int is_like = eventMapper.isLike(user_id, carid);
+            if(is_like > 0){
+                map.put("is_like", 1);
+            }
+        }
 
         Map<String, String> user_info = new HashMap<String, String>();
         user_info.put("phone_num", userPojo.getPhone_num());
@@ -722,7 +744,7 @@ public class CarsServiceImpl implements CarsService {
 
 
     @Override
-    public AjaxResult uploadNewCar(CarsPOJO carsPOJO, int user_id) {
+    public AjaxResult uploadNewCar(CarsPOJO carsPOJO, int user_id, String language) {
         int vehicleType = carsPOJO.getVehicleType();
         //如果是二手车，需要校验车架号是否上传过
         if (vehicleType == usedcar_with_invoice || vehicleType == usedcar_without_invoice) {
@@ -746,10 +768,10 @@ public class CarsServiceImpl implements CarsService {
 //                }
             }
 
-        } else if (vehicleType == newcar) {
+        } else if (vehicleType == newcar || vehicleType == newcar_without_invoice) {
             carsPOJO.setVin("");
         } else {
-            return AjaxResult.error("error: vehicleType should be one of [0,1,2]");
+            return AjaxResult.error("error: vehicleType should be one of [0,1,2,3]");
         }
 
         int operate = carsPOJO.getOperate();
@@ -757,8 +779,8 @@ public class CarsServiceImpl implements CarsService {
         if (operate == operate_save) {
             carsPOJO.setState(Constant.STATE_ON_DRAFT);
         } else if (operate == operate_deploy) {
-//            carsPOJO.setState(Constant.STATE_ON_REVIEW);
-            carsPOJO.setState(Constant.STATE_ON_SALE);
+            carsPOJO.setState(Constant.STATE_ON_REVIEW);
+//            carsPOJO.setState(Constant.STATE_ON_SALE);
         } else {
             return AjaxResult.error("error: operate should be one of [0,1]");
         }
@@ -775,17 +797,24 @@ public class CarsServiceImpl implements CarsService {
         //异步翻译车型详细信息
         int type_id = carsPOJO.getType_id();
         asyncService.typeDetailsRealTimeTranslate(type_id);
+
+        //异步翻译description字段
+        String link_table = "cars";
+        String link_field = "description";
+        String source_value = carsPOJO.getDescription();
+        asyncService.translationDescription(id,link_table,link_field,language,source_value);
         return AjaxResult.success("上传新车辆成功", result);
     }
 
     @Override
-    public AjaxResult updateCar(CarsPOJO carsPOJO) {
+    public AjaxResult updateCar(CarsPOJO carsPOJO, String language) {
         int vehicleType = carsPOJO.getVehicleType();
         //校验vehicleType是否合法
         if (vehicleType != usedcar_with_invoice
                 && vehicleType != usedcar_without_invoice
-                && vehicleType != newcar) {
-            return AjaxResult.error("error: vehicleType should be one of [0,1,2]");
+                && vehicleType != newcar
+                && vehicleType != newcar_without_invoice) {
+            return AjaxResult.error("error: vehicleType should be one of [0,1,2,3]");
         }
 
         int operate = carsPOJO.getOperate();
@@ -793,14 +822,21 @@ public class CarsServiceImpl implements CarsService {
         if (operate == operate_save) {
             carsPOJO.setState(Constant.STATE_ON_DRAFT);
         } else if (operate == operate_deploy) {
-//            carsPOJO.setState(Constant.STATE_ON_REVIEW);
-            carsPOJO.setState(Constant.STATE_ON_SALE);
+            carsPOJO.setState(Constant.STATE_ON_REVIEW);
+//            carsPOJO.setState(Constant.STATE_ON_SALE);
         } else {
             return AjaxResult.error("error: operate should be one of [0,1]");
         }
 
         dealWithSpecialFields(carsPOJO);
         carsMapper.updateCarInfo(carsPOJO);
+
+        //异步翻译description
+        long id = carsPOJO.getId();
+        String link_table = "cars";
+        String link_field = "description";
+        String source_value = carsPOJO.getDescription();
+        asyncService.translationDescription(id,link_table,link_field,language,source_value);
         return AjaxResult.success("更新汽车信息成功");
     }
 

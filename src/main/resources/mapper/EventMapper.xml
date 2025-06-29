@@ -25,4 +25,66 @@
         VALUES (#{user_id}, #{dt}, 1)
         ON DUPLICATE KEY UPDATE contacted_count = contacted_count + 1
     </insert>
+
+
+    <insert id="insertCarSeekCount">
+        INSERT INTO view_count_carseek (carseek_id, dt, viewed_count, update_time)
+        VALUES (#{carseek_id}, #{dt}, 1, NOW())
+        ON DUPLICATE KEY UPDATE viewed_count = viewed_count + 1, update_time = NOW()
+    </insert>
+
+    <insert id="insertCarCount">
+        INSERT INTO view_count_cars (car_id, dt, viewed_count, update_time)
+        VALUES (#{car_id}, #{dt}, 1, NOW())
+        ON DUPLICATE KEY UPDATE viewed_count = viewed_count + 1, update_time = NOW()
+    </insert>
+
+
+    <insert id="insertUserCollect">
+        INSERT INTO view_collect (user_id, car_id, view_time, update_time)
+        VALUES (#{user_id}, #{car_id}, NOW(), NOW())
+        ON DUPLICATE KEY UPDATE view_time = NOW(), update_time = NOW()
+    </insert>
+
+    <delete id="deleteUserCollect">
+        delete from view_collect
+        where user_id = #{user_id} and car_id = #{car_id}
+    </delete>
+
+    <select id="isLike" resultType="java.lang.Integer">
+        select
+        count(*) as isLike
+        from
+        view_collect
+        where user_id = #{user_id} and car_id = #{car_id}
+    </select>
+
+    <select id="getHotCars" resultType="com.carbarn.inter.pojo.firstpage.FirstPageHotCarsDTO">
+        select
+        a.id as id,
+        b.brand as brand,
+        c.series as series,
+        d.`type` as type,
+        a.header_picture as header_picture,
+        a.price as price,
+        a.mileage as mileage,
+        car_count.viewed_count as viewed_count
+        from
+        (select
+        car_id,
+        sum(viewed_count) as viewed_count
+        from
+        view_count_cars
+        where dt >= #{from_date}
+        group by car_id
+        ) car_count
+        left join (select id,type_id, series_id, brand_id, price, mileage, header_picture from cars where state = 0) a on car_count.car_id = a.id
+        left join (select brand,brand_id from car_brand where language = #{language}) b on a.brand_id = b.brand_id
+        left join (select series,series_id from car_series where language = #{language}) c on a.series_id = c.series_id
+        left join (select `type`,type_id from car_type where language = #{language}) d on a.type_id = d.type_id
+        where a.id is not null and b.brand_id is not null and c.series_id is not null and d.type_id is not null
+        order by car_count.viewed_count desc
+        limit 10
+    </select>
+
 </mapper>

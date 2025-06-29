@@ -7,12 +7,14 @@ import com.carbarn.inter.mapper.CarsMapper;
 import com.carbarn.inter.mapper.IndexMapper;
 import com.carbarn.inter.mapper.UserCarsMapper;
 import com.carbarn.inter.pojo.CarsPOJO;
+import com.carbarn.inter.pojo.dto.cars.FirstPageCarsDTO;
 import com.carbarn.inter.pojo.dto.cars.index.IndexDTO;
 import com.carbarn.inter.pojo.dto.cars.index.TypeMessageDTO;
 import com.carbarn.inter.pojo.language.LanguageConstant;
 import com.carbarn.inter.pojo.usercar.Constant;
 import com.carbarn.inter.pojo.usercar.StateCountPOJO;
 import com.carbarn.inter.pojo.usercar.UserCarPOJO;
+import com.carbarn.inter.pojo.usercar.UserLikeCarSearchDTO;
 import com.carbarn.inter.service.UserCarsService;
 import com.carbarn.inter.utils.AjaxResult;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -357,6 +359,13 @@ public class UserCarsServiceImpl implements UserCarsService {
 
 
         return AjaxResult.success("获取车辆信息成功，请进行修改！", map);
+    }
+
+    @Override
+    public AjaxResult selectUserLikeCars(UserLikeCarSearchDTO userLikeCarSearchDTO) {
+        List<FirstPageCarsDTO> userLikeCarList = userCarsMapper.selectUserLikeCars(userLikeCarSearchDTO);
+
+        return AjaxResult.success("get cars of user like success", userLikeCarList);
     }
 
 

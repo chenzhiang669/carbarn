@@ -26,9 +26,9 @@ public interface CarsService {
 
     AjaxResult insertNewCar(CarsPOJO carsPOJO);
 
-    AjaxResult uploadNewCar(CarsPOJO carsPOJO, int user_id);
+    AjaxResult uploadNewCar(CarsPOJO carsPOJO, int user_id, String language);
 
-    AjaxResult updateCar(CarsPOJO carsPOJO);
+    AjaxResult updateCar(CarsPOJO carsPOJO, String language);
 
     List<FirstPageCarsDTO> searchCarsByKeywords(SearchCarsDTO searchCarsDTO);
 

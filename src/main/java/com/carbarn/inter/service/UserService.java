@@ -2,12 +2,13 @@ package com.carbarn.inter.service;
 
 
 import com.carbarn.inter.pojo.User;
-import com.carbarn.inter.pojo.user.dto.SignupUserDTO;
-import com.carbarn.inter.pojo.user.dto.VipSignupUserDTO;
+import com.carbarn.inter.pojo.user.dto.*;
 import com.carbarn.inter.pojo.user.pojo.UserPojo;
 import com.carbarn.inter.pojo.user.pojo.UserViewCountPojo;
 import com.carbarn.inter.utils.AjaxResult;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 public interface UserService {
 
@@ -40,4 +41,18 @@ public interface UserService {
     AjaxResult viewCount(long user_id);
 
     void deRegister(long user_id);
+
+    AjaxResult subvipsignup(SubVipSignupUserDTO subVipSignupUserDTO);
+
+    List<SubUsersDTO> subUsers(Long user_id);
+
+    int getMaxNumberOfSubUsers();
+
+    AjaxResult deleteSubUsers(long valueOf, DeleteSubUsersDTO subUsersDTO) throws Exception;
+
+    AjaxResult transferSubUser(long valueOf, TransferSubUsersDTO transferSubUsersDTO);
+
+    AjaxResult signupEmail(SignupUserDTO signupUserDTO);
+
+    AjaxResult signupPhoneNum(SignupUserDTO signupUserDTO);
 }

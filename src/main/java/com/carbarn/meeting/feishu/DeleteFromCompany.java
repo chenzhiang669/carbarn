@@ -56,8 +56,8 @@ public class DeleteFromCompany {
         JSONObject meeting_params = JSON.parseObject(value);
         String appId = meeting_params.getString("appId");
         String appSecret = meeting_params.getString("appSecret");
-        String userIdType = meeting_params.getString("userIdType");
-        String ownerId = meeting_params.getString("ownerId");
+        String lark_appId = meeting_params.getString("lark_appId");
+        String lark_appSecret = meeting_params.getString("lark_appSecret");
         long delete_minute_interval = meeting_params.getLong("delete_minute_interval");
 
         //1、从meeting表中获取当前需要邀请的用户加入公司的用户
@@ -79,7 +79,7 @@ public class DeleteFromCompany {
                     String open_id = getOpenId(buyer_invite_infos);
                     logger.info(open_id);
                     if (open_id != null) {
-                        FeishuApplyReserve.deleteUserFromCompany(appId, appSecret, open_id, "open_id");
+                        FeishuApplyReserve.deleteUserFromCompany(lark_appId, lark_appSecret, open_id, "open_id");
                         logger.info("detele meeting_id:{} --> open_id:{} from company successfully", meeting_id, open_id);
                     }
                 }

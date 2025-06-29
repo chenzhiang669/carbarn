@@ -13,12 +13,16 @@ public class FirstPageCarsDTO {
     private String plate_issue_date;
     private double mileage;
     private double price;
+
+    private double	guide_price;
     private String upload_date;
     private String city;
     private String header_picture;
     private String manufacture_date; //出厂日期
 
     private int vehicleType; //新车，二手车
+
+    private int is_like; //是否收藏(0:否，1：是)
 
     @Override
     public String toString() {

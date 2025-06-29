@@ -27,6 +27,24 @@
     </insert>
 
 
+    <insert id="insertNewGlobalOrder" parameterType="com.carbarn.inter.pojo.pay.OrderGlobalPOJO">
+        insert into payment_global
+        (user_id,order_type,version,mchtId,transType,accessOrderId,
+        productInfo,shippingFirstName,shippingLastName,shippingAddress1,
+        currency,amount,`language`,payPageStyle,email,returnUrl,notifyUrl,
+        shippingCity,shippingState,shippingCountry,shippingZipCode,shippingPhone,
+        billingFirstName,billingLastName,billingAddress1,billingCity,
+        billingState,billingCountry,billingZipCode,billingPhone,signtype,sign,contract_id)
+        values
+        (#{user_id},#{order_type},#{version},#{mchtId},#{transType},#{accessOrderId},
+        #{productInfo},#{shippingFirstName},#{shippingLastName},#{shippingAddress1},
+        #{currency},#{amount},#{language},#{payPageStyle},#{email},#{returnUrl},#{notifyUrl},
+        #{shippingCity},#{shippingState},#{shippingCountry},#{shippingZipCode},#{shippingPhone},
+        #{billingFirstName},#{billingLastName},#{billingAddress1},#{billingCity},
+        #{billingState},#{billingCountry},#{billingZipCode},#{billingPhone},#{signtype},#{sign},#{contract_id})
+    </insert>
+
+
     <insert id="insertPayCallback" parameterType="com.carbarn.inter.pojo.pay.PayCallBackPOJO">
         insert into payment_callback
         (appid,outtrxid,trxcode,trxid,initamt,trxamt,
@@ -42,6 +60,17 @@
         #{termrefnum},#{trxreserved},#{srctrxid},#{cusorderid},
         #{acct},#{fee},#{signtype},#{cmid},#{chnlid},#{chnldata},
         #{accttype},#{bankcode},#{logonid},#{sign},#{tlopenid})
+    </insert>
+
+    <insert id="insertPayCallbackGlobal" parameterType="com.carbarn.inter.pojo.pay.PayCallBackGlobalPOJO">
+        insert into payment_callback_global
+        (resultCode,resultDesc,mchtId,accessOrderId,
+        orderId,cardNo,cardOrgn,currency,amount,caAuthCode,
+        LocalCurrency,LocalAmount,transTime,sign,signType)
+        values
+        (#{resultCode},#{resultDesc},#{mchtId},#{accessOrderId},
+        #{orderId},#{cardNo},#{cardOrgn},#{currency},#{amount},#{caAuthCode},
+        #{LocalCurrency},#{LocalAmount},#{transTime},#{sign},#{signType})
     </insert>
 
 
@@ -69,6 +98,16 @@
         from
         payment
         where reqsn = #{reqsn}
+        limit 1
+    </select>
+
+
+    <select id="getGlobalOrderInfoByAccessOrderId" resultType="com.carbarn.inter.pojo.pay.OrderGlobalPOJO">
+        select
+        *
+        from
+        payment_global
+        where accessOrderId = #{accessOrderId}
         limit 1
     </select>
 

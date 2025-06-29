@@ -1,7 +1,6 @@
 package com.carbarn.inter.mapper;
 
 import com.carbarn.inter.pojo.area.AreaPOJO;
-import com.carbarn.inter.pojo.async.TypeDetailsDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 

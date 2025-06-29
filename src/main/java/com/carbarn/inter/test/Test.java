@@ -14,17 +14,21 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 public class Test {
     public static void main(String[] args) throws IOException, SQLException {
+        String expire_time = LocalDateTime.now().plusYears(1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        System.out.println(expire_time);
 //        insert_type_car_details();
-        String phone_number = "18715026765";
-        int phone_number_length = phone_number.length();
-        String phone_number_last4num = phone_number.substring(phone_number_length - 4, phone_number_length);
-        System.out.println(phone_number_last4num);
+//        String phone_number = "18715026765";
+//        int phone_number_length = phone_number.length();
+//        String phone_number_last4num = phone_number.substring(phone_number_length - 4, phone_number_length);
+//        System.out.println(phone_number_last4num);
     }
 
 

@@ -7,4 +7,7 @@ public class EventPojo {
     private long seller_id = -1;
     private long buyer_id = -1;
     private int event_type;
+    private long carseek_id = -1;
+    private long user_id = -1;
+    private long car_id = -1;
 }

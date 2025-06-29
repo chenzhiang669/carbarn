@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.carbarn.inter.mapper.TranslationDescriptionMapper">
+
+    <insert id="insertNewTranslationDescription">
+        INSERT INTO translation_description (link_id, link_table, link_field, language, value, update_time)
+        VALUES (#{link_id}, #{link_table}, #{link_field}, #{language}, #{value}, NOW())
+        ON DUPLICATE KEY UPDATE value = #{value}, update_time = NOW()
+    </insert>
+
+    <select id="getValue" resultType="java.lang.String">
+        select
+        `value`
+        from
+        translation_description
+        where link_id = #{link_id}
+        and link_table = #{link_table}
+        and link_field = #{link_field}
+        and `language` = #{language}
+    </select>
+</mapper>

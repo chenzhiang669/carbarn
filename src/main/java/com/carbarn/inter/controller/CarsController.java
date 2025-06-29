@@ -11,6 +11,8 @@ import com.carbarn.inter.pojo.dto.cars.*;
 import com.carbarn.inter.pojo.usercar.Constant;
 import com.carbarn.inter.service.CarsService;
 import com.carbarn.inter.utils.AjaxResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,6 +26,7 @@ import java.util.stream.Collectors;
 @RequestMapping("/carbarn/cars")
 public class CarsController {
 
+    private static final Logger logger = LoggerFactory.getLogger(CarsController.class);
     @Autowired
     private CarsService carsService;
 
@@ -58,6 +61,11 @@ public class CarsController {
 
         searchCarsDTO.setLanguage(language);
 
+        if(StpUtil.isLogin()){
+            String user_id = (String) StpUtil.getLoginId();
+            searchCarsDTO.setUser_id(Long.valueOf(user_id));
+        }
+
         List<FirstPageCarsDTO> result = new ArrayList<FirstPageCarsDTO>();
         String keywords = searchCarsDTO.getKeywords();
         if(keywords != null && !"".equals(keywords)){
@@ -65,6 +73,8 @@ public class CarsController {
         }else{
            result = carsService.searchCars(searchCarsDTO);
         }
+
+        logger.info("searchCarsDTO: {}", searchCarsDTO.toString());
 
         AjaxResult ajaxResult = AjaxResult.success("搜索到相关数据", result);
         ajaxResult.put("pageNo", pageNo);
@@ -192,7 +202,7 @@ public class CarsController {
         String user_id = (String) StpUtil.getLoginId();
         carsPOJO.setUser_id(Integer.valueOf(user_id));
 
-        return carsService.uploadNewCar(carsPOJO, Integer.valueOf(user_id));
+        return carsService.uploadNewCar(carsPOJO, Integer.valueOf(user_id), language);
     }
 
 
@@ -215,7 +225,7 @@ public class CarsController {
             return AjaxResult.error("Missing required parameter: id");
         }
 
-        return carsService.updateCar(carsPOJO);
+        return carsService.updateCar(carsPOJO, language);
     }
 
 

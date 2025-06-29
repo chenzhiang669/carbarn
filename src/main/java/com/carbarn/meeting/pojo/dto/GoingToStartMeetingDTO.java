@@ -9,4 +9,5 @@ public class GoingToStartMeetingDTO {
     private String buyer_phonenum;
     private String seller_nickname;
     private String seller_phonenum;
+    private String buyer_email;
 }

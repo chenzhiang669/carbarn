@@ -42,8 +42,13 @@ public class OcrServiceImpl implements OcrService {
             String path = json.getString("path");
             String appcode = json.getString("appcode");
 
+            System.out.println("host: "+ host);
+            System.out.println("path: "+ path);
+            System.out.println("appcode: "+ appcode);
+
             byte[] bytes = file.getBytes();
             String vin = VinOcr.vinOcr(host, path, appcode, bytes);
+            System.out.println("vin:" + vin);
             if(vin != null && !"".equals(vin)){
                 Map<String, String> result = new HashMap<String,String>();
                 result.put("vin", vin);

@@ -43,4 +43,7 @@ public interface CarsMapper {
     void updateCarState(@Param("operateUpdateStateDTO") OperateUpdateStateDTO operateUpdateStateDTO);
 
     List<OperateCarsDTO> getStateCars(@Param("operateSearchCarsDTO") OperateSearchCarsDTO operateSearchCarsDTO);
+
+    void updateUserId(@Param("original_user_id") long original_user_id,
+                      @Param("target_user_id") long target_user_id);
 }

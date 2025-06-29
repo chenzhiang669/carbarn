@@ -73,12 +73,12 @@ public class Translator1 {
         ch.qos.logback.classic.Logger headersclient = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger("org.apache.http.client");
         headersclient.setLevel(Level.OFF); // 禁用日志输出
 
-        BufferedReader br = new BufferedReader(new FileReader(new File("D:/carbarn/翻译/car_type_zh.csv")));
-        BufferedWriter bw = new BufferedWriter(new FileWriter(new File("D:/carbarn/翻译/car_type-en.csv")));
+//        BufferedReader br = new BufferedReader(new FileReader(new File("D:/carbarn/翻译/car_type_zh.csv")));
+//        BufferedWriter bw = new BufferedWriter(new FileWriter(new File("D:/carbarn/翻译/car_type-en.csv")));
 
-        String line = null;
+//        String line = null;
         Translator1 translator = new Translator1();
-        System.out.println(translator.translate("缸盖材料", "zh", "en"));
+        System.out.println(translator.translate("新车", "zh", "ru"));
 //        while((line = br.readLine()) != null){
 //            String[] infos = line.split(",");
 //            String brand = infos[0];

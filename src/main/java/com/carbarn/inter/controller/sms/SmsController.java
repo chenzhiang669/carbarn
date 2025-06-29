@@ -4,10 +4,11 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.carbarn.inter.config.ParamKeys;
 import com.carbarn.inter.mapper.ParamsMapper;
+import com.carbarn.inter.pojo.sms.CheckVerifyCodeDTO;
+import com.carbarn.inter.service.SmsService;
 import com.carbarn.inter.utils.AjaxResult;
 import com.carbarn.inter.utils.sms.SendSms;
 import io.swagger.annotations.Api;
-import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,6 +19,9 @@ public class SmsController {
 
     @Autowired
     private ParamsMapper paramsMapper;
+
+    @Autowired
+    private SmsService smsService;
 
     @PostMapping("/sendVerifyCode")
     public AjaxResult sendVerifyCode(@RequestHeader(name = "language", required = true) String language,
@@ -58,25 +62,23 @@ public class SmsController {
     }
 
 
-//    @PostMapping("/checkVerifyCode")
-//    public AjaxResult checkVerifyCode(@RequestHeader(name = "language", required = true) String language,
-//                                     @RequestBody String body) {
-//
-//        JSONObject json = JSON.parseObject(body);
-//        if(!json.containsKey("phone_num")){
-//            return AjaxResult.error("Missing required parameter: 'phone_num'");
-//        }else if(!json.containsKey("verify_code")){
-//            return AjaxResult.error("Missing required parameter: 'verify_code'");
-//        }
-//
-//        String phone_num = json.getString("phone_num");
-//        String verify_code = json.getString("verify_code");
-//
-//        boolean bool = SendSms.checkVerifyCode(phone_num, verify_code);
-//        if(bool){
-//            return AjaxResult.success("验证码校验成功");
-//        }else {
-//            return AjaxResult.error("验证码校验失败");
-//        }
-//    }
+    @PostMapping("/checkVerifyCode")
+    public AjaxResult checkVerifyCode(@RequestHeader(name = "language", required = true) String language,
+                                     @RequestBody CheckVerifyCodeDTO checkVerifyCodeDTO) {
+
+
+        if(checkVerifyCodeDTO.getPhone_num() == null
+                || checkVerifyCodeDTO.getVeri_code() == null
+                || checkVerifyCodeDTO.getArea_code() == null){
+            return AjaxResult.error("Missing required parameter: 'phone_num' or 'veri_code' or 'area_code'");
+        }
+
+        boolean bool = smsService.checkVerifyCode(checkVerifyCodeDTO);
+        if(bool){
+            return AjaxResult.success("验证码校验成功");
+        }else{
+            return AjaxResult.error("验证码错误");
+        }
+
+    }
 }

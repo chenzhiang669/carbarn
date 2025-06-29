@@ -10,6 +10,8 @@ public class SeaWallPOJO {
 
     private int seaWallType = -1;
 
+    private int is_first_page = 0;
+
     private String picture;
 
     private String url;

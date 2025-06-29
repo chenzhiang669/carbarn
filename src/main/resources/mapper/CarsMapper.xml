@@ -108,11 +108,13 @@
         a.plate_issue_date as plate_issue_date,
         a.mileage as mileage,
         a.price as price,
+        a.guide_price as guide_price,
         a.upload_date as upload_date,
         a.city as city,
         a.header_picture as header_picture,
         a.manufacture_date as manufacture_date,
-        a.vehicleType as vehicleType
+        a.vehicleType as vehicleType,
+        if(e.car_id is null, 0, 1) as is_like
         from
         (SELECT
         *
@@ -214,6 +216,7 @@
         ) a left join (select brand_id, brand from car_brand where `language`= #{language}) b on a.brand_id = b.brand_id
         left join (select series_id, series from car_series where `language`= #{language}) c on a.series_id = c.series_id
         left join (select type_id, `type` from car_type where `language`= #{language}) d on a.type_id = d.type_id
+        left join (select user_id, car_id from view_collect where user_id = #{user_id}) e on a.id = e.car_id
         where b.brand_id is not null and c.series_id is not null and d.type_id is not null
         order by ${order_field} ${order_way}
         limit #{pageStart}, #{pageSize}
@@ -231,11 +234,13 @@
         a.plate_issue_date as plate_issue_date,
         a.mileage as mileage,
         a.price as price,
+        a.guide_price as guide_price,
         a.upload_date as upload_date,
         a.city as city,
         a.header_picture as header_picture,
         a.manufacture_date as manufacture_date,
-        a.vehicleType as vehicleType
+        a.vehicleType as vehicleType,
+        if(e.car_id is null, 0, 1) as is_like
         from
         (SELECT
         *
@@ -351,6 +356,7 @@
         ) a left join (select brand_id, brand from car_brand where `language`= #{searchCarsDTO.language}) b on a.brand_id = b.brand_id
         left join (select series_id, series from car_series where `language`= #{searchCarsDTO.language}) c on a.series_id = c.series_id
         left join (select type_id, `type` from car_type where `language`= #{searchCarsDTO.language}) d on a.type_id = d.type_id
+        left join (select user_id, car_id from view_collect where user_id = #{searchCarsDTO.user_id}) e on a.id = e.car_id
         where b.brand_id is not null and c.series_id is not null and d.type_id is not null
         order by ${searchCarsDTO.order_field} ${searchCarsDTO.order_way}
         limit #{searchCarsDTO.pageStart}, #{searchCarsDTO.pageSize}
@@ -562,6 +568,13 @@
             , reason = #{operateUpdateStateDTO.reason}
         </if>
         where id = #{operateUpdateStateDTO.carid}
+    </update>
+
+
+    <update id="updateUserId">
+        update cars
+        set user_id = #{target_user_id}
+        where user_id = #{original_user_id}
     </update>
 
 </mapper>

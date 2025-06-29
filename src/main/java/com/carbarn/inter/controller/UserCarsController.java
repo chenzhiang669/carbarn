@@ -7,6 +7,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.carbarn.inter.pojo.user.dto.SignupUserDTO;
 import com.carbarn.inter.pojo.user.dto.VipSignupUserDTO;
 import com.carbarn.inter.pojo.user.pojo.UserPojo;
+import com.carbarn.inter.pojo.usercar.UserLikeCarSearchDTO;
 import com.carbarn.inter.service.UserCarsService;
 import com.carbarn.inter.service.UserService;
 import com.carbarn.inter.utils.AjaxResult;
@@ -117,5 +118,25 @@ public class UserCarsController {
         return userCarsService.selectStateCount(userid, keywords);
     }
 
+    @PostMapping("/userLikeCars")
+    public AjaxResult userLikeCars(@RequestHeader(name = "language", required = true) String language,
+                                   @RequestBody UserLikeCarSearchDTO userLikeCarSearchDTO) {
 
+        int pageNo = userLikeCarSearchDTO.getPageNo();
+        int pageSize = userLikeCarSearchDTO.getPageSize();
+        if (pageNo < 1) {
+            return AjaxResult.error("Missing required parameter: pageNo");
+        }
+        if (pageSize <= 0) {
+            return AjaxResult.error("'pageSize' Must meet the conditions  pageSize > 0");
+        } else {
+            userLikeCarSearchDTO.setPageStart((pageNo - 1) * pageSize);
+        }
+
+        userLikeCarSearchDTO.setLanguage(language);
+        String user_id = (String) StpUtil.getLoginId();
+        long userid = Long.valueOf(user_id);
+        userLikeCarSearchDTO.setUser_id(userid);
+        return userCarsService.selectUserLikeCars(userLikeCarSearchDTO);
+    }
 }

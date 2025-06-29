@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.carbarn.inter.mapper.CarsSeekMapper">
+
+<!--    插入一条新的求购记录-->
+    <insert id="insertNewCarSeek" parameterType="com.carbarn.inter.pojo.carseek.CarsSeekPOJO">
+        insert into cars_seek
+        (user_id,brand_id,series_id,type_id,manufacture_date_lower,manufacture_date_upper,
+        price_upper,price_lower,mileage_upper,mileage_lower,color,cnt,country_code,expire_time,
+        arrival_port,description,randomString)
+        values
+        (#{user_id},#{brand_id},#{series_id},#{type_id},#{manufacture_date_lower},#{manufacture_date_upper},
+        #{price_upper},#{price_lower},#{mileage_upper},#{mileage_lower},#{color},#{cnt},#{country_code},#{expire_time},
+        #{arrival_port},#{description},#{randomString})
+    </insert>
+
+    <select id="getCarSeekidByRandomString" resultType="java.lang.Long">
+        select
+        id
+        from
+        cars_seek
+        where randomString = #{randomString}
+        limit 1
+    </select>
+
+<!--    更新求购信息-->
+    <update id="updateCarSeekById" parameterType="com.carbarn.inter.pojo.carseek.CarsSeekPOJO">
+        update cars_seek
+        set user_id = #{user_id},
+        brand_id = #{brand_id},
+        series_id = #{series_id},
+        type_id = #{type_id},
+        manufacture_date_lower = #{manufacture_date_lower},
+        manufacture_date_upper = #{manufacture_date_upper},
+        price_upper = #{price_upper},
+        price_lower = #{price_lower},
+        mileage_upper = #{mileage_upper},
+        mileage_lower = #{mileage_lower},
+        color = #{color},
+        cnt = #{cnt},
+        country_code = #{country_code},
+        expire_time = #{expire_time},
+        arrival_port = #{arrival_port},
+        description = #{description}
+        where id = #{id}
+    </update>
+
+<!--    展示用户求购列表记录-->
+    <select id="listUserCarSeek" parameterType="com.carbarn.inter.pojo.carseek.ListUserCarsSeekSearchDTO"
+            resultType="com.carbarn.inter.pojo.carseek.UserCarsSeekDTO">
+        select
+        a.id,
+        a.user_id,
+        a.brand_id,
+        a.series_id,
+        a.type_id,
+        a.manufacture_date_lower,
+        a.manufacture_date_upper,
+        a.price_upper,
+        a.price_lower,
+        a.mileage_upper,
+        a.mileage_lower,
+        a.color,
+        a.cnt,
+        a.country_code,
+        a.expire_time,
+        a.arrival_port,
+        a.insert_time,
+        b.brand as brand,
+        c.series as series,
+        d.`type` as type,
+        if(e.carseek_id is null,0,e.viewed_count) as viewed_count,
+        if(f.value is null, a.description, f.value) as description
+        from
+        (select * from cars_seek where user_id = #{user_id} and delete_flag = 0) a
+        left join (select brand,brand_id from car_brand where language = #{language}) b on a.brand_id = b.brand_id
+        left join (select series,series_id from car_series where language = #{language}) c on a.series_id = c.series_id
+        left join (select `type`,type_id from car_type where language = #{language}) d on a.type_id = d.type_id
+        left join (select carseek_id, sum(viewed_count) as viewed_count from view_count_carseek group by carseek_id) e on a.id = e.carseek_id
+        left join (select * from translation_description where link_table = 'cars_seek' and link_field = 'description' and language = #{language}) f on a.id = f.link_id
+        where b.brand is not null and c.series is not null and d.`type` is not null
+        order by a.update_time desc
+        limit #{pageStart}, #{pageSize}
+    </select>
+
+
+
+    <select id="listUserCarSeekExpire" parameterType="com.carbarn.inter.pojo.carseek.ListUserCarsSeekSearchDTO"
+            resultType="com.carbarn.inter.pojo.carseek.UserCarsSeekDTO">
+        select
+        a.id,
+        a.user_id,
+        a.brand_id,
+        a.series_id,
+        a.type_id,
+        a.manufacture_date_lower,
+        a.manufacture_date_upper,
+        a.price_upper,
+        a.price_lower,
+        a.mileage_upper,
+        a.mileage_lower,
+        a.color,
+        a.cnt,
+        a.country_code,
+        a.expire_time,
+        a.arrival_port,
+        a.insert_time,
+        b.brand as brand,
+        c.series as series,
+        d.`type` as type,
+        if(e.carseek_id is null,0,e.viewed_count) as viewed_count,
+        if(f.value is null, a.description, f.value) as description
+        from
+        (select * from cars_seek where user_id = #{user_id} and delete_flag = 0 and expire_time &lt;= #{today}) a
+        left join (select brand,brand_id from car_brand where language = #{language}) b on a.brand_id = b.brand_id
+        left join (select series,series_id from car_series where language = #{language}) c on a.series_id = c.series_id
+        left join (select `type`,type_id from car_type where language = #{language}) d on a.type_id = d.type_id
+        left join (select carseek_id, sum(viewed_count) as viewed_count from view_count_carseek group by carseek_id) e on a.id = e.carseek_id
+        left join (select * from translation_description where link_table = 'cars_seek' and link_field = 'description' and language = #{language}) f on a.id = f.link_id
+        where b.brand is not null and c.series is not null and d.`type` is not null
+        order by a.update_time desc
+        limit #{pageStart}, #{pageSize}
+    </select>
+
+    <select id="listUserCarSeekUnExpire" parameterType="com.carbarn.inter.pojo.carseek.ListUserCarsSeekSearchDTO"
+            resultType="com.carbarn.inter.pojo.carseek.UserCarsSeekDTO">
+        select
+        a.id,
+        a.user_id,
+        a.brand_id,
+        a.series_id,
+        a.type_id,
+        a.manufacture_date_lower,
+        a.manufacture_date_upper,
+        a.price_upper,
+        a.price_lower,
+        a.mileage_upper,
+        a.mileage_lower,
+        a.color,
+        a.cnt,
+        a.country_code,
+        a.expire_time,
+        a.arrival_port,
+        a.insert_time,
+        b.brand as brand,
+        c.series as series,
+        d.`type` as type,
+        if(e.carseek_id is null,0,e.viewed_count) as viewed_count,
+        if(f.value is null, a.description, f.value) as description
+        from
+        (select * from cars_seek where user_id = #{user_id} and delete_flag = 0 and expire_time > #{today}) a
+        left join (select brand,brand_id from car_brand where language = #{language}) b on a.brand_id = b.brand_id
+        left join (select series,series_id from car_series where language = #{language}) c on a.series_id = c.series_id
+        left join (select `type`,type_id from car_type where language = #{language}) d on a.type_id = d.type_id
+        left join (select carseek_id, sum(viewed_count) as viewed_count from view_count_carseek group by carseek_id) e on a.id = e.carseek_id
+        left join (select * from translation_description where link_table = 'cars_seek' and link_field = 'description' and language = #{language}) f on a.id = f.link_id
+        where b.brand is not null and c.series is not null and d.`type` is not null
+        order by a.update_time desc
+        limit #{pageStart}, #{pageSize}
+    </select>
+
+    <!--    卖家搜索求购车信息-->
+    <select id="searchCarSeek" parameterType="com.carbarn.inter.pojo.carseek.SearchCarsSeekDTO"
+            resultType="com.carbarn.inter.pojo.carseek.UserCarsSeekDTO">
+        select
+        a.id,
+        a.user_id,
+        a.brand_id,
+        a.series_id,
+        a.type_id,
+        a.manufacture_date_lower,
+        a.manufacture_date_upper,
+        a.price_upper,
+        a.price_lower,
+        a.mileage_upper,
+        a.mileage_lower,
+        a.color,
+        a.cnt,
+        a.country_code,
+        a.expire_time,
+        a.arrival_port,
+        a.insert_time,
+        b.brand as brand,
+        c.series as series,
+        d.`type` as type,
+        if(e.carseek_id is null,0,e.viewed_count) as viewed_count,
+        if(f.value is null, a.description, f.value) as description
+        from
+        (select * from cars_seek where delete_flag = 0 and expire_time > #{today}) a
+        left join (select brand,brand_id from car_brand where language = #{language}) b on a.brand_id = b.brand_id
+        left join (select series,series_id from car_series where language = #{language}) c on a.series_id = c.series_id
+        left join (select `type`,type_id from car_type where language = #{language}) d on a.type_id = d.type_id
+        left join (select carseek_id, sum(viewed_count) as viewed_count from view_count_carseek group by carseek_id) e on a.id = e.carseek_id
+        left join (select * from translation_description where link_table = 'cars_seek' and link_field = 'description' and language = #{language}) f on a.id = f.link_id
+        where b.brand is not null and c.series is not null and d.`type` is not null
+        <if test="keywords != null and keywords.trim() != ''">
+            AND (b.brand LIKE CONCAT('%', #{keywords, jdbcType=VARCHAR}, '%') OR c.series LIKE CONCAT('%', #{keywords, jdbcType=VARCHAR}, '%'))
+        </if>
+        order by a.update_time desc
+        limit #{pageStart}, #{pageSize}
+    </select>
+
+    <select id="getCarSeekById" resultType="com.carbarn.inter.pojo.carseek.UserCarsSeekDTO">
+        select
+        a.id,
+        a.user_id,
+        a.brand_id,
+        a.series_id,
+        a.type_id,
+        a.manufacture_date_lower,
+        a.manufacture_date_upper,
+        a.price_upper,
+        a.price_lower,
+        a.mileage_upper,
+        a.mileage_lower,
+        a.color,
+        a.cnt,
+        a.country_code,
+        a.expire_time,
+        a.arrival_port,
+        a.insert_time,
+        b.brand as brand,
+        c.series as series,
+        d.`type` as type,
+        if(f.value is null, a.description, f.value) as description
+        from
+        (select * from cars_seek where id = #{id}) a
+        left join (select brand,brand_id from car_brand where language = #{language}) b on a.brand_id = b.brand_id
+        left join (select series,series_id from car_series where language = #{language}) c on a.series_id = c.series_id
+        left join (select `type`,type_id from car_type where language = #{language}) d on a.type_id = d.type_id
+        left join (select * from translation_description where link_table = 'cars_seek' and link_field = 'description' and language = #{language}) f on a.id = f.link_id
+        where b.brand is not null and c.series is not null and d.`type` is not null
+    </select>
+
+    <update id="deleteCarSeek">
+        update cars_seek
+        set delete_flag = 1
+        where id = #{id}
+    </update>
+</mapper>

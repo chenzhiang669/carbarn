@@ -19,6 +19,8 @@ public interface ContractService {
 
     AjaxResult deleteContract(String contract_id);
 
+    AjaxResult removeContract(String contract_id);
+
     ContractFullMessageDTO getContractInfo(String language, String contract_id);
 
     List<UserContractDTO> userContracts(SearchContractDTO searchContractDTO);

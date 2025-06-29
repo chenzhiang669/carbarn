@@ -5,8 +5,10 @@ import lombok.Data;
 @Data
 public class UserPojo {
     private long id;
+    private long parent_id;
     private long user_count;
     private String phone_num;
+    private String email;
     private String avatar;
     private String nickname;
     private String address;
@@ -22,4 +24,5 @@ public class UserPojo {
     private String language;
     private int role;
     private String satoken;
+    private String expire_time;
 }

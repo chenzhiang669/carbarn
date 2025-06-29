@@ -64,6 +64,17 @@ public class ContractController {
         return contractService.deleteContract(contract_id);
     }
 
+    @PostMapping("/removeContract")
+    public AjaxResult removeContract(@RequestHeader(name = "language", required = true) String language,
+                                     @RequestBody ContractPOJO contractPOJO) {
+        //TODO 通过satoken获取的用户id 和 contractPOJO中的buyer_id进行校验是否一致。
+        String contract_id = contractPOJO.getContract_id();
+        if(contract_id == null){
+            return AjaxResult.error("error: Missing required parameter: 'contract_id'");
+        }
+        return contractService.removeContract(contract_id);
+    }
+
 
     @PostMapping("/getContractInfo")
     public AjaxResult getContractInfo(@RequestHeader(name = "language", required = true) String language,

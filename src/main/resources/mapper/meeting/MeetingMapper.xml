@@ -55,10 +55,11 @@
     <select id="isGoingToStartMeeting" resultType="com.carbarn.meeting.pojo.dto.GoingToStartMeetingDTO">
         select
         a.meeting_id,
-        b.nickname as buyer_nickname,
-        b.phone_num as buyer_phonenum,
-        c.nickname as seller_nickname,
-        c.phone_num as seller_phonenum
+        b.nickname as seller_nickname,
+        b.phone_num as seller_phonenum,
+        c.email as buyer_email,
+        c.nickname as buyer_nickname,
+        c.phone_num as buyer_phonenum
         from
         (select
         *
@@ -71,8 +72,8 @@
         and buyer_invite_infos is null
         and seller_invite_infos is null
         ) a
-        left join (select * from users) b on a.buyer_id = b.id
-        left join (select * from users) c on a.seller_id = c.id
+        left join (select * from users) b on a.seller_id = b.id
+        left join (select * from users) c on a.buyer_id = c.id
     </select>
 
     <update id="updateInviteInfos">

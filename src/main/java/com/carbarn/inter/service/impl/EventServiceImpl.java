@@ -53,4 +53,31 @@ public class EventServiceImpl implements EventService {
             eventMapper.insertContactedCount(eventPojo.getSeller_id(), dt);
         }
     }
+
+    @Override
+    public void insertCarSeekCount(EventPojo eventPojo) {
+        LocalDate today_ = LocalDate.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        String dt = today_.format(formatter);
+        eventMapper.insertCarSeekCount(eventPojo.getCarseek_id(), dt);
+    }
+
+    @Override
+    public void insertCarCount(EventPojo eventPojo) {
+        LocalDate today_ = LocalDate.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        String dt = today_.format(formatter);
+        eventMapper.insertCarCount(eventPojo.getCar_id(), dt);
+    }
+
+    @Override
+    public void insertUserCollect(EventPojo eventPojo) {
+        eventMapper.insertUserCollect(eventPojo.getUser_id(), eventPojo.getCar_id());
+    }
+
+    @Override
+    public void deleteUserCollect(EventPojo eventPojo) {
+        eventMapper.deleteUserCollect(eventPojo.getUser_id(), eventPojo.getCar_id());
+    }
+
 }

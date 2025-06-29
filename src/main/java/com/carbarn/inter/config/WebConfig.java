@@ -20,6 +20,7 @@ public class WebConfig implements WebMvcConfigurer {
                         "/carbarn/cars/search","/carbarn/cars/details", "/carbarn/cars/carTypeDetails","/carbarn/index/**",
                         "/v3/api-docs", "/v3/api-docs/**", "/swagger-resources/**", "/swagger-ui/**",
                         "/carbarn/feedback", "/carbarn/language", "/static/**", "/carbarn/pay/callback", "/carbarn/sms/**",
-                        "/carbarn/event/**", "/carbarn/seawall/getSeaWall");
+                        "/carbarn/event/**", "/carbarn/seawall/getSeaWall","/carbarn/pay/callbackglobal", "/carbarn/firstPage/hotCars",
+                        "/carbarn/firstPage/contractDeal","/carbarn/email/**");
     }
 }

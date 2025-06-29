@@ -162,7 +162,7 @@ public class ChepaiOcr {
         String host = "https://ocrcp.market.alicloudapi.com";
         String path = "/rest/160601/ocr/ocr_vehicle_plate.json";
         String appcode = "e537a32bb7de4e9a8f93186736184f48";
-        String imgFile = "D:\\carbarn\\汽车车牌打码\\Noq6LNNX4N1746520887989.JPG";
+        String imgFile = "D:\\carbarn\\汽车车牌打码\\ddd.jpg";
         byte[] imageBytes = readImageToByteArray(imgFile);
         String result = chepaiORC(host, path, appcode, imageBytes);
         System.out.println(result);
@@ -173,12 +173,34 @@ public class ChepaiOcr {
                 JSONObject plate = plates.getJSONObject(i);
                 if(plate.containsKey("roi")){
                     JSONObject roi = plate.getJSONObject("roi");
-                    int w = (int)(roi.getInteger("w") * 1.5);
-                    int h = (int)(roi.getInteger("h") * 1.3);
-                    int x = roi.getInteger("x");
-                    int y = roi.getInteger("y") - 10;
+//                    int w = (int)(roi.getInteger("w") * 1.5);
+//                    int h = (int)(roi.getInteger("h") * 1.3);
+//                    int x = roi.getInteger("x");
+//                    int y = roi.getInteger("y") - 10;
 
-                    PlateMasking.masking(x,y,w,h,"ffffffff","JPG",imageBytes);
+                    int w = roi.getInteger("w");
+                    int h = roi.getInteger("h");
+                    int x = roi.getInteger("x");
+                    int y = roi.getInteger("y");
+
+                    if(x - 20 >= 0){
+                        x = x -20;
+                    }
+
+                    if(y - 20 >= 0){
+                        y = y - 20;
+                    }
+
+                    w = (int) (w * 1.8);
+                    h = (int) (h * 2.8);
+
+                    System.out.println(x + "," + y + "," + w  + "," + h);
+
+//                    if(w / h > 5){
+//                        h = w / 2;
+//                    }
+//                    System.out.println(x + "," + y + "," + w  + "," + h);
+                    PlateMasking.masking(x,y,w,h,"ddd2","jpg",imageBytes);
                 }
             }
         }

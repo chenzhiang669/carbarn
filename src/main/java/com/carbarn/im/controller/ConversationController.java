@@ -2,6 +2,7 @@ package com.carbarn.im.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.carbarn.common.exception.enums.ErrorCode;
 import com.carbarn.common.pojo.CommonResult;
 import com.carbarn.im.pojo.param.StartConversationParam;
 import com.carbarn.im.pojo.resp.ConversationPageResp;
@@ -32,6 +33,15 @@ public class ConversationController {
         return CommonResult.success(conversationService.startConversion(user.getId(), startConversationParam.getSellerId()));
     }
 
+    @PostMapping("/startBySeller")
+    public CommonResult<StartConversationVo> startConversationBySeller(@RequestBody StartConversationParam startConversationParam) {
+        if(startConversationParam.getBuyerId() == 0){
+            return CommonResult.error(ErrorCode.BAD_REQUEST.getCode(), "Missing required parameter: buyerId");
+        }
+        UserPojo user = UserHelper.nowLoginUser();
+        return CommonResult.success(conversationService.startConversion(startConversationParam.getBuyerId(), user.getId()));
+    }
+
     @GetMapping("/page")
     public CommonResult<ConversationPageResp> conversationList(@RequestParam(defaultValue = "0") Integer pageNum,
                                                                @RequestParam(defaultValue = "10") Integer pageSize) {
@@ -48,7 +58,7 @@ public class ConversationController {
     @PostMapping("/users")
     public AjaxResult conversationUsers(@RequestBody String body) {
         JSONObject json = JSON.parseObject(body);
-        if(!json.containsKey("conversationId")){
+        if (!json.containsKey("conversationId")) {
             return AjaxResult.error("Missing required parameter: conversationId");
         }
 

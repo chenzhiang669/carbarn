@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.carbarn.inter.mapper.SeaFreightMapper">
+
+    <select id="getPortInfos" resultType="com.carbarn.inter.pojo.seafreight.PortPOJO">
+        select
+        *
+        from
+        sea_freight_port
+        where
+        delete_flag = 0
+        <if test="keywords != null">
+            AND (lower(en_name) like '%${keywords}%') or (lower(zh_name) like '%${keywords}%')
+        </if>
+    </select>
+
+    <select id="getShippingLine" resultType="com.carbarn.inter.pojo.seafreight.ShippingLinePOJO">
+        select
+        *
+        from
+        sea_freight_shipping_line
+    </select>
+</mapper>

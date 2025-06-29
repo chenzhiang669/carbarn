@@ -7,6 +7,7 @@ import com.carbarn.inter.pojo.dto.cars.SearchCarsDTO;
 import com.carbarn.inter.pojo.usercar.StateCountPOJO;
 import com.carbarn.inter.pojo.usercar.UserCarList;
 import com.carbarn.inter.pojo.usercar.UserCarPOJO;
+import com.carbarn.inter.pojo.usercar.UserLikeCarSearchDTO;
 import com.carbarn.inter.utils.AjaxResult;
 import org.apache.ibatis.annotations.Param;
 
@@ -26,4 +27,6 @@ public interface UserCarsService {
     AjaxResult selectStateCount(long user_id, String keywords);
 
     AjaxResult edit(int carid, long user_id);
+
+    AjaxResult selectUserLikeCars(UserLikeCarSearchDTO userLikeCarSearchDTO);
 }

@@ -12,7 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Api(tags = "Ocr识别服务")
 @RestController
-@RequestMapping("/ocr")
+@RequestMapping("/carbarn/ocr")
 public class OcrController {
     @Autowired
     private OcrService ocrService;

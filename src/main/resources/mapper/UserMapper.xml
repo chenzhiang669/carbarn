@@ -13,8 +13,8 @@
 
     <!--普通用户注册接口，只需要电话号码，头像， 昵称即可-->
     <insert id="signup" parameterType="com.carbarn.inter.pojo.user.dto.SignupUserDTO">
-        insert into users(user_count, area_code, phone_num, avatar, nickname, language, role)
-        value(#{user_count}, #{area_code}, #{phone_num}, #{avatar}, #{nickname}, #{language}, 0)
+        insert into users(user_count, area_code, phone_num, email, avatar, nickname, language, role)
+        value(#{user_count}, #{area_code}, #{phone_num}, #{email}, #{avatar}, #{nickname}, #{language}, 0)
     </insert>
 
     <!--vip用户注册接口，只需要根据电话号码进行用户字段更新即可-->
@@ -33,6 +33,12 @@
     </update>
 
 
+    <insert id="subvipsignup" parameterType="com.carbarn.inter.pojo.user.dto.SubVipSignupUserDTO">
+        insert into users(parent_id, user_count, area_code, phone_num, avatar, nickname, language, role)
+        value(#{parent_id}, #{user_count}, #{area_code}, #{phone_num}, #{avatar}, #{nickname}, #{language}, 0)
+    </insert>
+
+
     <!--更新用户昵称-->
     <update id="updateNickname">
         update users
@@ -49,7 +55,8 @@
 
     <update id="updateRole">
         update users
-        set role = #{role}
+        set role = #{role},
+        expire_time = #{expire_time}
         where id = #{user_id}
     </update>
 
@@ -70,7 +77,9 @@
         set nickname = #{nickname},
         avatar = #{avatar},
         car_dealership = #{car_dealership},
-        address = #{address}
+        address = #{address},
+        province = #{province},
+        city = #{city}
         where id = #{id}
     </update>
     
@@ -85,6 +94,14 @@
         select *
         from users
         where phone_num = #{phone_num}
+        and area_code = #{area_code}
+        and delete_flag = 0
+    </select>
+
+    <select id="getUserInfoByEmail" resultType="com.carbarn.inter.pojo.user.pojo.UserPojo">
+        select *
+        from users
+        where email = #{email}
         and delete_flag = 0
     </select>
 
@@ -111,33 +128,28 @@
     </select>
 
     <select id="userViewCount" resultType="com.carbarn.inter.pojo.user.pojo.UserViewCountPojo">
-        SELECT
-        user_id,
+        select
         sum(view_count) as view_count,
         sum(viewed_count) as viewed_count,
         sum(contact_count) as contact_count,
         sum(contacted_count) as contacted_count
-        FROM
-        view_count
-        WHERE
-        user_id = #{user_id}
-        group by user_id
+        from
+        (select * from users where id = #{user_id} or parent_id = #{user_id} and delete_flag = 0) a
+        left join (select * from view_count) b on a.id = b.user_id
     </select>
 
     <select id="userDtViewCount" resultType="com.carbarn.inter.pojo.user.pojo.UserViewCountPojo">
-        SELECT
-        user_id,
-        dt,
+        select
+        b.dt,
         sum(view_count) as view_count,
         sum(viewed_count) as viewed_count,
         sum(contact_count) as contact_count,
         sum(contacted_count) as contacted_count
-        FROM
-        view_count
-        WHERE
-        user_id = #{user_id}
-        and dt = #{dt}
-        group by user_id, dt
+        from
+        (select * from users where (id = #{user_id} or parent_id = #{user_id}) and delete_flag = 0) a
+        left join (select * from view_count where dt = #{dt}) b on a.id = b.user_id
+        where b.dt is not null
+        group by b.dt
     </select>
 
 
@@ -145,5 +157,40 @@
         update users
         set delete_flag = 1
         where id = #{user_id}
+    </update>
+
+<!--    获取子账户信息-->
+    <select id="getSubUsers" resultType="com.carbarn.inter.pojo.user.dto.SubUsersDTO">
+        select
+        a.id as id,
+        a.parent_id as parent_id,
+        a.phone_num as phone_num,
+        a.area_code as area_code,
+        a.avatar as avatar,
+        a.nickname as nickname,
+        a.role as role,
+        a.expire_time as expire_time,
+        if(b.state is not null and b.state = 0, b.cnt, 0) as cars_count_on_sale,
+        if(b.state is not null and b.state = 3, b.cnt, 0) as cars_count_on_delist
+        from
+        (select * from users where (id = #{user_id} or parent_id = #{user_id}) and delete_flag = 0) a
+        left join (select user_id, state, count(*) as cnt from cars where state in (0,3) group by user_id, state) b on a.id = b.user_id
+    </select>
+
+    <update id="updateParentId" parameterType="com.carbarn.inter.pojo.user.dto.SubVipSignupUserDTO">
+        update users
+        set parent_id = #{parent_id}
+        WHERE phone_num = #{phone_num}
+        and area_code = #{area_code}
+        and delete_flag = 0
+    </update>
+
+
+    <update id="transferSubUser">
+        update users
+        set phone_num = #{target_phone_num},
+        area_code = #{target_area_code}
+        WHERE id = #{original_user_id}
+        and delete_flag = 0
     </update>
 </mapper>

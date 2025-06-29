@@ -21,13 +21,13 @@ public class SendSms {
 
     private static String smsAccount = "82089e98";
 
-//    private static String zh_templateId = "ST_8261c7cb";
-//    private static String sign = "卓雅科技";
-//    private static String scene = "注册验证码";
-
-    private static String zh_templateId = "ST_83ffcf22";
-    private static String sign = "车出海";
+    private static String zh_templateId = "ST_8261c7cb";
+    private static String sign = "卓雅科技";
     private static String scene = "注册验证码";
+
+//    private static String zh_templateId = "ST_83ffcf22";
+//    private static String sign = "车出海";
+//    private static String scene = "注册验证码";
 
     private static String other_language_templateId = "ST_83ca0ddd";
 

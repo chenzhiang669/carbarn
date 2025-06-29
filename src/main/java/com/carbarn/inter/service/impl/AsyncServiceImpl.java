@@ -7,6 +7,7 @@ import com.carbarn.inter.config.ParamKeys;
 import com.carbarn.inter.mapper.AsyncMapper;
 import com.carbarn.inter.mapper.ParamsMapper;
 import com.carbarn.inter.mapper.TranslateMapper;
+import com.carbarn.inter.mapper.TranslationDescriptionMapper;
 import com.carbarn.inter.pojo.async.TypeDetailsDTO;
 import com.carbarn.inter.pojo.translate.TranslatePOJO;
 import com.carbarn.inter.service.AsyncService;
@@ -38,6 +39,9 @@ public class AsyncServiceImpl implements AsyncService {
     @Autowired
     private TranslateMapper translateMapper;
 
+    @Autowired
+    private TranslationDescriptionMapper translationDescriptionMapper;
+
     @Async("customAsyncExecutor") // 指定使用自定义线程池
     @Override
     public void typeDetailsRealTimeTranslate(int type_id) {
@@ -59,6 +63,11 @@ public class AsyncServiceImpl implements AsyncService {
 
             for(int i = 0; i < languages.size();i++){
                 String language = languages.getString(i);
+
+                if("zh".equals(language)){
+                    continue;
+                }
+
                 List<TranslatePOJO> translates = translateMapper.getTranslateData(language);
                 Map<String,String> key_values = new HashMap<String,String>();
 
@@ -95,6 +104,51 @@ public class AsyncServiceImpl implements AsyncService {
         }catch (Exception e){
             e.printStackTrace();
             logger.error("something wrong when translate typeDetails of type_id:{}", type_id);
+        }
+    }
+
+
+
+
+    @Async("customAsyncExecutor") // 指定使用自定义线程池
+    @Override
+    public void translationDescription(long link_id,
+                                       String link_table,
+                                       String link_field,
+                                       String source_language,
+                                       String source_value) {
+        try{
+
+            if(source_value == null || "".equals(source_value)){
+                logger.info("source_value is null, skip translationDescription");
+                return;
+            }
+
+            String translates_languages = paramsMapper.getValue(ParamKeys.async_description_translate_language);
+            JSONArray languages = JSON.parseArray(translates_languages);
+            if(languages.size() <= 0){
+                return;
+            }
+
+            String target_value = "";
+            for(int i = 0; i < languages.size(); i++){
+                String target_language = languages.getString(i);
+                if(source_language.equals(target_language)){
+                    target_value = source_value;
+                }else{
+                    target_value = volcTranslator.translate(source_value, source_language, target_language);
+                    if(target_value == null){
+                        target_value = "";
+                    }
+                }
+
+                translationDescriptionMapper.insertNewTranslationDescription(link_id, link_table, link_field, target_language, target_value);
+            }
+
+
+        }catch (Exception e){
+            e.printStackTrace();
+            logger.error("something wrong when translationDescription of table:{}, field:{}", link_table, link_field);
         }
     }
 }

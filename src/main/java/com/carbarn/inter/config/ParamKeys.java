@@ -28,6 +28,13 @@ public class ParamKeys {
 
     public static String async_translate_language = "com.carbarn.param.async.translate.language";
 
+    public static String async_description_translate_language = "com.carbarn.param.async.description.translate.language";
+
     public static String param_sms = "com.carbarn.param.sms";
+
+    public static String subuser_max_number = "com.carbarn.param.subuser.max.number";
+
+
+    public static String send_email = "com.carbarn.param.send.email";
 
 }
